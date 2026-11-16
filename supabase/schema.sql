@@ -167,6 +167,20 @@ CREATE TRIGGER trg_recalculate_party_totals_insert
 AFTER INSERT OR UPDATE OR DELETE ON public.orders
 FOR EACH ROW EXECUTE FUNCTION public.recalculate_party_totals();
 
--- Enable Supabase Realtime for instant multi-device counter/press sync
-ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.parties;
+-- Enable Supabase Realtime for instant multi-device counter/press sync (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'orders'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'parties'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.parties;
+  END IF;
+END $$;
