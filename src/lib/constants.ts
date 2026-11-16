@@ -94,6 +94,12 @@ export const DEFAULT_PRINTINGS = [
   'Triplicate'
 ];
 
+export const DEFAULT_ORDER_TYPES = [
+  'General',
+  'Patrika / Wedding Cards',
+  'सप्ताह / Saptah'
+];
+
 export const STATUS_PROGRESSION: OrderStatus[] = [
   'Pending',
   'Printing',

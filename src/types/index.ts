@@ -21,6 +21,7 @@ export interface Order {
   printing_type: string;
   print_qty?: string | null;
   numbering_range?: string | null;
+  order_type?: string | null;
   total_amount: number;
   advance_amount: number;
   balance_due: number;
@@ -46,7 +47,7 @@ export interface Party {
 
 export interface Preset {
   id?: string;
-  category: 'paper_primary' | 'paper_secondary' | 'paper_size' | 'binding_type' | 'printing_type' | 'status';
+  category: 'paper_primary' | 'paper_secondary' | 'paper_size' | 'binding_type' | 'printing_type' | 'order_type' | 'status';
   value: string;
   user_id?: string | null;
 }

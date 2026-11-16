@@ -5,6 +5,7 @@ import {
   DEFAULT_SIZES,
   DEFAULT_BINDINGS,
   DEFAULT_PRINTINGS,
+  DEFAULT_ORDER_TYPES,
   INK_COLORS,
   FREQUENT_PARTIES,
   FREQUENT_JOBS,
@@ -13,12 +14,14 @@ import {
 import { saveCustomPreset } from '../../lib/db';
 import { formatDDMMYYYY } from '../../lib/date';
 import { SelectWithOther } from '../common/SelectWithOther';
-import { Check, RotateCcw, AlertCircle } from 'lucide-react';
+import { Check, RotateCcw, AlertCircle, Copy } from 'lucide-react';
 
 interface OrderWorkbenchFormProps {
   onSave: (order: Partial<Order>) => Promise<void>;
   editingOrder: Order | null;
   onCancelEdit: () => void;
+  repeatSource?: Order | null;
+  onCancelRepeat?: () => void;
   existingParties: Party[];
   customPresets: { category: string; value: string }[];
   nextReceiptNo: string;
@@ -28,6 +31,8 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
   onSave,
   editingOrder,
   onCancelEdit,
+  repeatSource,
+  onCancelRepeat,
   existingParties,
   customPresets,
   nextReceiptNo,
@@ -49,6 +54,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
   const [printingType, setPrintingType] = useState(DEFAULT_PRINTINGS[1] || 'One-side');
   const [printQty, setPrintQty] = useState('');
   const [numberingRange, setNumberingRange] = useState('');
+  const [orderType, setOrderType] = useState(DEFAULT_ORDER_TYPES[0] || 'General');
   const [notes, setNotes] = useState('');
 
   const [totalAmount, setTotalAmount] = useState<number | string>(1500);
@@ -89,6 +95,13 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
     ])
   );
 
+  const orderTypes = Array.from(
+    new Set([
+      ...DEFAULT_ORDER_TYPES,
+      ...customPresets.filter((p) => p.category === 'order_type').map((p) => p.value),
+    ])
+  );
+
   const maxInksAllowed = printingType.toLowerCase().includes('triplicate') ? 3 : 2;
 
   useEffect(() => {
@@ -115,6 +128,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
       setPrintingType(editingOrder.printing_type || DEFAULT_PRINTINGS[1] || 'One-side');
       setPrintQty(editingOrder.print_qty || '');
       setNumberingRange(editingOrder.numbering_range || '');
+      setOrderType(editingOrder.order_type || DEFAULT_ORDER_TYPES[0] || 'General');
       setNotes(editingOrder.notes || '');
       setTotalAmount(editingOrder.total_amount || 0);
       setAdvanceAmount(editingOrder.advance_amount || 0);
@@ -135,6 +149,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
       setPrintingType('One-side');
       setPrintQty('');
       setNumberingRange('');
+      setOrderType(DEFAULT_ORDER_TYPES[0] || 'General');
       setNotes('');
       setTotalAmount(1500);
       setAdvanceAmount(1000);
@@ -218,6 +233,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         printing_type: printingType,
         print_qty: printQty.trim() || null,
         numbering_range: numberingRange.trim() || null,
+        order_type: orderType,
         total_amount: total,
         advance_amount: adv,
         balance_due: balance,
@@ -233,6 +249,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         setQuantity(10);
         setPrintQty('');
         setNumberingRange('');
+        setOrderType(DEFAULT_ORDER_TYPES[0] || 'General');
         setNotes('');
         setTotalAmount(0);
         setAdvanceAmount(0);
@@ -252,15 +269,23 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
       <div className="bg-[#18181b] dark:bg-black text-white px-4 py-3 sm:px-4 sm:py-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#d9532f] animate-pulse"></span>
+            {repeatSource ? (
+              <Copy className="w-3.5 h-3.5 text-blue-400" />
+            ) : (
+              <span className="w-2.5 h-2.5 rounded-full bg-[#d9532f] animate-pulse"></span>
+            )}
             <h2 className="text-sm sm:text-base font-bold tracking-tight">
-              {editingOrder ? `Edit Ticket #${editingOrder.receipt_no}` : 'New Job Ticket • नवीन ऑर्डर'}
+              {editingOrder
+                ? `Edit Ticket #${editingOrder.receipt_no}`
+                : repeatSource
+                ? `Repeat Order #${repeatSource.receipt_no}`
+                : 'New Job Ticket • नवीन ऑर्डर'}
             </h2>
           </div>
-          {editingOrder && (
+          {(editingOrder || repeatSource) && (
             <button
               type="button"
-              onClick={onCancelEdit}
+              onClick={editingOrder ? onCancelEdit : onCancelRepeat}
               className="flex items-center gap-1 text-[11px] text-stone-300 hover:text-white bg-stone-800 px-2 py-0.5 rounded-lg transition-colors"
             >
               <RotateCcw className="w-3 h-3" /> Cancel
@@ -268,7 +293,9 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           )}
         </div>
         <p className="text-[11px] text-stone-400 mt-0.5 font-normal">
-          Fast counter entry workbench
+          {repeatSource
+            ? `Copied specs from #${repeatSource.receipt_no}. Edit and save as a new ticket.`
+            : 'Fast counter entry workbench'}
         </p>
       </div>
 
@@ -399,6 +426,20 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Row 3.5: Order Type Dropdown */}
+        <div className="w-full min-w-0">
+          <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            Order Type (ऑर्डर प्रकार)
+          </label>
+          <SelectWithOther
+            options={orderTypes}
+            value={orderType}
+            onChange={setOrderType}
+            placeholder="Select Order Type"
+            onCustomSave={(val) => saveCustomPreset('order_type', val)}
+          />
         </div>
 
         {/* Row 4: Paper Type (Primary + Secondary) */}

@@ -80,6 +80,11 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
                   <td className="p-2.5 w-1/3 text-black font-bold border-r border-black">कामाचा तपशील (Job Details)</td>
                   <td className="p-2.5 text-sm font-black text-black" colSpan={3}>
                     {order.job_details}
+                    {order.order_type && order.order_type !== 'General' && (
+                      <span className="ml-2 text-xs font-bold text-black border border-black px-1.5 py-0.5 rounded uppercase">
+                        [{order.order_type}]
+                      </span>
+                    )}
                   </td>
                 </tr>
 

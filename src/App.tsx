@@ -48,9 +48,11 @@ export const App: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterCategory>('all');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [orderTypeFilter, setOrderTypeFilter] = useState<string>('ALL');
 
-  // Editing state for workbench
+  // Editing & Repeat state for workbench
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [repeatSource, setRepeatSource] = useState<Order | null>(null);
   const [ticketOrder, setTicketOrder] = useState<Order | null>(null);
   const [isKhataOpen, setIsKhataOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -135,10 +137,30 @@ export const App: React.FC = () => {
     return uniqueDueParties.size;
   }, [orders]);
 
+  const availableOrderTypes = useMemo(() => {
+    return Array.from(
+      new Set([
+        'General',
+        'Patrika / Wedding Cards',
+        'सप्ताह / Saptah',
+        ...customPresets.filter((p) => p.category === 'order_type').map((p) => p.value),
+        ...orders.map((o) => o.order_type).filter(Boolean) as string[],
+      ])
+    );
+  }, [customPresets, orders]);
+
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
       if (statusFilter !== 'ALL' && order.status !== statusFilter) {
         return false;
+      }
+
+      if (orderTypeFilter !== 'ALL') {
+        if (orderTypeFilter === 'General') {
+          if (order.order_type && order.order_type !== 'General') return false;
+        } else {
+          if (order.order_type !== orderTypeFilter) return false;
+        }
       }
 
       const q = searchTerm.toLowerCase().trim();
@@ -147,6 +169,7 @@ export const App: React.FC = () => {
         (order.receipt_no && order.receipt_no.toLowerCase().includes(q)) ||
         (order.party_name && order.party_name.toLowerCase().includes(q)) ||
         (order.job_details && order.job_details.toLowerCase().includes(q)) ||
+        (order.order_type && order.order_type.toLowerCase().includes(q)) ||
         (order.paper_primary && order.paper_primary.toLowerCase().includes(q)) ||
         (order.numbering_range && order.numbering_range.toLowerCase().includes(q)) ||
         (order.status && order.status.toLowerCase().includes(q));
@@ -165,13 +188,30 @@ export const App: React.FC = () => {
 
       return true;
     });
-  }, [orders, searchTerm, activeFilter, statusFilter]);
+  }, [orders, searchTerm, activeFilter, statusFilter, orderTypeFilter]);
 
   // Handlers
   const handleSaveOrder = async (orderData: Partial<Order>) => {
     await saveOrder(orderData);
     setEditingOrder(null);
+    setRepeatSource(null);
     await refreshData();
+  };
+
+  const handleRepeatOrder = (order: Order) => {
+    setRepeatSource(order);
+    setEditingOrder({
+      ...order,
+      id: '', // Blank ID instructs saveOrder to create a fresh new order
+      receipt_no: nextReceiptNo,
+      order_date: new Date().toISOString().split('T')[0],
+      advance_amount: 0,
+      balance_due: order.total_amount,
+      status: 'Pending',
+      promise_date: '',
+    });
+    setMobileTab('workbench');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDeleteOrder = async () => {
@@ -264,7 +304,15 @@ export const App: React.FC = () => {
             <OrderWorkbenchForm
               onSave={handleSaveOrder}
               editingOrder={editingOrder}
-              onCancelEdit={() => setEditingOrder(null)}
+              onCancelEdit={() => {
+                setEditingOrder(null);
+                setRepeatSource(null);
+              }}
+              repeatSource={repeatSource}
+              onCancelRepeat={() => {
+                setRepeatSource(null);
+                setEditingOrder(null);
+              }}
               existingParties={parties}
               customPresets={customPresets}
               nextReceiptNo={nextReceiptNo}
@@ -299,6 +347,9 @@ export const App: React.FC = () => {
               onFilterChange={setActiveFilter}
               statusFilter={statusFilter}
               onStatusFilterChange={setStatusFilter}
+              orderTypeFilter={orderTypeFilter}
+              onOrderTypeFilterChange={setOrderTypeFilter}
+              availableOrderTypes={availableOrderTypes}
             />
 
             {/* Live Order Register Table */}
@@ -314,6 +365,7 @@ export const App: React.FC = () => {
                 onPrintTicket={(order) => setTicketOrder(order)}
                 onAdvanceStatus={handleAdvanceStatus}
                 onClearBalance={handleClearBalance}
+                onRepeatOrder={handleRepeatOrder}
               />
             )}
           </div>

@@ -8,6 +8,7 @@ import {
   Check,
   AlertCircle,
   MessageCircle,
+  Copy,
 } from 'lucide-react';
 import { formatDDMMYYYY } from '../../lib/date';
 import { openWhatsApp } from '../../lib/whatsapp';
@@ -19,6 +20,7 @@ interface OrderLedgerTableProps {
   onPrintTicket: (order: Order) => void;
   onAdvanceStatus: (id: string, currentStatus: OrderStatus) => void;
   onClearBalance: (id: string) => void;
+  onRepeatOrder: (order: Order) => void;
 }
 
 export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
@@ -28,6 +30,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
   onPrintTicket,
   onAdvanceStatus,
   onClearBalance,
+  onRepeatOrder,
 }) => {
   if (orders.length === 0) {
     return (
@@ -110,6 +113,11 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                       <span className="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 rounded text-[11px] font-bold">
                         नग: {order.quantity}
                       </span>
+                      {order.order_type && order.order_type !== 'General' && (
+                        <span className="px-1.5 py-0.5 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded text-[10px] font-bold">
+                          {order.order_type}
+                        </span>
+                      )}
                       {order.party_phone && (
                         <span className="text-[11px] text-stone-400 dark:text-stone-500 font-mono">
                           • {order.party_phone}
@@ -229,6 +237,15 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                         className="p-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg transition-colors"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onRepeatOrder(order)}
+                        title="Repeat Order (नवीन ऑर्डर म्हणून लोड करा)"
+                        className="p-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg transition-colors"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
                       </button>
 
                       <button
