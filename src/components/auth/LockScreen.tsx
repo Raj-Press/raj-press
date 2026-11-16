@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { verifyPassword, unlockApp, isCustomPasswordSet, DEFAULT_INITIAL_PASSWORD } from '../../lib/auth';
+import { verifyPassword, unlockApp } from '../../lib/auth';
 import { Lock, Eye, EyeOff, KeyRound, ShieldAlert, ArrowRight, ShieldCheck } from 'lucide-react';
 
 interface LockScreenProps {
@@ -12,7 +12,6 @@ export const LockScreen: React.FC<LockScreenProps> = ({ onUnlock }) => {
   const [rememberDevice, setRememberDevice] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
-  const hasCustomPass = isCustomPasswordSet();
 
   const handleUnlockSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,16 +135,12 @@ export const LockScreen: React.FC<LockScreenProps> = ({ onUnlock }) => {
           </button>
         </form>
 
-        {/* Footer Hint for default setup */}
+        {/* Footer Security Badge */}
         <div className="pt-2 border-t border-stone-800/80 text-[11px] text-stone-500">
-          {!hasCustomPass ? (
-            <p className="flex items-center justify-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-stone-400" />
-              <span>Default password: <strong className="text-stone-300 font-mono">{DEFAULT_INITIAL_PASSWORD}</strong> (changeable in settings)</span>
-            </p>
-          ) : (
-            <p>Protected by Raj Press Security Key</p>
-          )}
+          <p className="flex items-center justify-center gap-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-stone-400" />
+            <span>Protected by Raj Press Security Key</span>
+          </p>
         </div>
 
       </div>
