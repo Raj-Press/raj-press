@@ -226,7 +226,7 @@ const INITIAL_ORDERS: Order[] = [
     balance_due: 3500,
     promise_date: '2026-11-22',
     order_type: 'Special Order',
-    status: 'Ready',
+    status: 'Split Delivery',
     dispatches: [
       {
         id: 'disp-1',
@@ -428,7 +428,7 @@ export async function addOrderDispatch(
   const totalDelivered = currentDispatches.reduce((sum, d) => sum + Number(d.quantity || 0), 0);
   const isFullyDelivered = totalDelivered >= order.quantity && order.quantity > 0;
 
-  const newStatus: Order['status'] = isFullyDelivered ? 'Delivered' : order.status;
+  const newStatus: Order['status'] = isFullyDelivered ? 'Delivered' : 'Split Delivery';
   const delivered_date = isFullyDelivered ? newDispatch.dispatch_date : (order.delivered_date || null);
 
   const updated: Order = {

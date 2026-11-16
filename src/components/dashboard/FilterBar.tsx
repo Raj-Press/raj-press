@@ -82,6 +82,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <option value="Printing" className="dark:bg-stone-800">Printing</option>
             <option value="Binding" className="dark:bg-stone-800">Binding</option>
             <option value="Ready" className="dark:bg-stone-800">Ready</option>
+            <option value="Split Delivery" className="dark:bg-stone-800">Split Delivery</option>
             <option value="Delivered" className="dark:bg-stone-800">Delivered</option>
           </select>
         </div>
