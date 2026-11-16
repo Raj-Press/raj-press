@@ -17,7 +17,7 @@ export function generateWhatsAppMessage(order: Order, _pressPhone = RAJ_PRESS_PH
     return [
       `नमस्कार, *${order.party_name}*,`,
       ``,
-      `आपल्या कामाची बाकी रक्कम:`,
+      `आपले खाते बाकी रक्कम:`,
       `*बाकी: ₹${Number(order.balance_due).toLocaleString('en-IN')}*`,
       dispatchLine,
       ``,

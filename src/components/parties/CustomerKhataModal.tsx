@@ -37,7 +37,7 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
     const phone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
     const msg = encodeURIComponent(
       `नमस्कार *${party.name}*,\n\n` +
-      `आपल्या कामाची बाकी रक्कम:\n` +
+      `आपले खाते बाकी रक्कम:\n` +
       `*बाकी: ₹${Number(party.total_pending).toLocaleString('en-IN')}*\n\n` +
       `कृपया सदर रक्कम लवकर जमा करावी ही नम्र विनंती.\n\n` +
       `धन्यवाद!\n` +
