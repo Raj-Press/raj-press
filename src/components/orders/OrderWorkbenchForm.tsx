@@ -329,7 +329,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
             type="text"
             required
             list="customer-datalist"
-            placeholder="उदा. आदित्य इंजिनिअर्स / Aditya Engineers"
+            placeholder="उदा. ग्राहक किंवा फर्मचे नांव (Customer / Firm Name)"
             value={partyName}
             onChange={(e) => setPartyName(e.target.value)}
             className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
@@ -349,7 +349,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 onClick={() => handleFrequentPartyClick(party)}
                 className="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded text-[10px] font-medium transition-colors border border-stone-200/60 dark:border-stone-700"
               >
-                {party.split(' ')[0]} {party.includes('College') ? 'College' : party.includes('Raut') ? 'Raut' : ''}
+                {party}
               </button>
             ))}
           </div>
@@ -365,7 +365,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               <input
                 type="text"
                 required
-                placeholder="उदा. डिलिव्हरी चलन / Bill Book"
+                placeholder="उदा. बिल बुक, लेटरहेड, चलन (Job / Item Description)"
                 value={jobDetails}
                 onChange={(e) => setJobDetails(e.target.value)}
                 className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
@@ -386,14 +386,14 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
             </div>
           </div>
 
-          {/* Quick-pick Frequent Job Pills */}
+          {/* Quick-pick Frequent Job Pills (Highlighter box in light green colour) */}
           <div className="flex flex-wrap gap-1 mt-1.5">
             {FREQUENT_JOBS.map((job) => (
               <button
                 key={job}
                 type="button"
                 onClick={() => handleFrequentJobClick(job)}
-                className="px-2 py-0.5 bg-amber-50/70 dark:bg-amber-950/40 hover:bg-amber-100/70 dark:hover:bg-amber-900/40 text-amber-900 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800 rounded text-[10px] font-medium transition-colors"
+                className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/80 rounded text-[10px] font-semibold transition-colors"
               >
                 {job}
               </button>
@@ -619,10 +619,10 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
             <div>
               <div className="flex items-center justify-between mb-0.5">
                 <span className="text-[10px] text-stone-400">
-                  Promise Date
+                  Promise / Delivery Date
                 </span>
                 {promiseDate && (
-                  <span className="text-[10px] text-[#d9532f] font-mono font-bold">
+                  <span className="text-[10px] text-emerald-400 font-mono font-bold">
                     {formatDDMMYYYY(promiseDate)}
                   </span>
                 )}

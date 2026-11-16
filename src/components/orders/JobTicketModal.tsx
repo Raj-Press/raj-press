@@ -109,7 +109,7 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
                     </div>
                   </td>
                   <td className="p-2.5 text-black font-semibold bg-stone-50 border-r border-black">प्रिंटींग पद्धत (Printing)</td>
-                  <td className="p-2.5 font-bold text-black">{order.printing_type}</td>
+                  <td className="p-2.5 font-bold text-black">{order.printing_type.replace(/\s*\(\d+[^)]*\)/g, '')}</td>
                 </tr>
 
                 <tr className="border-b border-black">

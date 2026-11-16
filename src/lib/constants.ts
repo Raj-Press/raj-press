@@ -15,12 +15,12 @@ export const INK_COLORS: InkColorOption[] = [
 ];
 
 export const FREQUENT_PARTIES = [
-  'Aditya Eng. (आदित्य इंजिनिअर्स)',
-  'Shivaji College (शिवाजी महाविद्यालय)',
-  'Dr. Suhas Raut (डॉ. सुहास राऊत)',
-  'Karawale Krushi (करवळ कृषी)',
-  'Nalewadi Food & Packaging',
-  'Gajanan Lab (गजानन लॅब)'
+  'Cash Customer (रोख)',
+  'Regular Party (नियमित)',
+  'Counter / Walk-in',
+  'Shop / Trader (व्यापारी)',
+  'School / College',
+  'Hospital / Clinic'
 ];
 
 export const FREQUENT_JOBS = [

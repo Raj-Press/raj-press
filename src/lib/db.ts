@@ -67,7 +67,7 @@ const INITIAL_ORDERS: Order[] = [
     paper_size: '1/8',
     binding_type: 'Regzin',
     ink_colours: ['Brown'],
-    printing_type: 'One-side (2000)',
+    printing_type: 'One-side',
     print_qty: '2000',
     numbering_range: '1 to 1000',
     total_amount: 1500,
@@ -92,7 +92,7 @@ const INITIAL_ORDERS: Order[] = [
     paper_size: '20x30 (1/8)',
     binding_type: 'Cloth',
     ink_colours: ['Red', 'Black'],
-    printing_type: 'One-side (200+200)',
+    printing_type: 'One-side',
     print_qty: '400',
     numbering_range: '2001 to 2200',
     total_amount: 850,
@@ -117,7 +117,7 @@ const INITIAL_ORDERS: Order[] = [
     paper_size: '1/4',
     binding_type: 'Cloth (Regzin)',
     ink_colours: ['Black'],
-    printing_type: 'F/b (120 to 200)',
+    printing_type: 'F/b',
     print_qty: '200',
     numbering_range: '1 to 200',
     total_amount: 950,
@@ -142,7 +142,7 @@ const INITIAL_ORDERS: Order[] = [
     paper_size: '1/8',
     binding_type: 'Regzin',
     ink_colours: ['Orange'],
-    printing_type: 'Duplicate (1000)',
+    printing_type: 'Duplicate',
     print_qty: '1000',
     numbering_range: '1 to 500',
     total_amount: 1200,
@@ -167,7 +167,7 @@ const INITIAL_ORDERS: Order[] = [
     paper_size: '1/8',
     binding_type: 'Perforation Pad',
     ink_colours: ['Orange'],
-    printing_type: 'One-side (2000)',
+    printing_type: 'One-side',
     print_qty: '2000',
     numbering_range: '',
     total_amount: 1600,
@@ -192,7 +192,7 @@ const INITIAL_ORDERS: Order[] = [
     paper_size: '1/8',
     binding_type: 'Regzin',
     ink_colours: ['Orange'],
-    printing_type: 'Duplicate (1000)',
+    printing_type: 'Duplicate',
     print_qty: '1000',
     numbering_range: '1 to 500',
     total_amount: 1200,
@@ -223,7 +223,10 @@ export async function getOrders(): Promise<Order[]> {
 
   const cached = await get<Order[]>(ORDERS_KEY);
   if (cached && cached.length > 0) {
-    return cached;
+    return cached.map(o => ({
+      ...o,
+      printing_type: (o.printing_type || '').replace(/\s*\(\d+[^)]*\)/g, '').trim() || o.printing_type
+    }));
   }
 
   await set(ORDERS_KEY, INITIAL_ORDERS);

@@ -21,12 +21,10 @@ export function generateWhatsAppMessage(order: Order, pressPhone = RAJ_PRESS_PHO
     `*ग्राहक (Customer):* ${order.party_name}`,
     `*कामाचा तपशील (Job):* ${order.job_details}`,
     `--------------------------------------`,
-    `*एकूण रक्कम (Total):* ₹${Number(order.total_amount).toLocaleString('en-IN')}`,
-    `*ॲडव्हान्स (Advance):* ₹${Number(order.advance_amount).toLocaleString('en-IN')}`,
     isBalancePending 
-      ? `*येणे बाकी (Balance Due):* ₹${Number(order.balance_due).toLocaleString('en-IN')}` 
+      ? `*बाकी रक्कम (Balance to be paid):* ₹${Number(order.balance_due).toLocaleString('en-IN')}` 
       : `*शिल्लक (Balance):* ₹० (पूर्ण जमा / Fully Paid)`,
-    order.promise_date ? `*डिलिव्हरी तारीख (Promise Date):* ${formatDDMMYYYY(order.promise_date)}` : '',
+    order.promise_date ? `*डिलिव्हरी तारीख (Delivery Date):* ${formatDDMMYYYY(order.promise_date)}` : '',
     `*सद्यस्थिती (Status):* ${statusMr}`,
     `--------------------------------------`,
     `धन्यवाद! अधिक माहितीसाठी संपर्क: ${pressPhone}`,

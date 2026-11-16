@@ -90,8 +90,8 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                       {formatDDMMYYYY(order.order_date)}
                     </div>
                     {order.promise_date && (
-                      <div className="text-[11px] text-[#c2410c] dark:text-[#ea580c] font-medium font-mono mt-0.5">
-                        वायदा: {formatDDMMYYYY(order.promise_date)}
+                      <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold font-mono mt-0.5">
+                        वायदा (Del): {formatDDMMYYYY(order.promise_date)}
                       </div>
                     )}
                   </td>
@@ -101,11 +101,13 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                     <div className="font-bold text-stone-900 dark:text-stone-100 text-sm leading-snug">
                       {order.party_name}
                     </div>
-                    <div className="text-xs text-stone-600 dark:text-stone-300 font-medium mt-0.5">
-                      {order.job_details}
+                    <div className="mt-1">
+                      <span className="inline-block px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 border border-emerald-300/80 dark:border-emerald-800 rounded font-semibold text-xs">
+                        {order.job_details}
+                      </span>
                     </div>
                     <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-                      <span className="px-1.5 py-0.5 bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 rounded text-[11px] font-bold">
+                      <span className="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 rounded text-[11px] font-bold">
                         नग: {order.quantity}
                       </span>
                       {order.party_phone && (
@@ -146,10 +148,14 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
 
                   {/* Column 4: Print & Binding */}
                   <td className="px-3 py-3 align-top space-y-0.5 text-xs">
-                    <div className="text-stone-800 dark:text-stone-200 font-medium">
-                      {order.printing_type}
-                      {order.print_qty ? ` (${order.print_qty})` : ''}
+                    <div className="text-stone-800 dark:text-stone-200 font-semibold">
+                      {order.printing_type.replace(/\s*\(\d+[^)]*\)/g, '')}
                     </div>
+                    {order.print_qty && (
+                      <div className="text-stone-500 dark:text-stone-400 text-[11px]">
+                        Imp: <strong className="text-stone-700 dark:text-stone-300 font-mono">{order.print_qty}</strong>
+                      </div>
+                    )}
                     <div className="text-stone-500 dark:text-stone-400">
                       Bind: <strong className="text-stone-700 dark:text-stone-300 font-medium">{order.binding_type}</strong>
                     </div>
