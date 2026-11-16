@@ -1,37 +1,40 @@
 import { Order } from '../types';
-import { formatDDMMYYYY } from './date';
 
 export const RAJ_PRESS_PHONE = '9822117164';
 
 export function generateWhatsAppMessage(order: Order, pressPhone = RAJ_PRESS_PHONE): string {
   const isBalancePending = order.balance_due > 0;
   
-  const statusMr = 
-    order.status === 'Ready' ? 'आपले काम तयार आहे (Ready for Delivery)' :
-    order.status === 'Delivered' ? 'काम डिलिव्हर झाले आहे (Delivered)' :
-    order.status === 'Printing' ? 'प्रिंटिंग चालू आहे (In Printing)' :
-    order.status === 'Binding' ? 'बायडिंग चालू आहे (In Binding)' :
-    'ऑर्डर नोंदवली आहे (Order Placed)';
+  if (isBalancePending) {
+    return [
+      `*राज प्रेस (RAJ PRESS)*`,
+      `--------------------------------------`,
+      `सस्नेह नमस्कार, *${order.party_name}* जी,`,
+      ``,
+      `आपल्या कामाची (पावती क्र. #${order.receipt_no}) उर्वरित बाकी रक्कम:`,
+      `*येणे बाकी (Balance to be paid): ₹${Number(order.balance_due).toLocaleString('en-IN')}*`,
+      ``,
+      `कृपया सदर बाकी रक्कम जमा करावी ही नम्र विनंती.`,
+      `--------------------------------------`,
+      `धन्यवाद!`,
+      `अधिक माहितीसाठी संपर्क: ${pressPhone}`,
+      `*राज प्रेस — ऑफसेट व डिजिटल प्रिंटिंग*`
+    ].join('\n');
+  }
 
-  const lines = [
-    `*राज प्रेस (RAJ PRESS) - पावती व ऑर्डर तपशील*`,
+  return [
+    `*राज प्रेस (RAJ PRESS)*`,
     `--------------------------------------`,
-    `*पावती क्र. (Receipt No):* ${order.receipt_no}`,
-    `*तारीख (Date):* ${formatDDMMYYYY(order.order_date)}`,
-    `*ग्राहक (Customer):* ${order.party_name}`,
-    `*कामाचा तपशील (Job):* ${order.job_details}`,
+    `सस्नेह नमस्कार, *${order.party_name}* जी,`,
+    ``,
+    `आपल्या कामाची (पावती क्र. #${order.receipt_no}) सर्व रक्कम पूर्ण जमा झाली आहे.`,
+    `*शिल्लक (Balance): ₹० (पूर्ण जमा / Fully Paid)*`,
+    ``,
+    `आपल्या सहकार्याबद्दल मनःपूर्वक धन्यवाद!`,
     `--------------------------------------`,
-    isBalancePending 
-      ? `*बाकी रक्कम (Balance to be paid):* ₹${Number(order.balance_due).toLocaleString('en-IN')}` 
-      : `*शिल्लक (Balance):* ₹० (पूर्ण जमा / Fully Paid)`,
-    order.promise_date ? `*डिलिव्हरी तारीख (Delivery Date):* ${formatDDMMYYYY(order.promise_date)}` : '',
-    `*सद्यस्थिती (Status):* ${statusMr}`,
-    `--------------------------------------`,
-    `धन्यवाद! अधिक माहितीसाठी संपर्क: ${pressPhone}`,
+    `अधिक माहितीसाठी संपर्क: ${pressPhone}`,
     `*राज प्रेस — ऑफसेट व डिजिटल प्रिंटिंग*`
-  ].filter(Boolean);
-
-  return lines.join('\n');
+  ].join('\n');
 }
 
 export function openWhatsApp(order: Order, pressPhone: string = RAJ_PRESS_PHONE): void {

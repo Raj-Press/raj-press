@@ -113,18 +113,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         >
           येणे बाकी (Due)
         </button>
-
-        <button
-          type="button"
-          onClick={() => onFilterChange('in_progress')}
-          className={`px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all border ${
-            activeFilter === 'in_progress'
-              ? 'bg-sky-700 text-white border-sky-700 shadow-xs'
-              : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700'
-          }`}
-        >
-          In Progress
-        </button>
       </div>
     </div>
   );

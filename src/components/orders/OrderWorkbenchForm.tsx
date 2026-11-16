@@ -54,6 +54,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
   const [printQty, setPrintQty] = useState('');
   const [numberingRange, setNumberingRange] = useState('');
   const [orderType, setOrderType] = useState(DEFAULT_ORDER_TYPES[0] || 'General');
+  const [isCustomOrderType, setIsCustomOrderType] = useState(false);
   const [notes, setNotes] = useState('');
 
   const [totalAmount, setTotalAmount] = useState<number | string>(1500);
@@ -127,7 +128,9 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
       setPrintingType(editingOrder.printing_type || DEFAULT_PRINTINGS[1] || 'One-side');
       setPrintQty(editingOrder.print_qty || '');
       setNumberingRange(editingOrder.numbering_range || '');
-      setOrderType(editingOrder.order_type || DEFAULT_ORDER_TYPES[0] || 'General');
+      const ot = editingOrder.order_type || DEFAULT_ORDER_TYPES[0] || 'General';
+      setOrderType(ot);
+      setIsCustomOrderType(!orderTypes.includes(ot) && ot !== 'General');
       setNotes(editingOrder.notes || '');
       setTotalAmount(editingOrder.total_amount || 0);
       setAdvanceAmount(editingOrder.advance_amount || 0);
@@ -149,6 +152,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
       setPrintQty('');
       setNumberingRange('');
       setOrderType(DEFAULT_ORDER_TYPES[0] || 'General');
+      setIsCustomOrderType(false);
       setNotes('');
       setTotalAmount(1500);
       setAdvanceAmount(1000);
@@ -241,6 +245,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         setPrintQty('');
         setNumberingRange('');
         setOrderType(DEFAULT_ORDER_TYPES[0] || 'General');
+        setIsCustomOrderType(false);
         setNotes('');
         setTotalAmount(0);
         setAdvanceAmount(0);
@@ -400,18 +405,104 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
         </div>
 
-        {/* Row 3.5: Order Type Dropdown */}
-        <div className="w-full min-w-0">
-          <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-            Order Type (ऑर्डर प्रकार)
-          </label>
-          <SelectWithOther
-            options={orderTypes}
-            value={orderType}
-            onChange={setOrderType}
-            placeholder="Select Order Type"
-            onCustomSave={(val) => saveCustomPreset('order_type', val)}
-          />
+        {/* Row 3.5: Order Type Bubble Selector */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
+              Order Type (ऑर्डर प्रकार)
+            </label>
+            <span className="text-xs font-bold text-[#d9532f] dark:text-[#f97316]">
+              {orderType || 'General'}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-1">
+            {orderTypes.map((type) => {
+              const isSelected = orderType === type && !isCustomOrderType;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => {
+                    setIsCustomOrderType(false);
+                    setOrderType(type);
+                  }}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all border ${
+                    isSelected
+                      ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-white shadow-2xs'
+                      : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
+                  }`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full shrink-0 border border-black/10 ${
+                      isSelected
+                        ? 'bg-amber-400'
+                        : 'bg-stone-300 dark:bg-stone-600'
+                    }`}
+                  />
+                  <span>{type}</span>
+                </button>
+              );
+            })}
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsCustomOrderType(true);
+                if (orderTypes.includes(orderType)) {
+                  setOrderType('');
+                }
+              }}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all border ${
+                isCustomOrderType
+                  ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-white shadow-2xs'
+                  : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full shrink-0 border border-black/10 ${
+                  isCustomOrderType
+                    ? 'bg-amber-400'
+                    : 'bg-stone-300 dark:bg-stone-600'
+                }`}
+              />
+              <span>Other(s) / इतर...</span>
+            </button>
+          </div>
+
+          {isCustomOrderType && (
+            <div className="mt-2 flex gap-1.5">
+              <input
+                type="text"
+                autoFocus
+                placeholder="उदा. दिनदर्शिका, बिल, पावती... / Custom order type"
+                value={orderType}
+                onChange={(e) => setOrderType(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (orderType.trim()) {
+                      saveCustomPreset('order_type', orderType.trim());
+                      setIsCustomOrderType(false);
+                    }
+                  }
+                }}
+                className="flex-1 px-2.5 py-1 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
+              />
+              {orderType.trim() && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    saveCustomPreset('order_type', orderType.trim());
+                    setIsCustomOrderType(false);
+                  }}
+                  className="px-3 py-1 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 text-xs font-bold rounded-xl hover:opacity-90 transition-opacity"
+                >
+                  Save
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Row 4: Paper Type (Primary + Secondary) */}
