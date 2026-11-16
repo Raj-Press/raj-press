@@ -8,10 +8,29 @@
     color: #1c1917;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
   .dark body {
     background-color: #0c0a09;
     color: #fafaf9;
+  }
+
+  /* Prevent 300ms tap delay on mobile devices */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+
+  /* Prevent iOS Safari auto-zoom on input focus */
+  @media (max-width: 640px) {
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
   }
 }
 

@@ -33,5 +33,18 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
       }
     })
-  ]
+  ],
+  build: {
+    target: 'esnext',
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-icons': ['lucide-react'],
+          'vendor-db': ['idb-keyval'],
+        }
+      }
+    }
+  }
 });

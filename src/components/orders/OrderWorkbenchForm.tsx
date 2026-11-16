@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Order, Party } from '../../types';
 import {
   DEFAULT_PAPERS,
@@ -26,7 +26,7 @@ interface OrderWorkbenchFormProps {
   nextReceiptNo: string;
 }
 
-export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
+export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(({
   onSave,
   editingOrder,
   onCancelEdit,
@@ -66,41 +66,41 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
   const [errorMsg, setErrorMsg] = useState('');
   const [inkWarning, setInkWarning] = useState('');
 
-  // Combined options
-  const papers = Array.from(
+  // Memoized options to prevent lag during rapid typing
+  const papers = useMemo(() => Array.from(
     new Set([
       ...DEFAULT_PAPERS,
       ...customPresets.filter((p) => p.category === 'paper_primary' || p.category === 'paper_secondary').map((p) => p.value),
     ])
-  );
+  ), [customPresets]);
 
-  const sizes = Array.from(
+  const sizes = useMemo(() => Array.from(
     new Set([
       ...DEFAULT_SIZES,
       ...customPresets.filter((p) => p.category === 'paper_size').map((p) => p.value),
     ])
-  );
+  ), [customPresets]);
 
-  const bindings = Array.from(
+  const bindings = useMemo(() => Array.from(
     new Set([
       ...DEFAULT_BINDINGS,
       ...customPresets.filter((p) => p.category === 'binding_type').map((p) => p.value),
     ])
-  );
+  ), [customPresets]);
 
-  const printings = Array.from(
+  const printings = useMemo(() => Array.from(
     new Set([
       ...DEFAULT_PRINTINGS,
       ...customPresets.filter((p) => p.category === 'printing_type').map((p) => p.value),
     ])
-  );
+  ), [customPresets]);
 
-  const orderTypes = Array.from(
+  const orderTypes = useMemo(() => Array.from(
     new Set([
       ...DEFAULT_ORDER_TYPES,
       ...customPresets.filter((p) => p.category === 'order_type').map((p) => p.value),
     ])
-  );
+  ), [customPresets]);
 
   const maxInksAllowed = printingType.toLowerCase().includes('triplicate') ? 3 : 2;
 
@@ -801,4 +801,4 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
       </form>
     </div>
   );
-};
+});

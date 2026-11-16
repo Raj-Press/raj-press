@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useDeferredValue } from 'react';
 import { Order, Party, Preset, KPIMetrics, OrderStatus } from './types';
 import {
   getOrders,
@@ -154,6 +154,8 @@ export const App: React.FC = () => {
     );
   }, [customPresets, orders]);
 
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
       if (statusFilter !== 'ALL' && order.status !== statusFilter) {
@@ -170,7 +172,7 @@ export const App: React.FC = () => {
         }
       }
 
-      const q = searchTerm.toLowerCase().trim();
+      const q = deferredSearchTerm.toLowerCase().trim();
       const matchesSearch =
         !q ||
         (order.receipt_no && order.receipt_no.toLowerCase().includes(q)) ||
@@ -195,17 +197,27 @@ export const App: React.FC = () => {
 
       return true;
     });
-  }, [orders, searchTerm, activeFilter, statusFilter, orderTypeFilter]);
+  }, [orders, deferredSearchTerm, activeFilter, statusFilter, orderTypeFilter]);
 
-  // Handlers
-  const handleSaveOrder = async (orderData: Partial<Order>) => {
+  // Memoized Handlers with Optimistic Updates for Instant Zero-Lag Response
+  const handleSaveOrder = useCallback(async (orderData: Partial<Order>) => {
     await saveOrder(orderData);
     setEditingOrder(null);
     setRepeatSource(null);
     await refreshData();
-  };
+  }, []);
 
-  const handleRepeatOrder = (order: Order) => {
+  const handleCancelEdit = useCallback(() => {
+    setEditingOrder(null);
+    setRepeatSource(null);
+  }, []);
+
+  const handleCancelRepeat = useCallback(() => {
+    setRepeatSource(null);
+    setEditingOrder(null);
+  }, []);
+
+  const handleRepeatOrder = useCallback((order: Order) => {
     setRepeatSource(order);
     setEditingOrder({
       ...order,
@@ -219,22 +231,23 @@ export const App: React.FC = () => {
     });
     setMobileTab('workbench');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [nextReceiptNo]);
 
-  const handleDeleteOrder = async () => {
+  const handleDeleteOrder = useCallback(async () => {
     if (deleteConfirmId) {
+      // Optimistic delete
+      setOrders((prev) => prev.filter((o) => o.id !== deleteConfirmId));
       await deleteOrder(deleteConfirmId);
       setDeleteConfirmId(null);
       await refreshData();
     }
-  };
+  }, [deleteConfirmId]);
 
-  const handleAdvanceStatus = async (id: string, currentStatus: OrderStatus) => {
-    const order = orders.find(o => o.id === id);
+  const handleAdvanceStatus = useCallback(async (id: string, currentStatus: OrderStatus) => {
+    const order = orders.find((o) => o.id === id);
     const isSpecial = order?.order_type === 'Special Order' || (order?.dispatches && order.dispatches.length > 0);
 
     if (isSpecial) {
-      // For Special Order: Pending -> Printing -> Binding -> Ready -> Split Delivery
       const specialNextMap: Record<OrderStatus, OrderStatus> = {
         Pending: 'Printing',
         Printing: 'Binding',
@@ -251,6 +264,8 @@ export const App: React.FC = () => {
 
       const next = specialNextMap[currentStatus];
       if (next && next !== currentStatus) {
+        // Optimistic update
+        setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: next } : o)));
         await updateOrderStatus(id, next);
         await refreshData();
       }
@@ -267,55 +282,76 @@ export const App: React.FC = () => {
     };
     const next = nextMap[currentStatus];
     if (next) {
+      // Instant Optimistic Update in 0ms
+      const todayDate = new Date().toISOString().split('T')[0];
+      setOrders((prev) =>
+        prev.map((o) => {
+          if (o.id !== id) return o;
+          const delDate = next === 'Delivered' ? (o.delivered_date || todayDate) : (currentStatus === 'Delivered' ? null : o.delivered_date);
+          return { ...o, status: next, delivered_date: delDate };
+        })
+      );
       await updateOrderStatus(id, next);
       await refreshData();
     }
-  };
+  }, [orders]);
 
-  const handleSaveDispatch = async (orderId: string, dispatch: { dispatch_date: string; quantity: number; notes?: string }) => {
+  const handleSaveDispatch = useCallback(async (orderId: string, dispatch: { dispatch_date: string; quantity: number; notes?: string }) => {
     const updated = await addOrderDispatch(orderId, dispatch);
     if (updated) {
       setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
       setSplitDeliveryOrder(updated);
     }
     await refreshData();
-  };
+  }, []);
 
-  const handleRemoveDispatch = async (orderId: string, dispatchId: string) => {
+  const handleRemoveDispatch = useCallback(async (orderId: string, dispatchId: string) => {
     const updated = await removeOrderDispatch(orderId, dispatchId);
     if (updated) {
       setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
       setSplitDeliveryOrder(updated);
     }
     await refreshData();
-  };
+  }, []);
 
-  const handleClearBalance = async (id: string) => {
+  const handleClearBalance = useCallback(async (id: string) => {
+    // Instant Optimistic UI Clear in 0ms
+    setOrders((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, advance_amount: o.total_amount, balance_due: 0 } : o))
+    );
     await clearOrderBalance(id);
     await refreshData();
-  };
+  }, []);
 
-  const handleEditOrderInWorkbench = (order: Order) => {
+  const handleEditOrderInWorkbench = useCallback((order: Order) => {
     setEditingOrder(order);
     setMobileTab('workbench');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
+
+  const handleExportCSV = useCallback(() => {
+    exportOrdersToCSV(orders);
+  }, [orders]);
+
+  const handleToggleTheme = useCallback(() => {
+    setIsDark((prev) => !prev);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f8f7f4] dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased font-sans transition-colors duration-200">
       {/* Top Application Header */}
       <Header
-        onExportCSV={() => exportOrdersToCSV(orders)}
+        onExportCSV={handleExportCSV}
         onOpenKhata={() => setIsKhataOpen(true)}
         onRefresh={refreshData}
         onOpenAuth={() => setIsAuthOpen(true)}
         currentUser={currentUser}
         isDark={isDark}
-        onToggleTheme={() => setIsDark((prev) => !prev)}
+        onToggleTheme={handleToggleTheme}
       />
 
-      {/* Mobile Tab Switcher */}
-      <div className="lg:hidden px-3 pt-2 pb-1 print:hidden">
+      {/* Mobile Tab Switcher - Sticky below header for effortless 1-tap navigation */}
+      <div className="lg:hidden px-3 pt-2 pb-2 sticky top-[57px] z-20 bg-[#f8f7f4]/95 dark:bg-stone-950/95 backdrop-blur-xs border-b border-stone-200/60 dark:border-stone-800/60 print:hidden">
         <div className="grid grid-cols-2 p-1 bg-stone-200/80 dark:bg-stone-800 rounded-2xl text-xs font-bold">
           <button
             type="button"
@@ -357,15 +393,9 @@ export const App: React.FC = () => {
             <OrderWorkbenchForm
               onSave={handleSaveOrder}
               editingOrder={editingOrder}
-              onCancelEdit={() => {
-                setEditingOrder(null);
-                setRepeatSource(null);
-              }}
+              onCancelEdit={handleCancelEdit}
               repeatSource={repeatSource}
-              onCancelRepeat={() => {
-                setRepeatSource(null);
-                setEditingOrder(null);
-              }}
+              onCancelRepeat={handleCancelRepeat}
               existingParties={parties}
               customPresets={customPresets}
               nextReceiptNo={nextReceiptNo}
