@@ -36,11 +36,12 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
     const cleanPhone = party.phone.replace(/[^0-9]/g, '');
     const phone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
     const msg = encodeURIComponent(
-      `*राज प्रेस (RAJ PRESS) - येणे बाकी आठवण*\n` +
-      `नमस्कार ${party.name},\n` +
-      `आपल्या मागील प्रिंटिंग कामाची एकूण बाकी रक्कम: *₹${Number(party.total_pending).toLocaleString('en-IN')}* येणे बाकी आहे.\n` +
-      `कृपया ही रक्कम लवकर जमा करावी ही नम्र विनंती.\n` +
-      `धन्यवाद! - राज प्रेस`
+      `नमस्कार *${party.name}*,\n\n` +
+      `आपल्या कामाची बाकी रक्कम:\n` +
+      `*बाकी: ₹${Number(party.total_pending).toLocaleString('en-IN')}*\n\n` +
+      `कृपया सदर रक्कम लवकर जमा करावी ही नम्र विनंती.\n\n` +
+      `धन्यवाद!\n` +
+      `Raj Press Barshi`
     );
     window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
   };

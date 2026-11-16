@@ -2,7 +2,7 @@ import { Order } from '../types';
 
 export const RAJ_PRESS_PHONE = '9822117164';
 
-export function generateWhatsAppMessage(order: Order, pressPhone = RAJ_PRESS_PHONE): string {
+export function generateWhatsAppMessage(order: Order, _pressPhone = RAJ_PRESS_PHONE): string {
   const isBalancePending = order.balance_due > 0;
   
   const totalDelivered = (order.dispatches || []).reduce((sum, d) => sum + Number(d.quantity || 0), 0);
@@ -15,35 +15,29 @@ export function generateWhatsAppMessage(order: Order, pressPhone = RAJ_PRESS_PHO
 
   if (isBalancePending) {
     return [
-      `*राज प्रेस (RAJ PRESS)*`,
-      `--------------------------------------`,
-      `सस्नेह नमस्कार, *${order.party_name}* जी,`,
+      `नमस्कार, *${order.party_name}*,`,
       ``,
-      `आपल्या कामाची (पावती क्र. #${order.receipt_no}) उर्वरित बाकी रक्कम:`,
-      `*येणे बाकी (Balance to be paid): ₹${Number(order.balance_due).toLocaleString('en-IN')}*`,
+      `आपल्या कामाची बाकी रक्कम:`,
+      `*बाकी: ₹${Number(order.balance_due).toLocaleString('en-IN')}*`,
       dispatchLine,
       ``,
       `कृपया सदर बाकी रक्कम जमा करावी ही नम्र विनंती.`,
-      `--------------------------------------`,
+      ``,
       `धन्यवाद!`,
-      `अधिक माहितीसाठी संपर्क: ${pressPhone}`,
-      `*राज प्रेस — ऑफसेट व डिजिटल प्रिंटिंग*`
+      `Raj Press Barshi`
     ].filter(Boolean).join('\n');
   }
 
   return [
-    `*राज प्रेस (RAJ PRESS)*`,
-    `--------------------------------------`,
-    `सस्नेह नमस्कार, *${order.party_name}* जी,`,
+    `नमस्कार, *${order.party_name}*,`,
     ``,
-    `आपल्या कामाची (पावती क्र. #${order.receipt_no}) सर्व रक्कम पूर्ण जमा झाली आहे.`,
-    `*शिल्लक (Balance): ₹० (पूर्ण जमा / Fully Paid)*`,
+    `आपल्या कामाची सर्व रक्कम पूर्ण जमा झाली आहे.`,
     dispatchLine,
     ``,
     `आपल्या सहकार्याबद्दल मनःपूर्वक धन्यवाद!`,
-    `--------------------------------------`,
-    `अधिक माहितीसाठी संपर्क: ${pressPhone}`,
-    `*राज प्रेस — ऑफसेट व डिजिटल प्रिंटिंग*`
+    ``,
+    `धन्यवाद!`,
+    `Raj Press Barshi`
   ].filter(Boolean).join('\n');
 }
 
