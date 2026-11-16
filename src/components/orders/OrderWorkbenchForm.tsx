@@ -128,7 +128,9 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
       setPrintingType(editingOrder.printing_type || DEFAULT_PRINTINGS[1] || 'One-side');
       setPrintQty(editingOrder.print_qty || '');
       setNumberingRange(editingOrder.numbering_range || '');
-      const ot = editingOrder.order_type || DEFAULT_ORDER_TYPES[0] || 'General';
+      let ot = editingOrder.order_type || DEFAULT_ORDER_TYPES[0] || 'General';
+      if (ot === 'Patrika / Wedding Cards') ot = 'Patrika';
+      if (ot === 'सप्ताह / Saptah') ot = 'Saptah';
       setOrderType(ot);
       setIsCustomOrderType(!orderTypes.includes(ot) && ot !== 'General');
       setNotes(editingOrder.notes || '');

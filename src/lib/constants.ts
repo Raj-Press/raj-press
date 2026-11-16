@@ -27,6 +27,8 @@ export const FREQUENT_JOBS = [
   'Delivery Challan',
   'Bill Book',
   'Receipt Book',
+  'Patrika',
+  'Saptah',
   'Letterhead',
   'Certificate',
   'Labels / Stickers'
@@ -96,7 +98,7 @@ export const DEFAULT_PRINTINGS = [
 
 export const DEFAULT_ORDER_TYPES = [
   'General',
-  'Patrika / Wedding Cards',
+  'Patrika',
   'Saptah',
   'Special Order'
 ];

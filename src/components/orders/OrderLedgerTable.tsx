@@ -142,7 +142,11 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = React.memo(({
                   </span>
                   {order.order_type && order.order_type !== 'General' && (
                     <span className="px-1.5 py-0.5 rounded text-[11px] font-bold border bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
-                      {order.order_type === 'सप्ताह / Saptah' ? 'Saptah' : order.order_type}
+                      {order.order_type === 'सप्ताह / Saptah'
+                        ? 'Saptah'
+                        : order.order_type === 'Patrika / Wedding Cards'
+                        ? 'Patrika'
+                        : order.order_type}
                     </span>
                   )}
                   {order.party_phone && (
@@ -348,7 +352,11 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = React.memo(({
                             ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-700'
                             : 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                         }`}>
-                          {order.order_type === 'सप्ताह / Saptah' ? 'Saptah' : order.order_type}
+                          {order.order_type === 'सप्ताह / Saptah'
+                        ? 'Saptah'
+                        : order.order_type === 'Patrika / Wedding Cards'
+                        ? 'Patrika'
+                        : order.order_type}
                         </span>
                       )}
                       {/* Split delivery progress badge */}
