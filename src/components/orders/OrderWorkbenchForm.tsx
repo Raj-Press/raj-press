@@ -7,7 +7,6 @@ import {
   DEFAULT_PRINTINGS,
   DEFAULT_ORDER_TYPES,
   INK_COLORS,
-  FREQUENT_PARTIES,
   FREQUENT_JOBS,
   STATUS_PROGRESSION,
 } from '../../lib/constants';
@@ -190,14 +189,6 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
     }
   };
 
-  const handleFrequentPartyClick = (frequent: string) => {
-    setPartyName(frequent);
-    const found = existingParties.find((p) => p.name.includes(frequent.split(' ')[0]));
-    if (found && found.phone) {
-      setPartyPhone(found.phone);
-    }
-  };
-
   const handleFrequentJobClick = (job: string) => {
     setJobDetails(job);
   };
@@ -342,16 +333,11 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
         </div>
 
-        {/* Row 2: Party / Customer Name + Frequent Pills */}
+        {/* Row 2: Party / Customer Name */}
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
-              Party / Customer Name (नांव) *
-            </label>
-            <span className="text-[10px] text-stone-400">
-              Pick frequent
-            </span>
-          </div>
+          <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            Party / Customer Name (नांव) *
+          </label>
           <input
             type="text"
             required
@@ -366,20 +352,6 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               <option key={p.id} value={p.name} />
             ))}
           </datalist>
-
-          {/* Quick-pick Frequent Party Pills */}
-          <div className="flex flex-wrap gap-1 mt-1.5">
-            {FREQUENT_PARTIES.map((party) => (
-              <button
-                key={party}
-                type="button"
-                onClick={() => handleFrequentPartyClick(party)}
-                className="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded text-[10px] font-medium transition-colors border border-stone-200/60 dark:border-stone-700"
-              >
-                {party}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Row 3: Job Details & Qty + Frequent Job Pills */}

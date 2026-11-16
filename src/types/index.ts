@@ -26,6 +26,7 @@ export interface Order {
   advance_amount: number;
   balance_due: number;
   promise_date?: string | null; // YYYY-MM-DD
+  delivered_date?: string | null; // YYYY-MM-DD
   status: OrderStatus;
   notes?: string | null;
   user_id?: string | null;

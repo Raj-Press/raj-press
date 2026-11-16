@@ -174,6 +174,7 @@ const INITIAL_ORDERS: Order[] = [
     advance_amount: 1600,
     balance_due: 0,
     promise_date: '2026-11-16',
+    delivered_date: '2026-11-16',
     status: 'Delivered',
     notes: '२० पॅड डिस्पॅच पूर्ण'
   },
@@ -242,9 +243,20 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
   let updatedOrder: Order;
 
   if (orderData.id) {
+    const existing = currentOrders.find(o => o.id === orderData.id);
+    const newStatus = orderData.status || existing?.status || 'Pending';
+    let delDate = orderData.delivered_date !== undefined ? orderData.delivered_date : existing?.delivered_date;
+    if (newStatus === 'Delivered' && !delDate) {
+      delDate = new Date().toISOString().split('T')[0];
+    } else if (newStatus !== 'Delivered') {
+      delDate = null;
+    }
+
     updatedOrder = {
-      ...currentOrders.find(o => o.id === orderData.id)!,
+      ...existing!,
       ...orderData,
+      status: newStatus,
+      delivered_date: delDate,
       total_amount: total,
       advance_amount: advance,
       balance_due: balance,
@@ -258,6 +270,10 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
   } else {
     const newId = crypto.randomUUID();
     const receiptNo = orderData.receipt_no || generateNextReceiptNo(currentOrders);
+    const newStatus = orderData.status || 'Pending';
+    const delDate = newStatus === 'Delivered'
+      ? (orderData.delivered_date || new Date().toISOString().split('T')[0])
+      : null;
 
     updatedOrder = {
       id: newId,
@@ -278,11 +294,13 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
       printing_type: orderData.printing_type || 'One-side',
       print_qty: orderData.print_qty || null,
       numbering_range: orderData.numbering_range || null,
+      order_type: orderData.order_type || null,
       total_amount: total,
       advance_amount: advance,
       balance_due: balance,
       promise_date: orderData.promise_date || null,
-      status: orderData.status || 'Pending',
+      delivered_date: delDate,
+      status: newStatus,
       notes: orderData.notes || null,
       _synced: false
     };
@@ -330,11 +348,20 @@ export async function updateOrderStatus(id: string, status: Order['status']): Pr
 
   currentOrders[index].status = status;
   currentOrders[index].updated_at = new Date().toISOString();
+  if (status === 'Delivered') {
+    currentOrders[index].delivered_date = new Date().toISOString().split('T')[0];
+  } else {
+    currentOrders[index].delivered_date = null;
+  }
   await set(ORDERS_KEY, currentOrders);
 
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
-      await supabase.from('orders').update({ status, updated_at: currentOrders[index].updated_at }).eq('id', id);
+      await supabase.from('orders').update({
+        status,
+        delivered_date: currentOrders[index].delivered_date,
+        updated_at: currentOrders[index].updated_at
+      }).eq('id', id);
     } catch {
       // offline
     }
