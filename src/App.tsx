@@ -137,12 +137,10 @@ export const App: React.FC = () => {
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
-      // 1. Status Filter
       if (statusFilter !== 'ALL' && order.status !== statusFilter) {
         return false;
       }
 
-      // 2. Search Query
       const q = searchTerm.toLowerCase().trim();
       const matchesSearch =
         !q ||
@@ -155,7 +153,6 @@ export const App: React.FC = () => {
 
       if (!matchesSearch) return false;
 
-      // 3. Category Filter
       if (activeFilter === 'balance_due') {
         return order.balance_due > 0;
       }
@@ -224,8 +221,8 @@ export const App: React.FC = () => {
         onToggleTheme={() => setIsDark((prev) => !prev)}
       />
 
-      {/* Mobile Tab Switcher (Visible on mobile/tablet) */}
-      <div className="lg:hidden px-4 pt-3 pb-1">
+      {/* Mobile Tab Switcher */}
+      <div className="lg:hidden px-3 pt-2 pb-1">
         <div className="grid grid-cols-2 p-1 bg-stone-200/80 dark:bg-stone-800 rounded-2xl text-xs font-bold">
           <button
             type="button"
@@ -254,13 +251,13 @@ export const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Multi-Column Split Workbench Layout */}
-      <main className="flex-1 max-w-[1700px] w-full mx-auto p-4 sm:p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Main Multi-Column Split Workbench Layout (Fitted for 100% Zoom) */}
+      <main className="flex-1 w-full max-w-[1600px] mx-auto px-2.5 py-3 sm:px-4 sm:py-3.5">
+        <div className="flex flex-col lg:flex-row gap-3.5 sm:gap-4 items-start">
           
-          {/* Left Column: Fixed Counter Entry Workbench */}
+          {/* Left Column: Fixed Counter Entry Workbench (tuned ~340px) */}
           <div
-            className={`lg:col-span-4 xl:col-span-4 2xl:col-span-4 lg:sticky lg:top-20 ${
+            className={`w-full lg:w-[320px] xl:w-[345px] 2xl:w-[365px] shrink-0 lg:sticky lg:top-16 ${
               mobileTab === 'workbench' ? 'block' : 'hidden lg:block'
             }`}
           >
@@ -276,7 +273,7 @@ export const App: React.FC = () => {
 
           {/* Right Column: KPIs + Filter + Live Order Register */}
           <div
-            className={`lg:col-span-8 xl:col-span-8 2xl:col-span-8 space-y-4 ${
+            className={`flex-1 min-w-0 w-full space-y-3 sm:space-y-3.5 ${
               mobileTab === 'register' ? 'block' : 'hidden lg:block'
             }`}
           >
@@ -306,7 +303,7 @@ export const App: React.FC = () => {
 
             {/* Live Order Register Table */}
             {isLoading ? (
-              <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-12 text-center text-stone-500 font-medium">
+              <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-10 text-center text-stone-500 font-medium">
                 Loading orders...
               </div>
             ) : (

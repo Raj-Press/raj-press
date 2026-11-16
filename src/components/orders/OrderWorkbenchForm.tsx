@@ -88,20 +88,16 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
     ])
   );
 
-  // Maximum ink colors rule:
-  // Up to 3 colours allowed ONLY when printingType is Triplicate; otherwise max 2 colours
   const maxInksAllowed = printingType.toLowerCase().includes('triplicate') ? 3 : 2;
 
-  // Trim ink colors if printing type changes and exceeds limit
   useEffect(() => {
     if (!inkColours.includes('F/C') && inkColours.length > maxInksAllowed) {
       setInkColours((prev) => prev.slice(0, maxInksAllowed));
-      setInkWarning(`Ink colours adjusted to max ${maxInksAllowed} for ${printingType}`);
+      setInkWarning(`Max ${maxInksAllowed} colours for ${printingType}`);
       setTimeout(() => setInkWarning(''), 3000);
     }
   }, [printingType, maxInksAllowed, inkColours]);
 
-  // Sync state when editing an order
   useEffect(() => {
     if (editingOrder) {
       setDate(editingOrder.order_date || new Date().toISOString().split('T')[0]);
@@ -146,7 +142,6 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
     }
   }, [editingOrder, nextReceiptNo]);
 
-  // Balance calculation
   const total = Number(totalAmount || 0);
   const adv = Number(advanceAmount || 0);
   const balance = Math.max(0, total - adv);
@@ -170,8 +165,8 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
     } else {
       if (current.length >= maxInksAllowed) {
         current = [...current.slice(1), inkId];
-        setInkWarning(`Maximum ${maxInksAllowed} colours allowed (${printingType.toLowerCase().includes('triplicate') ? 'Triplicate allows 3' : '2 max'}). Replaced earliest.`);
-        setTimeout(() => setInkWarning(''), 3500);
+        setInkWarning(`Max ${maxInksAllowed} colours allowed. Replaced earliest.`);
+        setTimeout(() => setInkWarning(''), 3000);
       } else {
         current.push(inkId);
       }
@@ -253,41 +248,41 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
   return (
     <div className="w-full bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200/90 dark:border-stone-800 overflow-hidden transition-colors">
       {/* Sleek Dark Header */}
-      <div className="bg-[#18181b] dark:bg-black text-white p-4 sm:p-5">
+      <div className="bg-[#18181b] dark:bg-black text-white px-4 py-3 sm:px-4 sm:py-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#d9532f] animate-pulse"></span>
-            <h2 className="text-base sm:text-lg font-bold tracking-tight">
-              {editingOrder ? `Edit Job Ticket #${editingOrder.receipt_no}` : 'New Job Ticket • नवीन ऑर्डर'}
+            <h2 className="text-sm sm:text-base font-bold tracking-tight">
+              {editingOrder ? `Edit Ticket #${editingOrder.receipt_no}` : 'New Job Ticket • नवीन ऑर्डर'}
             </h2>
           </div>
           {editingOrder && (
             <button
               type="button"
               onClick={onCancelEdit}
-              className="flex items-center gap-1 text-xs text-stone-300 hover:text-white bg-stone-800 px-2.5 py-1 rounded-lg transition-colors"
+              className="flex items-center gap-1 text-[11px] text-stone-300 hover:text-white bg-stone-800 px-2 py-0.5 rounded-lg transition-colors"
             >
-              <RotateCcw className="w-3 h-3" /> Cancel Edit
+              <RotateCcw className="w-3 h-3" /> Cancel
             </button>
           )}
         </div>
-        <p className="text-xs text-stone-400 mt-1 font-normal">
-          Fast entry replacing manual order register
+        <p className="text-[11px] text-stone-400 mt-0.5 font-normal">
+          Fast counter entry workbench
         </p>
       </div>
 
       {/* Form Fields */}
-      <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
+      <form onSubmit={handleSubmit} className="p-3.5 sm:p-4 space-y-3">
         {errorMsg && (
-          <div className="p-2.5 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold">
+          <div className="p-2 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold">
             ⚠️ {errorMsg}
           </div>
         )}
 
         {/* Row 1: Date & Receipt No. */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Date (तारीख)
             </label>
             <input
@@ -295,12 +290,12 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
+              className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Receipt No. (पावती नं.)
             </label>
             <input
@@ -309,7 +304,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               value={receiptNo}
               onChange={(e) => setReceiptNo(e.target.value)}
               placeholder="107"
-              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-bold font-mono focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
+              className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-bold font-mono focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
             />
           </div>
         </div>
@@ -317,11 +312,11 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         {/* Row 2: Party / Customer Name + Frequent Pills */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
               Party / Customer Name (नांव) *
             </label>
-            <span className="text-[11px] text-stone-400">
-              Type or pick frequent party
+            <span className="text-[10px] text-stone-400">
+              Pick frequent
             </span>
           </div>
           <input
@@ -331,7 +326,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
             placeholder="उदा. आदित्य इंजिनिअर्स / Aditya Engineers"
             value={partyName}
             onChange={(e) => setPartyName(e.target.value)}
-            className="w-full px-3.5 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+            className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
           />
           <datalist id="customer-datalist">
             {existingParties.map((p) => (
@@ -340,13 +335,13 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </datalist>
 
           {/* Quick-pick Frequent Party Pills */}
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap gap-1 mt-1.5">
             {FREQUENT_PARTIES.map((party) => (
               <button
                 key={party}
                 type="button"
                 onClick={() => handleFrequentPartyClick(party)}
-                className="px-2.5 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-lg text-[11px] font-medium transition-colors border border-stone-200/60 dark:border-stone-700"
+                className="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded text-[10px] font-medium transition-colors border border-stone-200/60 dark:border-stone-700"
               >
                 {party.split(' ')[0]} {party.includes('College') ? 'College' : party.includes('Raut') ? 'Raut' : ''}
               </button>
@@ -356,9 +351,9 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
 
         {/* Row 3: Job Details & Qty + Frequent Job Pills */}
         <div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             <div className="col-span-2">
-              <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
                 Job Details (कामाचा तपशील) *
               </label>
               <input
@@ -367,11 +362,11 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 placeholder="उदा. डिलिव्हरी चलन / Bill Book"
                 value={jobDetails}
                 onChange={(e) => setJobDetails(e.target.value)}
-                className="w-full px-3.5 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+                className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
                 Qty (नग) *
               </label>
               <input
@@ -380,19 +375,19 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 required
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-bold text-center focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
+                className="w-full px-2 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-bold text-center focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
               />
             </div>
           </div>
 
           {/* Quick-pick Frequent Job Pills */}
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap gap-1 mt-1.5">
             {FREQUENT_JOBS.map((job) => (
               <button
                 key={job}
                 type="button"
                 onClick={() => handleFrequentJobClick(job)}
-                className="px-2.5 py-1 bg-amber-50/70 dark:bg-amber-950/40 hover:bg-amber-100/70 dark:hover:bg-amber-900/40 text-amber-900 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800 rounded-lg text-[11px] font-medium transition-colors"
+                className="px-2 py-0.5 bg-amber-50/70 dark:bg-amber-950/40 hover:bg-amber-100/70 dark:hover:bg-amber-900/40 text-amber-900 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800 rounded text-[10px] font-medium transition-colors"
               >
                 {job}
               </button>
@@ -400,17 +395,17 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
         </div>
 
-        {/* Row 4: Paper Type (Primary + Secondary) with "Others" reveal */}
+        {/* Row 4: Paper Type (Primary + Secondary) */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
               Paper Type (कागदाची जात)
             </label>
-            <span className="text-[11px] text-stone-400">
-              Combine 2 papers if multi-part
+            <span className="text-[10px] text-stone-400">
+              Combine 2 if multi-part
             </span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="min-w-0">
               <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
                 Primary Paper
@@ -425,7 +420,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
             </div>
             <div className="min-w-0">
               <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
-                + Secondary Layer (Optional)
+                + Secondary Layer
               </span>
               <SelectWithOther
                 options={papers}
@@ -440,10 +435,10 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
         </div>
 
-        {/* Row 5: Size & Binding with "Others" reveal */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Row 5: Size & Binding */}
+        <div className="grid grid-cols-2 gap-2.5">
           <div className="min-w-0">
-            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Size (साईज)
             </label>
             <SelectWithOther
@@ -456,7 +451,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
 
           <div className="min-w-0">
-            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Binding (बायडिंग)
             </label>
             <SelectWithOther
@@ -469,14 +464,11 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
         </div>
 
-        {/* Row 6: Ink Colour Pill Swatches (Max 2, or 3 for Triplicate) */}
+        {/* Row 6: Ink Colour Pill Swatches */}
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300">
-              Ink Colour (शाई कलर)
-              <span className="ml-1 text-[10px] font-normal text-stone-400">
-                (Max {maxInksAllowed} colours{printingType.toLowerCase().includes('triplicate') ? ' for Triplicate' : ''})
-              </span>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
+              Ink Colour (Max {maxInksAllowed})
             </label>
             <span className="text-xs font-bold text-[#d9532f]">
               {inkColours.join(', ')}
@@ -484,13 +476,13 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
 
           {inkWarning && (
-            <div className="flex items-center gap-1.5 p-1.5 mb-1.5 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-[11px] rounded-lg">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            <div className="flex items-center gap-1 p-1 mb-1 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-[10px] rounded-lg">
+              <AlertCircle className="w-3 h-3 shrink-0" />
               <span>{inkWarning}</span>
             </div>
           )}
 
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1">
             {INK_COLORS.map((ink) => {
               const isSelected = inkColours.includes(ink.id);
               return (
@@ -498,14 +490,14 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                   key={ink.id}
                   type="button"
                   onClick={() => toggleInk(ink.id)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all border ${
                     isSelected
                       ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-white shadow-2xs'
                       : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
                   }`}
                 >
                   <span
-                    className="w-2.5 h-2.5 rounded-full shrink-0 border border-black/10"
+                    className="w-2 h-2 rounded-full shrink-0 border border-black/10"
                     style={{ background: ink.hex }}
                   />
                   <span>{ink.id}</span>
@@ -515,9 +507,9 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
         </div>
 
-        {/* Row 7A: Printing with ample space so "Others" never exceeds or squashes neighbors */}
+        {/* Row 7A: Printing */}
         <div className="w-full min-w-0">
-          <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+          <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
             Printing (प्रिंटींग)
           </label>
           <SelectWithOther
@@ -529,10 +521,10 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           />
         </div>
 
-        {/* Row 7B: Copies/Imp. and Numbering (Equal 2 columns) */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Row 7B: Copies/Imp. and Numbering */}
+        <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Copies / Impressions
             </label>
             <input
@@ -540,12 +532,12 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               placeholder="e.g. 1000"
               value={printQty}
               onChange={(e) => setPrintQty(e.target.value)}
-              className="w-full px-3 py-2 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
+              className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Numbering (नंबरींग)
             </label>
             <input
@@ -553,95 +545,95 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               placeholder="e.g. 1 to 1000"
               value={numberingRange}
               onChange={(e) => setNumberingRange(e.target.value)}
-              className="w-full px-3 py-2 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
+              className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
             />
           </div>
         </div>
 
-        {/* Row 8: Remarks Section (Requested right before the dark financial box) */}
+        {/* Row 8: Remarks Section */}
         <div>
-          <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+          <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
             Remarks / Instructions (नोंदी / सूचना)
           </label>
           <input
             type="text"
-            placeholder="e.g. प्रूफ तपासणी, कटिंग फिनिशिंग, कव्हर प्रिंटिंग सूचना..."
+            placeholder="e.g. प्रूफ तपासणी, कटिंग फिनिशिंग..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3.5 py-2 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+            className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
           />
         </div>
 
         {/* Row 9: Dark Financial & Schedule Box */}
-        <div className="bg-[#18181b] dark:bg-black text-white rounded-2xl p-4 space-y-3.5 border border-stone-800">
+        <div className="bg-[#18181b] dark:bg-black text-white rounded-2xl p-3 sm:p-3.5 space-y-2.5 border border-stone-800">
           {/* Amounts */}
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-3 gap-2">
             <div>
               <span className="text-[10px] text-stone-400 block mb-1">
-                Total (एकूण ₹)
+                Total (₹)
               </span>
               <input
                 type="number"
                 min="0"
                 value={totalAmount}
                 onChange={(e) => setTotalAmount(e.target.value)}
-                className="w-full px-2.5 py-1.5 text-sm font-bold bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-white focus:outline-none focus:border-[#d9532f]"
+                className="w-full px-2 py-1 text-xs sm:text-sm font-bold bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-white focus:outline-none focus:border-[#d9532f]"
               />
             </div>
 
             <div>
               <span className="text-[10px] text-stone-400 block mb-1">
-                Advance (ॲडव्हान्स ₹)
+                Advance (₹)
               </span>
               <input
                 type="number"
                 min="0"
                 value={advanceAmount}
                 onChange={(e) => setAdvanceAmount(e.target.value)}
-                className="w-full px-2.5 py-1.5 text-sm font-bold bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-white focus:outline-none focus:border-[#d9532f]"
+                className="w-full px-2 py-1 text-xs sm:text-sm font-bold bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-white focus:outline-none focus:border-[#d9532f]"
               />
             </div>
 
             <div>
               <span className="text-[10px] text-stone-400 block mb-1">
-                Balance (येणे बाकी)
+                Balance (₹)
               </span>
               <div
-                className={`px-2.5 py-1.5 text-sm font-extrabold rounded-lg text-center font-mono ${
+                className={`px-2 py-1 text-xs sm:text-sm font-extrabold rounded-lg text-center font-mono ${
                   balance > 0 ? 'bg-amber-950/80 text-amber-400 border border-amber-800' : 'bg-emerald-950/80 text-emerald-400 border border-emerald-800'
                 }`}
               >
-                ₹ {balance.toLocaleString('en-IN')}
+                ₹{balance.toLocaleString('en-IN')}
               </div>
             </div>
           </div>
 
           {/* Promise Date & Job Status */}
-          <div className="grid grid-cols-2 gap-3 pt-1 border-t border-stone-800">
+          <div className="grid grid-cols-2 gap-2 pt-1 border-t border-stone-800">
             <div>
-              <span className="text-[10px] text-stone-400 block mb-1">
-                Promise Date (वायदा ता.)
+              <span className="text-[10px] text-stone-400 block mb-0.5">
+                Promise Date
               </span>
               <input
                 type="date"
                 value={promiseDate}
                 onChange={(e) => setPromiseDate(e.target.value)}
-                className="w-full px-2.5 py-1.5 text-xs bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-stone-200 focus:outline-none focus:border-[#d9532f]"
+                className="w-full px-2 py-1 text-xs bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-stone-200 focus:outline-none focus:border-[#d9532f]"
               />
             </div>
 
             <div>
-              <span className="text-[10px] text-stone-400 block mb-1">
-                Job Status
+              <span className="text-[10px] text-stone-400 block mb-0.5">
+                Status
               </span>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as Order['status'])}
-                className="w-full px-2.5 py-1.5 text-xs bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-stone-200 font-semibold focus:outline-none focus:border-[#d9532f]"
+                className="w-full px-2 py-1 text-xs bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-stone-200 font-semibold focus:outline-none focus:border-[#d9532f]"
               >
                 {STATUS_PROGRESSION.map((st) => (
                   <option key={st} value={st}>
-                    {st === 'Pending' ? 'Pending (प्रलंबित)' : st}
+                    {st === 'Pending' ? 'Pending' : st}
                   </option>
                 ))}
               </select>
@@ -653,13 +645,13 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 bg-[#d9532f] hover:bg-[#c2410c] text-white rounded-2xl text-sm sm:text-base font-bold shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+          className="w-full py-2.5 sm:py-3 bg-[#d9532f] hover:bg-[#c2410c] text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
         >
           {isSubmitting ? (
             'Saving...'
           ) : editingOrder ? (
             <>
-              <Check className="w-5 h-5" /> Update Job Ticket
+              <Check className="w-4 h-4" /> Update Job Ticket
             </>
           ) : (
             '+ Save Job Ticket to Order Book'

@@ -17,10 +17,10 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70 backdrop-blur-xs overflow-y-auto print:p-0 print:bg-white print:static">
-      <div className="relative w-full max-w-2xl bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden print:border-none print:shadow-none print:w-full print:max-w-none">
+      <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden print:border-none print:shadow-none print:w-full print:max-w-none">
         
         {/* Modal Header (Hidden during print) */}
-        <div className="flex items-center justify-between px-6 py-4 bg-stone-900 dark:bg-black text-white print:hidden">
+        <div className="flex items-center justify-between px-5 py-3 bg-stone-900 dark:bg-black text-white print:hidden shrink-0">
           <div className="flex items-center gap-2.5">
             <span className="p-2 bg-[#d9532f] rounded-xl">
               <Printer className="w-4 h-4 text-white" />
@@ -39,7 +39,7 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
         </div>
 
         {/* Printable Job Ticket Content - Clean for Machine Operator */}
-        <div className="p-6 text-stone-900 bg-white print:p-2 printable-area">
+        <div className="p-4 sm:p-5 text-stone-900 bg-white print:p-2 printable-area overflow-y-auto flex-1">
           {/* Press Header */}
           <div className="border-b-2 border-stone-900 pb-3 mb-3 text-center relative">
             <div className="text-[11px] font-bold text-stone-500 uppercase tracking-widest">
@@ -196,7 +196,7 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
         </div>
 
         {/* Modal Actions (Hidden during print) */}
-        <div className="flex flex-wrap items-center justify-between gap-2 px-6 py-4 bg-stone-100 dark:bg-stone-800 border-t border-stone-200 dark:border-stone-700 print:hidden transition-colors">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-3.5 bg-stone-100 dark:bg-stone-800 border-t border-stone-200 dark:border-stone-700 print:hidden transition-colors shrink-0">
           <button
             type="button"
             onClick={() => openWhatsApp(order)}
