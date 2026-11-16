@@ -17,8 +17,8 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70 backdrop-blur-xs overflow-y-auto print:p-0 print:bg-white print:static">
-      <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden print:border-none print:shadow-none print:w-full print:max-w-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70 backdrop-blur-xs overflow-y-auto print:p-0 print:m-0 print:bg-white print:static print:overflow-visible job-ticket-overlay">
+      <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden print:border-none print:shadow-none print:w-full print:max-w-none print:max-h-none print:h-auto print:overflow-visible print:bg-white print:rounded-none job-ticket-card">
         
         {/* Modal Header (Hidden during print) */}
         <div className="flex items-center justify-between px-5 py-3 bg-stone-900 dark:bg-black text-white print:hidden shrink-0">
@@ -40,7 +40,7 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
         </div>
 
         {/* Printable Job Ticket Content - Clean for Machine Operator (Strictly Monochrome B&W) */}
-        <div className="p-4 sm:p-5 text-black bg-white print:p-2 printable-area overflow-y-auto flex-1">
+        <div className="p-4 sm:p-5 text-black bg-white print:p-0 printable-area overflow-y-auto flex-1 print:overflow-visible print:h-auto">
           {/* Simple Operator Instructions Heading */}
           <div className="border-b-2 border-black pb-2 mb-3 text-center">
             <h1 className="text-xl sm:text-2xl font-black text-black tracking-wide uppercase">
@@ -160,16 +160,16 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
             {/* Press Floor Quality Checklist */}
             <div className="grid grid-cols-3 gap-2 text-[11px] font-bold text-black pt-1">
               <label className="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 accent-black border border-black rounded-xs" />
-                <span>[ ] प्लेट / प्रूफ तपासणी</span>
+                <span className="w-3.5 h-3.5 border-2 border-black rounded-xs inline-block shrink-0 bg-white"></span>
+                <span>प्लेट / प्रूफ तपासणी</span>
               </label>
               <label className="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 accent-black border border-black rounded-xs" />
-                <span>[ ] छपाई व शाई चेक</span>
+                <span className="w-3.5 h-3.5 border-2 border-black rounded-xs inline-block shrink-0 bg-white"></span>
+                <span>छपाई व शाई चेक</span>
               </label>
               <label className="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 accent-black border border-black rounded-xs" />
-                <span>[ ] कटिंग व पॅकिंग पूर्ण</span>
+                <span className="w-3.5 h-3.5 border-2 border-black rounded-xs inline-block shrink-0 bg-white"></span>
+                <span>कटिंग व पॅकिंग पूर्ण</span>
               </label>
             </div>
           </div>

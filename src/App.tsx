@@ -222,7 +222,7 @@ export const App: React.FC = () => {
       />
 
       {/* Mobile Tab Switcher */}
-      <div className="lg:hidden px-3 pt-2 pb-1">
+      <div className="lg:hidden px-3 pt-2 pb-1 print:hidden">
         <div className="grid grid-cols-2 p-1 bg-stone-200/80 dark:bg-stone-800 rounded-2xl text-xs font-bold">
           <button
             type="button"
@@ -252,7 +252,7 @@ export const App: React.FC = () => {
       </div>
 
       {/* Main Multi-Column Split Workbench Layout (Fitted for 100% Zoom) */}
-      <main className="flex-1 w-full max-w-[1600px] mx-auto px-2.5 py-3 sm:px-4 sm:py-3.5">
+      <main className="flex-1 w-full max-w-[1600px] mx-auto px-2.5 py-3 sm:px-4 sm:py-3.5 print:hidden">
         <div className="flex flex-col lg:flex-row gap-3.5 sm:gap-4 items-start">
           
           {/* Left Column: Fixed Counter Entry Workbench (tuned ~340px) */}
