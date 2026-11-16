@@ -7,6 +7,7 @@ import {
   UserCheck,
   Moon,
   Sun,
+  KeyRound,
 } from 'lucide-react';
 import { isSupabaseConfigured } from '../../lib/supabase';
 
@@ -15,6 +16,8 @@ interface HeaderProps {
   onOpenKhata: () => void;
   onRefresh: () => void;
   onOpenAuth: () => void;
+  onLockApp: () => void;
+  onOpenChangePassword: () => void;
   currentUser: any;
   isDark: boolean;
   onToggleTheme: () => void;
@@ -25,6 +28,8 @@ export const Header: React.FC<HeaderProps> = React.memo(({
   onOpenKhata,
   onRefresh,
   onOpenAuth,
+  onLockApp,
+  onOpenChangePassword,
   currentUser,
   isDark,
   onToggleTheme,
@@ -104,6 +109,27 @@ export const Header: React.FC<HeaderProps> = React.memo(({
             className="p-2 bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 rounded-xl shadow-2xs transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
+          </button>
+
+          {/* Change Security Password */}
+          <button
+            type="button"
+            onClick={onOpenChangePassword}
+            title="Change Security Password / PIN"
+            className="p-2 bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 rounded-xl shadow-2xs transition-colors"
+          >
+            <KeyRound className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          </button>
+
+          {/* Immediate App Lock Button */}
+          <button
+            type="button"
+            onClick={onLockApp}
+            title="Lock Order Book Immediately"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-stone-700 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-400 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-semibold shadow-2xs transition-colors"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Lock</span>
           </button>
 
           {/* Cloud Auth / Account */}

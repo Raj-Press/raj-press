@@ -23,6 +23,9 @@ import { JobTicketModal } from './components/orders/JobTicketModal';
 import { SplitDeliveryModal } from './components/orders/SplitDeliveryModal';
 import { CustomerKhataModal } from './components/parties/CustomerKhataModal';
 import { AuthModal } from './components/auth/AuthModal';
+import { LockScreen } from './components/auth/LockScreen';
+import { ChangePasswordModal } from './components/auth/ChangePasswordModal';
+import { isAppUnlocked, lockApp } from './lib/auth';
 import { ConfirmDialog } from './components/common/ConfirmDialog';
 import { PlusCircle, ListOrdered } from 'lucide-react';
 
@@ -60,6 +63,8 @@ export const App: React.FC = () => {
   const [splitDeliveryOrder, setSplitDeliveryOrder] = useState<Order | null>(null);
   const [isKhataOpen, setIsKhataOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(() => isAppUnlocked());
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // Mobile View Tab Switcher ('workbench' | 'register')
@@ -337,6 +342,16 @@ export const App: React.FC = () => {
     setIsDark((prev) => !prev);
   }, []);
 
+  const handleLockApp = useCallback(() => {
+    lockApp();
+    setIsUnlocked(false);
+  }, []);
+
+  // Password Lock Screen Gate
+  if (!isUnlocked) {
+    return <LockScreen onUnlock={() => setIsUnlocked(true)} />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#f8f7f4] dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased font-sans transition-colors duration-200">
       {/* Top Application Header */}
@@ -345,6 +360,8 @@ export const App: React.FC = () => {
         onOpenKhata={() => setIsKhataOpen(true)}
         onRefresh={refreshData}
         onOpenAuth={() => setIsAuthOpen(true)}
+        onLockApp={handleLockApp}
+        onOpenChangePassword={() => setIsChangePasswordOpen(true)}
         currentUser={currentUser}
         isDark={isDark}
         onToggleTheme={handleToggleTheme}
@@ -489,6 +506,11 @@ export const App: React.FC = () => {
         onClose={() => setIsAuthOpen(false)}
         currentUser={currentUser}
         onUserChange={setCurrentUser}
+      />
+
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
       />
 
       <ConfirmDialog
