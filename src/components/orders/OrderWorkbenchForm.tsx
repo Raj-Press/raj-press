@@ -154,28 +154,23 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
   const toggleInk = (inkId: string) => {
     setInkWarning('');
 
-    // If F/C is clicked
     if (inkId === 'F/C') {
       setInkColours(['F/C']);
       return;
     }
 
-    // If F/C was previously selected, clear it
     let current = inkColours.filter((c) => c !== 'F/C');
 
     if (current.includes(inkId)) {
-      // Toggle off
       current = current.filter((c) => c !== inkId);
       if (current.length === 0) {
         current = ['Black'];
       }
       setInkColours(current);
     } else {
-      // Check maximum limit
       if (current.length >= maxInksAllowed) {
-        // Shift out earliest color to make room for new one (smoothest UX)
         current = [...current.slice(1), inkId];
-        setInkWarning(`Maximum ${maxInksAllowed} colours allowed (${printingType === 'Triplicate' ? 'Triplicate allows 3' : '2 max'}). Replaced earliest.`);
+        setInkWarning(`Maximum ${maxInksAllowed} colours allowed (${printingType.toLowerCase().includes('triplicate') ? 'Triplicate allows 3' : '2 max'}). Replaced earliest.`);
         setTimeout(() => setInkWarning(''), 3500);
       } else {
         current.push(inkId);
@@ -416,7 +411,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <div>
+            <div className="min-w-0">
               <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
                 Primary Paper
               </span>
@@ -428,7 +423,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 onCustomSave={(val) => saveCustomPreset('paper_primary', val)}
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
                 + Secondary Layer (Optional)
               </span>
@@ -447,7 +442,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
 
         {/* Row 5: Size & Binding with "Others" reveal */}
         <div className="grid grid-cols-2 gap-3">
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Size (साईज)
             </label>
@@ -460,7 +455,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
             />
           </div>
 
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Binding (बायडिंग)
             </label>
@@ -520,44 +515,45 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
         </div>
 
-        {/* Row 7: Printing with "Others" reveal, Copies/Imp., Numbering */}
-        <div className="grid grid-cols-3 gap-2.5">
-          <div>
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Printing (प्रिंटींग)
-            </label>
-            <SelectWithOther
-              options={printings}
-              value={printingType}
-              onChange={setPrintingType}
-              placeholder=""
-              onCustomSave={(val) => saveCustomPreset('printing_type', val)}
-            />
-          </div>
+        {/* Row 7A: Printing with ample space so "Others" never exceeds or squashes neighbors */}
+        <div className="w-full min-w-0">
+          <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            Printing (प्रिंटींग)
+          </label>
+          <SelectWithOther
+            options={printings}
+            value={printingType}
+            onChange={setPrintingType}
+            placeholder=""
+            onCustomSave={(val) => saveCustomPreset('printing_type', val)}
+          />
+        </div>
 
+        {/* Row 7B: Copies/Imp. and Numbering (Equal 2 columns) */}
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Copies/Imp.
+            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+              Copies / Impressions
             </label>
             <input
               type="text"
               placeholder="e.g. 1000"
               value={printQty}
               onChange={(e) => setPrintQty(e.target.value)}
-              className="w-full px-2 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 text-center"
+              className="w-full px-3 py-2 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Numbering (नंबरींग)
             </label>
             <input
               type="text"
-              placeholder="1 to 1000"
+              placeholder="e.g. 1 to 1000"
               value={numberingRange}
               onChange={(e) => setNumberingRange(e.target.value)}
-              className="w-full px-2 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 text-center font-mono"
+              className="w-full px-3 py-2 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
             />
           </div>
         </div>
