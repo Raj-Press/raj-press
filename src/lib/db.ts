@@ -2,155 +2,209 @@ import { get, set } from 'idb-keyval';
 import { Order, Party, Preset } from '../types';
 import { supabase, isSupabaseConfigured } from './supabase';
 
-const ORDERS_KEY = 'raj_press_orders_v1';
-const PARTIES_KEY = 'raj_press_parties_v1';
-const PRESETS_KEY = 'raj_press_presets_v1';
+const ORDERS_KEY = 'raj_press_orders_v2';
+const PARTIES_KEY = 'raj_press_parties_v2';
+const PRESETS_KEY = 'raj_press_presets_v2';
 
-// Initial realistic seed records for Raj Press
 const INITIAL_PARTIES: Party[] = [
   {
-    id: '11111111-1111-1111-1111-111111111111',
-    name: 'श्री. आनंद कुलकर्णी (Kulkarni Traders)',
-    phone: '9822012345',
-    gst_no: '27AABCK1234F1Z5',
-    address: 'मेन रोड, जुना बाजार, सोलापूर, महाराष्ट्र',
-    total_billed: 14500,
-    total_pending: 3500
+    id: 'p1',
+    name: 'आदित्य इंजिनिअर्स / Aditya Engineers',
+    phone: '9822011223',
+    total_billed: 1500,
+    total_pending: 500
   },
   {
-    id: '22222222-2222-2222-2222-222222222222',
-    name: 'देशमुख ॲग्रो एजन्सी (Deshmukh Agro)',
-    phone: '9423056789',
-    gst_no: '27AAECD5678G1Z1',
-    address: 'मार्केट यार्ड, लातूर, महाराष्ट्र',
-    total_billed: 8200,
+    id: 'p2',
+    name: 'शिवाजी महाविद्यालय, पंढरपूर / Shivaji Mahavidyalaya',
+    phone: '9423055443',
+    total_billed: 850,
     total_pending: 0
   },
   {
-    id: '33333333-3333-3333-3333-333333333333',
-    name: 'डॉ. सुहास जोशी (Joshi Hospital)',
-    phone: '9890123456',
-    address: 'स्टेशन रोड, पुणे, महाराष्ट्र',
-    total_billed: 6400,
-    total_pending: 1400
+    id: 'p3',
+    name: 'डॉ. सुहास राऊत / Dr. Suhas Raut',
+    phone: '9890123789',
+    total_billed: 950,
+    total_pending: 450
   },
   {
-    id: '44444444-4444-4444-4444-444444444444',
-    name: 'माऊली मंगल कार्यालय (Mauli Mangal Karyalaya)',
-    phone: '9765432100',
-    address: 'पंढरपूर बायपास, उस्मानाबाद, महाराष्ट्र',
-    total_billed: 19800,
-    total_pending: 6800
+    id: 'p4',
+    name: 'नालेवाडी फूड & पॅकेजिंग / Nalewadi Food & Packaging',
+    phone: '9765432098',
+    total_billed: 1200,
+    total_pending: 600
+  },
+  {
+    id: 'p5',
+    name: 'गजानन लॅब / Gajanan Lab',
+    phone: '9823456781',
+    total_billed: 1600,
+    total_pending: 0
+  },
+  {
+    id: 'p6',
+    name: 'करवळ कृषी सेवा केंद्र / Karawale Krushi Seva',
+    phone: '9922114455',
+    total_billed: 1200,
+    total_pending: 200
   }
 ];
 
 const INITIAL_ORDERS: Order[] = [
   {
-    id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
-    order_date: new Date(Date.now() - 3 * 86400000).toISOString().split('T')[0],
-    receipt_no: 'RP-2026-0001',
-    party_id: '11111111-1111-1111-1111-111111111111',
-    party_name: 'श्री. आनंद कुलकर्णी (Kulkarni Traders)',
-    party_phone: '9822012345',
-    job_details: 'GST टॅक्स इन्व्हॉईस बिल बुक (3 प्रती - White/Pink/Yellow)',
-    quantity: 50,
-    paper_primary: '70 GSM Maplitho (७० मॅपलिथो)',
-    paper_secondary: '55 GSM Pink / Yellow Tint (५५ बिल बुक प्रत)',
-    paper_size: '1/4 Demmy (११ x ८.५ इंच - 1/4 डेमी)',
-    binding_type: 'Side Pin & Cloth Tape Binding (साईड पिन व पट्टी)',
-    ink_colours: ['Red', 'Black'],
-    printing_type: 'Single Side Offset (सिंगल साईड ऑफसेट)',
-    print_qty: '50 पुस्तके x 100 पाने',
-    numbering_range: '0001 ते 5000',
-    total_amount: 9500,
-    advance_amount: 6000,
-    balance_due: 3500,
-    promise_date: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
+    id: 'ord-101',
+    created_at: '2026-11-14T10:00:00.000Z',
+    order_date: '2026-11-14',
+    receipt_no: '101',
+    party_id: 'p1',
+    party_name: 'आदित्य इंजिनिअर्स / Aditya Engineers',
+    party_phone: '9822011223',
+    job_details: 'डिलिव्हरी चलन (Delivery Challan)',
+    quantity: 10,
+    paper_primary: 'SPB [Yellow]',
+    paper_secondary: 'White (पांढरा)',
+    paper_size: '1/8',
+    binding_type: 'Regzin',
+    ink_colours: ['Brown'],
+    printing_type: 'One-side (2000)',
+    print_qty: '2000',
+    numbering_range: '1 to 1000',
+    total_amount: 1500,
+    advance_amount: 1000,
+    balance_due: 500,
+    promise_date: '2026-11-16',
     status: 'Printing',
-    notes: 'प्रूफ चेकिंग पूर्ण झाले आहे. लाल आणि काळा शाई कलर वापरावा.'
+    notes: 'पिवळी व पांढरी प्रत'
   },
   {
-    id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-    created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
-    order_date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
-    receipt_no: 'RP-2026-0002',
-    party_id: '22222222-2222-2222-2222-222222222222',
-    party_name: 'देशमुख ॲग्रो एजन्सी (Deshmukh Agro)',
-    party_phone: '9423056789',
-    job_details: 'कंपनी लेटरहेड व व्हिजिटिंग कार्ड (Letterhead & Visiting Cards)',
-    quantity: 1000,
-    paper_primary: '80 GSM Royal Executive Bond (८० बॉण्ड)',
-    paper_secondary: '300 GSM Art Card (३०० आर्ट कार्ड)',
-    paper_size: 'A4 Size (८.२७ x ११.६९ इंच)',
-    binding_type: 'Pad Binding / Top Gumming (पॅड गमिंग)',
-    ink_colours: ['Peacock-Blue', 'Black'],
-    printing_type: 'Multicolour 4-Color Process (फोर कलर प्रोसेस)',
-    print_qty: '1000 लेटरहेड + 500 कार्ड',
-    numbering_range: 'नाही',
-    total_amount: 8200,
-    advance_amount: 8200,
+    id: 'ord-102',
+    created_at: '2026-11-14T11:30:00.000Z',
+    order_date: '2026-11-14',
+    receipt_no: '102',
+    party_id: 'p2',
+    party_name: 'शिवाजी महाविद्यालय, पंढरपूर / Shivaji Mahavidyalaya',
+    party_phone: '9423055443',
+    job_details: 'बोनाफाईट सर्टिफिकेट (Bonafide Certificate)',
+    quantity: 2,
+    paper_primary: 'Ledgore (80)',
+    paper_secondary: '',
+    paper_size: '20x30 (1/8)',
+    binding_type: 'Cloth',
+    ink_colours: ['Red', 'Black'],
+    printing_type: 'One-side (200+200)',
+    print_qty: '400',
+    numbering_range: '2001 to 2200',
+    total_amount: 850,
+    advance_amount: 850,
     balance_due: 0,
-    promise_date: new Date(Date.now() - 1 * 86400000).toISOString().split('T')[0],
+    promise_date: '2026-11-17',
     status: 'Ready',
-    notes: 'पॅकिंग करून डिस्पॅचसाठी तयार ठेवणे.'
+    notes: '२ पुस्तके'
   },
   {
-    id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
-    created_at: new Date(Date.now() - 1 * 86400000).toISOString(),
-    order_date: new Date(Date.now() - 1 * 86400000).toISOString().split('T')[0],
-    receipt_no: 'RP-2026-0003',
-    party_id: '33333333-3333-3333-3333-333333333333',
-    party_name: 'डॉ. सुहास जोशी (Joshi Hospital)',
-    party_phone: '9890123456',
-    job_details: 'ओपीडी प्रिस्क्रिप्शन पॅड्स (OPD Prescription Slips)',
-    quantity: 30,
-    paper_primary: '70 GSM Maplitho (७० मॅपलिथो)',
+    id: 'ord-103',
+    created_at: '2026-11-15T09:15:00.000Z',
+    order_date: '2026-11-15',
+    receipt_no: '103',
+    party_id: 'p3',
+    party_name: 'डॉ. सुहास राऊत / Dr. Suhas Raut',
+    party_phone: '9890123789',
+    job_details: 'मुख्य बाह्य रजिस्टर (200 पानी)',
+    quantity: 1,
+    paper_primary: '9-map',
     paper_secondary: '',
-    paper_size: '1/8 Demmy (८.५ x ५.५ इंच - 1/8 डेमी)',
-    binding_type: 'Pad Binding / Top Gumming (पॅड गमिंग)',
-    ink_colours: ['Blue'],
-    printing_type: 'Single Side Offset (सिंगल साईड ऑफसेट)',
-    print_qty: '30 पॅड x 100 पाने',
-    numbering_range: 'नाही',
-    total_amount: 3400,
-    advance_amount: 2000,
-    balance_due: 1400,
-    promise_date: new Date(Date.now() + 1 * 86400000).toISOString().split('T')[0],
+    paper_size: '1/4',
+    binding_type: 'Cloth (Regzin)',
+    ink_colours: ['Black'],
+    printing_type: 'F/b (120 to 200)',
+    print_qty: '200',
+    numbering_range: '1 to 200',
+    total_amount: 950,
+    advance_amount: 500,
+    balance_due: 450,
+    promise_date: '2026-11-19',
     status: 'Binding',
-    notes: 'टॉप गमिंग मजबूत करा.'
+    notes: 'हार्ड बायडिंग'
   },
   {
-    id: 'dddddddd-dddd-dddd-dddd-dddddddddddd',
-    created_at: new Date().toISOString(),
-    order_date: new Date().toISOString().split('T')[0],
-    receipt_no: 'RP-2026-0004',
-    party_id: '44444444-4444-4444-4444-444444444444',
-    party_name: 'माऊली मंगल कार्यालय (Mauli Mangal Karyalaya)',
-    party_phone: '9765432100',
-    job_details: 'शाही लग्नपत्रिका व स्वागत लिफाफे (Royal Wedding Cards)',
-    quantity: 500,
-    paper_primary: '300 GSM Art Card (३०० आर्ट कार्ड)',
-    paper_secondary: '',
-    paper_size: '12 x 18 Digital Sheet (१२ x १८ डिजिटल)',
-    binding_type: 'Center Pinning (सेंटर पिन)',
-    ink_colours: ['Red', 'F/C'],
-    printing_type: 'Multicolour 4-Color Process (फोर कलर प्रोसेस)',
-    print_qty: '500 संच',
-    numbering_range: 'नाही',
-    total_amount: 19800,
-    advance_amount: 13000,
-    balance_due: 6800,
-    promise_date: new Date(Date.now() + 4 * 86400000).toISOString().split('T')[0],
+    id: 'ord-104',
+    created_at: '2026-11-15T14:40:00.000Z',
+    order_date: '2026-11-15',
+    receipt_no: '104',
+    party_id: 'p4',
+    party_name: 'नालेवाडी फूड & पॅकेजिंग / Nalewadi Food & Packaging',
+    party_phone: '9765432098',
+    job_details: 'कॅश / क्रेडिट मेमो (100x2)',
+    quantity: 5,
+    paper_primary: '7.7-map',
+    paper_secondary: 'Pink (गुलाबी)',
+    paper_size: '1/8',
+    binding_type: 'Regzin',
+    ink_colours: ['Orange'],
+    printing_type: 'Duplicate (1000)',
+    print_qty: '1000',
+    numbering_range: '1 to 500',
+    total_amount: 1200,
+    advance_amount: 600,
+    balance_due: 600,
+    promise_date: '2026-11-20',
     status: 'Pending',
-    notes: 'गोल्डन फॉईल व लाल मखमली फिनिशिंग.'
+    notes: '५ पुस्तके'
+  },
+  {
+    id: 'ord-105',
+    created_at: '2026-11-16T09:00:00.000Z',
+    order_date: '2026-11-16',
+    receipt_no: '105',
+    party_id: 'p5',
+    party_name: 'गजानन लॅब / Gajanan Lab',
+    party_phone: '9823456781',
+    job_details: 'लेटरहेड पॅड (Letterhead Pads)',
+    quantity: 20,
+    paper_primary: '9-map',
+    paper_secondary: '',
+    paper_size: '1/8',
+    binding_type: 'Perforation Pad',
+    ink_colours: ['Orange'],
+    printing_type: 'One-side (2000)',
+    print_qty: '2000',
+    numbering_range: '',
+    total_amount: 1600,
+    advance_amount: 1600,
+    balance_due: 0,
+    promise_date: '2026-11-16',
+    status: 'Delivered',
+    notes: '२० पॅड डिस्पॅच पूर्ण'
+  },
+  {
+    id: 'ord-106',
+    created_at: '2026-11-16T11:00:00.000Z',
+    order_date: '2026-11-16',
+    receipt_no: '106',
+    party_id: 'p6',
+    party_name: 'करवळ कृषी सेवा केंद्र / Karawale Krushi Seva',
+    party_phone: '9922114455',
+    job_details: 'बिल बुक (डुप्लिकेट) / Duplicate Bill Book',
+    quantity: 5,
+    paper_primary: 'SPB [Yellow]',
+    paper_secondary: 'Pink (गुलाबी)',
+    paper_size: '1/8',
+    binding_type: 'Regzin',
+    ink_colours: ['Orange'],
+    printing_type: 'Duplicate (1000)',
+    print_qty: '1000',
+    numbering_range: '1 to 500',
+    total_amount: 1200,
+    advance_amount: 1000,
+    balance_due: 200,
+    promise_date: '2026-11-21',
+    status: 'Pending',
+    notes: 'कव्हर प्रिंटींग काळी'
   }
 ];
 
-// --- Order Repository Operations ---
-
 export async function getOrders(): Promise<Order[]> {
-  // If Supabase is connected and online, sync from Supabase
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
       const { data, error } = await supabase
@@ -159,22 +213,19 @@ export async function getOrders(): Promise<Order[]> {
         .order('order_date', { ascending: false });
 
       if (!error && data && data.length > 0) {
-        // Cache to IndexedDB for offline resilience
         await set(ORDERS_KEY, data);
         return data as Order[];
       }
     } catch {
-      // Fallback silently to IndexedDB
+      // offline
     }
   }
 
-  // Load from IndexedDB
   const cached = await get<Order[]>(ORDERS_KEY);
   if (cached && cached.length > 0) {
     return cached;
   }
 
-  // Fallback to initial seed
   await set(ORDERS_KEY, INITIAL_ORDERS);
   return INITIAL_ORDERS;
 }
@@ -188,7 +239,6 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
   let updatedOrder: Order;
 
   if (orderData.id) {
-    // Edit existing order
     updatedOrder = {
       ...currentOrders.find(o => o.id === orderData.id)!,
       ...orderData,
@@ -203,7 +253,6 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
       currentOrders[index] = updatedOrder;
     }
   } else {
-    // Create new order
     const newId = crypto.randomUUID();
     const receiptNo = orderData.receipt_no || generateNextReceiptNo(currentOrders);
 
@@ -218,12 +267,12 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
       party_phone: orderData.party_phone || null,
       job_details: orderData.job_details || '',
       quantity: Number(orderData.quantity || 1),
-      paper_primary: orderData.paper_primary || '',
+      paper_primary: orderData.paper_primary || '9-map',
       paper_secondary: orderData.paper_secondary || null,
-      paper_size: orderData.paper_size || '',
-      binding_type: orderData.binding_type || '',
-      ink_colours: orderData.ink_colours || ['Black'],
-      printing_type: orderData.printing_type || '',
+      paper_size: orderData.paper_size || '1/8',
+      binding_type: orderData.binding_type || 'Regzin',
+      ink_colours: orderData.ink_colours && orderData.ink_colours.length > 0 ? orderData.ink_colours : ['Black'],
+      printing_type: orderData.printing_type || 'One-side',
       print_qty: orderData.print_qty || null,
       numbering_range: orderData.numbering_range || null,
       total_amount: total,
@@ -238,22 +287,19 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
     currentOrders.unshift(updatedOrder);
   }
 
-  // Update local IndexedDB
   await set(ORDERS_KEY, currentOrders);
 
-  // Auto-upsert Party / Customer Directory
   if (updatedOrder.party_name) {
     await upsertPartyFromOrder(updatedOrder, currentOrders);
   }
 
-  // Background Cloud Sync
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
       const payload = { ...updatedOrder };
       delete payload._synced;
       await supabase.from('orders').upsert(payload);
     } catch (e) {
-      console.warn('Supabase sync deferred to next reconnect', e);
+      console.warn('Supabase sync deferred', e);
     }
   }
 
@@ -299,13 +345,11 @@ export async function clearOrderBalance(id: string): Promise<Order | null> {
   const index = currentOrders.findIndex(o => o.id === id);
   if (index === -1) return null;
 
-  // Clear balance: set advance_amount equal to total_amount
   currentOrders[index].advance_amount = currentOrders[index].total_amount;
   currentOrders[index].balance_due = 0;
   currentOrders[index].updated_at = new Date().toISOString();
   await set(ORDERS_KEY, currentOrders);
 
-  // Recalculate party khata
   await upsertPartyFromOrder(currentOrders[index], currentOrders);
 
   if (isSupabaseConfigured && supabase && navigator.onLine) {
@@ -323,23 +367,18 @@ export async function clearOrderBalance(id: string): Promise<Order | null> {
 }
 
 export function generateNextReceiptNo(orders: Order[]): string {
-  const year = new Date().getFullYear();
-  let maxSeq = 0;
+  let maxNum = 100;
 
   orders.forEach(o => {
-    if (o.receipt_no && o.receipt_no.startsWith(`RP-${year}-`)) {
-      const parts = o.receipt_no.split('-');
-      const num = parseInt(parts[2], 10);
-      if (!isNaN(num) && num > maxSeq) {
-        maxSeq = num;
-      }
+    const raw = (o.receipt_no || '').replace(/[^0-9]/g, '');
+    const num = parseInt(raw, 10);
+    if (!isNaN(num) && num > maxNum) {
+      maxNum = num;
     }
   });
 
-  return `RP-${year}-${String(maxSeq + 1).padStart(4, '0')}`;
+  return String(maxNum + 1);
 }
-
-// --- Parties Repository ---
 
 export async function getParties(): Promise<Party[]> {
   if (isSupabaseConfigured && supabase && navigator.onLine) {
@@ -399,8 +438,6 @@ export async function upsertPartyFromOrder(order: Order, allOrders: Order[]): Pr
     }
   }
 }
-
-// --- Presets (Custom Dropdown Additions from "Others") ---
 
 export async function getCustomPresets(): Promise<Preset[]> {
   const cached = await get<Preset[]>(PRESETS_KEY);

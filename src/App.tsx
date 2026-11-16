@@ -8,18 +8,20 @@ import {
   clearOrderBalance,
   getParties,
   getCustomPresets,
+  generateNextReceiptNo,
 } from './lib/db';
-import { exportOrdersToCSV, exportDatabaseJSON } from './lib/export';
+import { exportOrdersToCSV } from './lib/export';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { Header } from './components/common/Header';
 import { KPICards } from './components/dashboard/KPICards';
 import { FilterBar, FilterCategory } from './components/dashboard/FilterBar';
+import { OrderWorkbenchForm } from './components/orders/OrderWorkbenchForm';
 import { OrderLedgerTable } from './components/orders/OrderLedgerTable';
-import { OrderFormModal } from './components/orders/OrderFormModal';
 import { JobTicketModal } from './components/orders/JobTicketModal';
 import { CustomerKhataModal } from './components/parties/CustomerKhataModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { ConfirmDialog } from './components/common/ConfirmDialog';
+import { PlusCircle, ListOrdered } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -31,18 +33,19 @@ export const App: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterCategory>('all');
 
-  // Modals
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  // Editing state for workbench
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [ticketOrder, setTicketOrder] = useState<Order | null>(null);
   const [isKhataOpen, setIsKhataOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
+  // Mobile View Tab Switcher ('workbench' | 'register')
+  const [mobileTab, setMobileTab] = useState<'workbench' | 'register'>('workbench');
+
   // Current Auth User
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  // Initial Data Fetch
   const refreshData = async () => {
     try {
       const [orderList, partyList, presetList] = await Promise.all([
@@ -63,9 +66,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     refreshData();
 
-    // Setup Supabase Realtime Listener if configured
     if (isSupabaseConfigured && supabase) {
-      // Get current user session
       supabase.auth.getSession().then(({ data }) => {
         if (data.session?.user) {
           setCurrentUser(data.session.user);
@@ -91,7 +92,10 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // Compute Live Metrics
+  const nextReceiptNo = useMemo(() => {
+    return generateNextReceiptNo(orders);
+  }, [orders]);
+
   const metrics: KPIMetrics = useMemo(() => {
     const totalOrders = orders.length;
     const activeJobs = orders.filter((o) => o.status !== 'Delivered').length;
@@ -108,10 +112,15 @@ export const App: React.FC = () => {
     };
   }, [orders]);
 
-  // Filtered Orders
+  const duePartiesCount = useMemo(() => {
+    const uniqueDueParties = new Set(
+      orders.filter((o) => o.balance_due > 0).map((o) => o.party_name.trim().toLowerCase())
+    );
+    return uniqueDueParties.size;
+  }, [orders]);
+
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
-      // 1. Search Query
       const q = searchTerm.toLowerCase().trim();
       const matchesSearch =
         !q ||
@@ -124,15 +133,11 @@ export const App: React.FC = () => {
 
       if (!matchesSearch) return false;
 
-      // 2. Category Filter
       if (activeFilter === 'balance_due') {
         return order.balance_due > 0;
       }
       if (activeFilter === 'in_progress') {
-        return ['Pending', 'Printing', 'Binding'].includes(order.status);
-      }
-      if (activeFilter === 'ready') {
-        return order.status === 'Ready';
+        return ['Pending', 'Printing', 'Binding', 'Ready'].includes(order.status);
       }
       if (activeFilter === 'delivered') {
         return order.status === 'Delivered';
@@ -145,6 +150,7 @@ export const App: React.FC = () => {
   // Handlers
   const handleSaveOrder = async (orderData: Partial<Order>) => {
     await saveOrder(orderData);
+    setEditingOrder(null);
     await refreshData();
   };
 
@@ -162,7 +168,7 @@ export const App: React.FC = () => {
       Printing: 'Binding',
       Binding: 'Ready',
       Ready: 'Delivered',
-      Delivered: 'Delivered',
+      Delivered: 'Pending',
     };
     const next = nextMap[currentStatus];
     if (next) {
@@ -176,91 +182,121 @@ export const App: React.FC = () => {
     await refreshData();
   };
 
+  const handleEditOrderInWorkbench = (order: Order) => {
+    setEditingOrder(order);
+    setMobileTab('workbench');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#f8f7f4] text-stone-900 antialiased font-sans">
       {/* Top Application Header */}
       <Header
-        onNewOrder={() => {
-          setEditingOrder(null);
-          setIsOrderModalOpen(true);
-        }}
-        onOpenKhata={() => setIsKhataOpen(true)}
         onExportCSV={() => exportOrdersToCSV(orders)}
-        onExportJSON={() => exportDatabaseJSON(orders)}
+        onOpenKhata={() => setIsKhataOpen(true)}
+        onRefresh={refreshData}
         onOpenAuth={() => setIsAuthOpen(true)}
         currentUser={currentUser}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-5 sm:px-6 space-y-5">
-        {/* Real-time KPI Metric Cards */}
-        <KPICards
-          metrics={metrics}
-          onFilterBalanceDue={() => setActiveFilter('balance_due')}
-          onFilterActive={() => setActiveFilter('in_progress')}
-        />
+      {/* Mobile Tab Switcher (Visible on mobile/tablet) */}
+      <div className="lg:hidden px-4 pt-3 pb-1">
+        <div className="grid grid-cols-2 p-1 bg-stone-200/80 rounded-2xl text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => setMobileTab('workbench')}
+            className={`py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all ${
+              mobileTab === 'workbench'
+                ? 'bg-white text-stone-900 shadow-2xs'
+                : 'text-stone-600'
+            }`}
+          >
+            <PlusCircle className="w-4 h-4 text-[#d9532f]" />
+            <span>New Ticket</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('register')}
+            className={`py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all ${
+              mobileTab === 'register'
+                ? 'bg-white text-stone-900 shadow-2xs'
+                : 'text-stone-600'
+            }`}
+          >
+            <ListOrdered className="w-4 h-4 text-blue-600" />
+            <span>Order Register ({orders.length})</span>
+          </button>
+        </div>
+      </div>
 
-        {/* Search & Status Filters */}
-        <FilterBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
-          totalFilteredCount={filteredOrders.length}
-        />
-
-        {/* Order Ledger Table & Mobile Cards */}
-        {isLoading ? (
-          <div className="bg-white border border-slate-200 rounded-xl p-12 text-center text-slate-500 font-medium">
-            डेटा लोड होत आहे, कृपया प्रतीक्षा करा...
+      {/* Main Multi-Column Split Workbench Layout */}
+      <main className="flex-1 max-w-[1700px] w-full mx-auto p-4 sm:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          {/* Left Column: Fixed Counter Entry Workbench */}
+          <div
+            className={`lg:col-span-4 xl:col-span-4 2xl:col-span-4 lg:sticky lg:top-20 ${
+              mobileTab === 'workbench' ? 'block' : 'hidden lg:block'
+            }`}
+          >
+            <OrderWorkbenchForm
+              onSave={handleSaveOrder}
+              editingOrder={editingOrder}
+              onCancelEdit={() => setEditingOrder(null)}
+              existingParties={parties}
+              customPresets={customPresets}
+              nextReceiptNo={nextReceiptNo}
+            />
           </div>
-        ) : (
-          <OrderLedgerTable
-            orders={filteredOrders}
-            onEdit={(order) => {
-              setEditingOrder(order);
-              setIsOrderModalOpen(true);
-            }}
-            onDelete={(id) => setDeleteConfirmId(id)}
-            onPrintTicket={(order) => setTicketOrder(order)}
-            onAdvanceStatus={handleAdvanceStatus}
-            onClearBalance={handleClearBalance}
-          />
-        )}
+
+          {/* Right Column: KPIs + Filter + Live Order Register */}
+          <div
+            className={`lg:col-span-8 xl:col-span-8 2xl:col-span-8 space-y-4 ${
+              mobileTab === 'register' ? 'block' : 'hidden lg:block'
+            }`}
+          >
+            {/* 4 Clean Top KPI Cards */}
+            <KPICards
+              metrics={metrics}
+              duePartiesCount={duePartiesCount}
+              onFilterBalanceDue={() => setActiveFilter('balance_due')}
+              onFilterActive={() => setActiveFilter('in_progress')}
+            />
+
+            {/* Instant Search Bar & Status Filter Pills */}
+            <FilterBar
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              activeFilter={activeFilter}
+              onFilterChange={setActiveFilter}
+            />
+
+            {/* Live Order Register Table */}
+            {isLoading ? (
+              <div className="bg-white border border-stone-200/90 rounded-3xl p-12 text-center text-stone-500 font-medium">
+                Loading orders...
+              </div>
+            ) : (
+              <OrderLedgerTable
+                orders={filteredOrders}
+                onEdit={handleEditOrderInWorkbench}
+                onDelete={(id) => setDeleteConfirmId(id)}
+                onPrintTicket={(order) => setTicketOrder(order)}
+                onAdvanceStatus={handleAdvanceStatus}
+                onClearBalance={handleClearBalance}
+              />
+            )}
+          </div>
+
+        </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-4 text-center text-xs border-t border-slate-800 print:hidden mt-auto">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div>
-            <strong>राज प्रेस (RAJ PRESS)</strong> — Commercial Printing & Binding Order Book & ERP
-          </div>
-          <div className="text-[11px] text-slate-500">
-            100% Free-Forever Stack (Supabase PostgreSQL + Vite PWA + Cloudflare Pages)
-          </div>
-        </div>
-      </footer>
-
-      {/* Order Entry & Edit Modal */}
-      <OrderFormModal
-        isOpen={isOrderModalOpen}
-        onClose={() => {
-          setIsOrderModalOpen(false);
-          setEditingOrder(null);
-        }}
-        onSave={handleSaveOrder}
-        editingOrder={editingOrder}
-        existingParties={parties}
-        customPresets={customPresets}
-      />
-
-      {/* Printable Job Ticket Modal (जॉब कार्ड) */}
+      {/* Modals & Dialogs */}
       <JobTicketModal
         order={ticketOrder}
         onClose={() => setTicketOrder(null)}
       />
 
-      {/* Customer Khata Directory Modal */}
       <CustomerKhataModal
         isOpen={isKhataOpen}
         onClose={() => setIsKhataOpen(false)}
@@ -268,10 +304,10 @@ export const App: React.FC = () => {
         onSelectPartyOrders={(partyName) => {
           setSearchTerm(partyName);
           setActiveFilter('all');
+          setMobileTab('register');
         }}
       />
 
-      {/* Supabase Cloud Auth Modal */}
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
@@ -279,13 +315,12 @@ export const App: React.FC = () => {
         onUserChange={setCurrentUser}
       />
 
-      {/* Order Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={Boolean(deleteConfirmId)}
-        title="ऑर्डर हटवण्याची खात्री करा"
-        message="तुम्हाला ही ऑर्डर कायमची हटवायची आहे का? ही क्रिया पूर्ववत केली जाऊ शकत नाही."
-        confirmLabel="होय, हटवा"
-        cancelLabel="रद्द करा"
+        title="Delete Order"
+        message="Are you sure you want to permanently delete this job ticket from the ledger?"
+        confirmLabel="Yes, Delete"
+        cancelLabel="Cancel"
         onConfirm={handleDeleteOrder}
         onCancel={() => setDeleteConfirmId(null)}
       />

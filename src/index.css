@@ -4,12 +4,30 @@
 
 @layer base {
   body {
-    @apply antialiased text-slate-800 bg-slate-100;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background-color: #f8f7f4;
+    color: #1c1917;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-/* Custom Print Rules for A5 / Thermal Slip */
+/* Custom scrollbars for clean look */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+/* Print styling for A5 / Thermal Job Slip */
 @media print {
   @page {
     size: A5 portrait;
