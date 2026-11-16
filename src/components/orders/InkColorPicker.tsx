@@ -38,11 +38,11 @@ export const InkColorPicker: React.FC<InkColorPickerProps> = ({
     <div className="w-full">
       <div className="flex items-center justify-between mb-1.5">
         <label className="block text-xs font-semibold text-slate-700">
-          शाई कलर <span className="text-slate-400 font-normal">(Ink Colours - Multi-Select)</span>
+          Ink Colours <span className="text-slate-400 font-normal">(Multi-Select)</span>
           <span className="text-rose-600 ml-1">*</span>
         </label>
         <span className="text-[11px] font-medium text-slate-500">
-          निवडलेले: <strong className="text-blue-700">{selectedColors.length > 0 ? selectedColors.join(', ') : 'एकही नाही'}</strong>
+          Selected: <strong className="text-blue-700">{selectedColors.length > 0 ? selectedColors.join(', ') : 'None'}</strong>
         </span>
       </div>
 
@@ -79,7 +79,7 @@ export const InkColorPicker: React.FC<InkColorPickerProps> = ({
                 )}
               </span>
 
-              <span>{ink.nameMr}</span>
+              <span>{ink.nameEn}</span>
             </button>
           );
         })}

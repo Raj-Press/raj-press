@@ -19,7 +19,7 @@ export const KPICards: React.FC<KPICardsProps> = ({
       {/* 1. Total Orders */}
       <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-2xl p-4 shadow-2xs hover:shadow-xs transition-colors">
         <span className="text-xs font-semibold text-stone-500 dark:text-stone-400 block">
-          Total Orders (एकूण नोंदी)
+          Total Orders
         </span>
         <div className="text-3xl font-extrabold text-stone-900 dark:text-stone-100 tracking-tight mt-1">
           {metrics.totalOrders}
@@ -48,7 +48,7 @@ export const KPICards: React.FC<KPICardsProps> = ({
       {/* 3. Total Billed */}
       <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-2xl p-4 shadow-2xs hover:shadow-xs transition-colors">
         <span className="text-xs font-semibold text-stone-500 dark:text-stone-400 block">
-          Total Billed (एकूण रक्कम)
+          Total Billed
         </span>
         <div className="text-3xl font-extrabold text-stone-900 dark:text-stone-100 tracking-tight mt-1">
           ₹{metrics.totalBilled.toLocaleString('en-IN')}
@@ -64,7 +64,7 @@ export const KPICards: React.FC<KPICardsProps> = ({
         className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-2xl p-4 shadow-2xs hover:shadow-xs transition-colors cursor-pointer group"
       >
         <span className="text-xs font-semibold text-amber-900/80 dark:text-amber-400 block group-hover:underline">
-          Pending Balance (येणे बाकी)
+          Pending Balance
         </span>
         <div className="text-3xl font-extrabold text-[#c2410c] dark:text-[#ea580c] tracking-tight mt-1">
           ₹{metrics.pendingBalance.toLocaleString('en-IN')}

@@ -3,7 +3,7 @@ import { PlusCircle } from 'lucide-react';
 
 interface DynamicSelectProps {
   label: string;
-  labelEn: string;
+  labelEn?: string;
   options: string[];
   value: string;
   onChange: (value: string) => void;
@@ -14,12 +14,11 @@ interface DynamicSelectProps {
 
 export const DynamicSelect: React.FC<DynamicSelectProps> = ({
   label,
-  labelEn,
   options,
   value,
   onChange,
   required = false,
-  placeholder = '-- निवडा (Select) --',
+  placeholder = '-- Select --',
   onCustomAdd
 }) => {
   const [isOther, setIsOther] = useState(false);
@@ -61,7 +60,7 @@ export const DynamicSelect: React.FC<DynamicSelectProps> = ({
   return (
     <div className="w-full">
       <label className="block text-xs font-semibold text-slate-700 mb-1">
-        {label} <span className="text-slate-400 font-normal">({labelEn})</span>
+        {label}
         {required && <span className="text-rose-600 ml-1">*</span>}
       </label>
 
@@ -79,7 +78,7 @@ export const DynamicSelect: React.FC<DynamicSelectProps> = ({
             </option>
           ))}
           <option value="__OTHERS__" className="font-semibold text-blue-700 bg-blue-50">
-            ➕ इतर (Others - नवीन टाईप करा)...
+            ➕ Others (Type new option)...
           </option>
         </select>
       ) : (
@@ -88,7 +87,7 @@ export const DynamicSelect: React.FC<DynamicSelectProps> = ({
             <input
               type="text"
               autoFocus
-              placeholder="नवीन पर्याय टाईप करा (Enter custom option)..."
+              placeholder="Type new option..."
               value={customVal}
               onChange={(e) => {
                 setCustomVal(e.target.value);
@@ -105,14 +104,14 @@ export const DynamicSelect: React.FC<DynamicSelectProps> = ({
                 setCustomVal('');
                 onChange('');
               }}
-              title="मागे या (Cancel custom input)"
+              title="Cancel custom input"
               className="px-2.5 py-1 text-xs font-medium bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors"
             >
-              रद्द
+              Cancel
             </button>
           </div>
           <p className="text-[11px] text-amber-700 flex items-center gap-1 font-medium">
-            <PlusCircle className="w-3.5 h-3.5" /> हा पर्याय आपोआप भविष्यासाठी सेव्ह केला जाईल.
+            <PlusCircle className="w-3.5 h-3.5" /> This option will be automatically saved for future use.
           </p>
         </div>
       )}

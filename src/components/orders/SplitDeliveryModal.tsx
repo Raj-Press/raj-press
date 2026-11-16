@@ -32,11 +32,11 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
     e.preventDefault();
     const qty = Number(dispatchQty);
     if (!qty || qty <= 0) {
-      setErrorMsg('कृपया वैध नग संख्या टाका (Enter valid quantity > 0)');
+      setErrorMsg('Please enter a valid quantity (> 0)');
       return;
     }
     if (qty > remainingQty) {
-      setErrorMsg(`डिलिव्हरी नग शिल्लक पेक्षा जास्त असू शकत नाही (Max allowed: ${remainingQty.toLocaleString('en-IN')})`);
+      setErrorMsg(`Dispatch quantity cannot exceed remaining balance (Max allowed: ${remainingQty.toLocaleString('en-IN')})`);
       return;
     }
 
@@ -76,10 +76,10 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-bold tracking-tight">
-                हप्तेवारी डिलिव्हरी नोंद (Split Delivery)
+                Split Delivery Tracking
               </h2>
               <p className="text-xs text-stone-400 font-mono">
-                पावती क्र. #{order.receipt_no} • {order.party_name}
+                Receipt #{order.receipt_no} • {order.party_name}
               </p>
             </div>
           </div>
@@ -99,7 +99,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 block">
-                  कामाचा तपशील (Job)
+                  Job Details
                 </span>
                 <span className="text-sm font-bold text-stone-900 dark:text-stone-100">
                   {order.job_details}
@@ -113,13 +113,13 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
             {/* Metrics Grid */}
             <div className="grid grid-cols-3 gap-2 text-center pt-1">
               <div className="p-2 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
-                <span className="text-[10px] text-stone-400 block font-semibold">एकूण नग (Total)</span>
+                <span className="text-[10px] text-stone-400 block font-semibold">Total Quantity</span>
                 <span className="text-sm sm:text-base font-bold font-mono text-stone-900 dark:text-stone-100">
                   {order.quantity.toLocaleString('en-IN')}
                 </span>
               </div>
               <div className="p-2 bg-sky-50 dark:bg-sky-950/50 rounded-xl border border-sky-200 dark:border-sky-800">
-                <span className="text-[10px] text-sky-600 dark:text-sky-400 block font-semibold">डिलिव्हर (Sent)</span>
+                <span className="text-[10px] text-sky-600 dark:text-sky-400 block font-semibold">Delivered (Sent)</span>
                 <span className="text-sm sm:text-base font-bold font-mono text-sky-700 dark:text-sky-300">
                   {totalDelivered.toLocaleString('en-IN')}
                 </span>
@@ -132,7 +132,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
                 <span className={`text-[10px] block font-semibold ${
                   remainingQty === 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'
                 }`}>
-                  शिल्लक (Remaining)
+                  Remaining Qty
                 </span>
                 <span className={`text-sm sm:text-base font-bold font-mono ${
                   remainingQty === 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-800 dark:text-amber-300'
@@ -145,8 +145,8 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
             {/* Progress Bar */}
             <div className="space-y-1">
               <div className="flex justify-between text-[11px] font-semibold text-stone-500 dark:text-stone-400">
-                <span>डिलिव्हरी प्रगती (Progress)</span>
-                <span>{progressPercent}% पूर्ण</span>
+                <span>Delivery Progress</span>
+                <span>{progressPercent}% Complete</span>
               </div>
               <div className="w-full h-2 bg-stone-200 dark:bg-stone-700 rounded-full overflow-hidden">
                 <div
@@ -162,11 +162,11 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
           {/* Previous Dispatches History */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
-              मागील हप्ते (Dispatch History) ({dispatches.length})
+              Dispatch History ({dispatches.length})
             </h3>
             {dispatches.length === 0 ? (
               <p className="text-xs text-stone-400 italic bg-stone-50 dark:bg-stone-800/40 p-3 rounded-xl border border-stone-200/60 dark:border-stone-700/60 text-center">
-                अद्याप कोणतीही हप्तेवारी डिलिव्हरी नोंदवलेली नाही (No dispatches recorded yet).
+                No dispatches recorded yet.
               </p>
             ) : (
               <div className="divide-y divide-stone-100 dark:divide-stone-800 border border-stone-200/80 dark:border-stone-800 rounded-2xl overflow-hidden bg-white dark:bg-stone-900">
@@ -178,7 +178,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
                       </span>
                       <div>
                         <div className="font-bold text-stone-900 dark:text-stone-100 font-mono">
-                          {formatDDMMYYYY(disp.dispatch_date)} — <span className="text-sky-600 dark:text-sky-400">{Number(disp.quantity).toLocaleString('en-IN')} नग</span>
+                          {formatDDMMYYYY(disp.dispatch_date)} — <span className="text-sky-600 dark:text-sky-400">{Number(disp.quantity).toLocaleString('en-IN')} units</span>
                         </div>
                         {disp.notes && (
                           <div className="text-[11px] text-stone-500 dark:text-stone-400 italic">
@@ -190,7 +190,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
                     <button
                       type="button"
                       onClick={() => onRemoveDispatch(order.id, disp.id)}
-                      title="हा हप्ता रद्द करा (Remove entry)"
+                      title="Remove dispatch entry"
                       className="p-1 text-stone-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -206,7 +206,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
             <form onSubmit={handleAddDispatch} className="bg-sky-50/50 dark:bg-stone-800/80 p-3.5 rounded-2xl border border-sky-200/80 dark:border-stone-700 space-y-3">
               <div className="flex items-center gap-1.5 text-xs font-bold text-sky-900 dark:text-sky-200">
                 <Plus className="w-4 h-4 text-sky-600" />
-                <span>नवीन हप्ता नोंदवा (Add New Dispatch Lot)</span>
+                <span>Add New Dispatch Lot</span>
               </div>
 
               {errorMsg && (
@@ -219,7 +219,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                    डिलिव्हरी तारीख (Date)
+                    Dispatch Date
                   </label>
                   <input
                     type="date"
@@ -232,7 +232,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
 
                 <div>
                   <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                    डिलिव्हरी नग (Quantity)
+                    Dispatch Quantity
                   </label>
                   <input
                     type="number"
@@ -249,13 +249,13 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
 
               {/* Quick Pick Qty Buttons */}
               <div className="flex flex-wrap items-center gap-1 pt-0.5">
-                <span className="text-[10px] text-stone-500 dark:text-stone-400 mr-1">झटपट निवडा:</span>
+                <span className="text-[10px] text-stone-500 dark:text-stone-400 mr-1">Quick select:</span>
                 <button
                   type="button"
                   onClick={() => handleQuickQty(remainingQty)}
                   className="px-2 py-0.5 bg-sky-100 dark:bg-sky-950/80 hover:bg-sky-200 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-700 rounded text-[10px] font-bold"
                 >
-                  पूर्ण बाकी ({remainingQty})
+                  Full Remaining ({remainingQty})
                 </button>
                 {remainingQty >= 2000 && (
                   <button
@@ -263,7 +263,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
                     onClick={() => handleQuickQty(1000)}
                     className="px-2 py-0.5 bg-white dark:bg-stone-700 hover:bg-stone-100 text-stone-700 dark:text-stone-300 border border-stone-300 dark:border-stone-600 rounded text-[10px] font-semibold"
                   >
-                    1,000 नग
+                    1,000
                   </button>
                 )}
                 {remainingQty >= 4000 && (
@@ -272,20 +272,20 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
                     onClick={() => handleQuickQty(2000)}
                     className="px-2 py-0.5 bg-white dark:bg-stone-700 hover:bg-stone-100 text-stone-700 dark:text-stone-300 border border-stone-300 dark:border-stone-600 rounded text-[10px] font-semibold"
                   >
-                    2,000 नग
+                    2,000
                   </button>
                 )}
               </div>
 
               <div>
                 <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                  नोंद / रिमार्क (Notes / Driver / Tempo - Optional)
+                  Notes / Dispatch Remarks (Optional)
                 </label>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="उदा. २रा हप्ता, टेम्पोने पाठवले, चलन क्र. १२..."
+                  placeholder="e.g. 2nd dispatch, tempo delivery, challan #12..."
                   className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
@@ -293,7 +293,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
               {Number(dispatchQty) === remainingQty && (
                 <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 p-2 rounded-xl border border-emerald-200 dark:border-emerald-800">
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                  <span>या हप्त्यानंतर सर्व नग पूर्ण होऊन ऑर्डर आपोआप <strong>Delivered</strong> म्हणून लॉक होईल!</span>
+                  <span>With this dispatch, full order quantity is delivered and status will lock as <strong>Delivered</strong>.</span>
                 </div>
               )}
 
@@ -302,7 +302,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
                 disabled={isSubmitting}
                 className="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5"
               >
-                {isSubmitting ? 'नोंद होत आहे...' : `+ हप्ता डिलिव्हरी नोंदवा (${dispatchQty || 0} नग)`}
+                {isSubmitting ? 'Saving dispatch...' : `+ Record Dispatch (${dispatchQty || 0} units)`}
               </button>
             </form>
           ) : (
@@ -312,10 +312,10 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
               </div>
               <div>
                 <div className="text-xs font-bold text-emerald-900 dark:text-emerald-200">
-                  सर्व {order.quantity.toLocaleString('en-IN')} नग पूर्ण डिलिव्हर झाले आहेत!
+                  All {order.quantity.toLocaleString('en-IN')} units have been delivered.
                 </div>
                 <div className="text-[11px] text-emerald-700 dark:text-emerald-300">
-                  ऑर्डर डिलिव्हरी स्टेटस लॉक करण्यात आले आहे (Order is locked).
+                  Order delivery status is locked.
                 </div>
               </div>
             </div>
@@ -330,7 +330,7 @@ export const SplitDeliveryModal: React.FC<SplitDeliveryModalProps> = ({
             onClick={onClose}
             className="px-4 py-1.5 bg-white dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-200 border border-stone-300 dark:border-stone-600 rounded-xl text-xs font-semibold transition-colors"
           >
-            बंद करा (Close)
+            Close
           </button>
         </div>
 

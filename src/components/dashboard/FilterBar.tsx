@@ -24,7 +24,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onStatusFilterChange,
   orderTypeFilter,
   onOrderTypeFilterChange,
-  availableOrderTypes = ['General', 'Patrika / Wedding Cards', 'सप्ताह / Saptah', 'Special Order'],
+  availableOrderTypes = ['General', 'Patrika / Wedding Cards', 'Saptah', 'Special Order'],
 }) => {
   return (
     <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 my-2">
@@ -112,7 +112,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700'
           }`}
         >
-          येणे बाकी (Due)
+          Due Balance
         </button>
       </div>
     </div>

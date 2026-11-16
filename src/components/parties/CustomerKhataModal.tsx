@@ -56,7 +56,7 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
               <Users className="w-5 h-5 text-white" />
             </span>
             <div>
-              <h2 className="text-lg font-bold">Customer Khata Ledger (ग्राहक वही)</h2>
+              <h2 className="text-lg font-bold">Customer Khata Ledger</h2>
               <p className="text-xs text-stone-400">Total customer billing & pending dues</p>
             </div>
           </div>
@@ -85,7 +85,7 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
 
             <div className="p-3 bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl">
               <span className="text-xs text-rose-700 dark:text-rose-400 font-bold block flex items-center gap-1">
-                <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" /> Pending Dues (येणे बाकी):
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" /> Pending Dues:
               </span>
               <strong className="text-xl text-[#c2410c] dark:text-[#ea580c] font-mono font-extrabold">
                 ₹{totalKhataPending.toLocaleString('en-IN')}
@@ -113,7 +113,7 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
                   <th className="p-3">Customer / Party</th>
                   <th className="p-3">Phone</th>
                   <th className="p-3 text-right">Total Billed</th>
-                  <th className="p-3 text-right">Due (येणे बाकी)</th>
+                  <th className="p-3 text-right">Due Balance</th>
                   <th className="p-3 text-center">Actions</th>
                 </tr>
               </thead>

@@ -8,25 +8,26 @@ import { formatDDMMYYYY } from './date';
  */
 export function exportOrdersToCSV(orders: Order[]): void {
   const headers = [
-    'पावती क्र. (Receipt No)',
-    'तारीख (Order Date)',
-    'ग्राहकाचे नांव (Party Name)',
-    'मोबाईल क्र. (Phone)',
-    'कामाचा तपशील (Job Details)',
-    'नग (Quantity)',
-    'मुख्य कागद (Primary Paper)',
-    'दुय्यम कागद (Secondary Paper)',
-    'साईज (Paper Size)',
-    'बायडिंग प्रकार (Binding)',
-    'शाई कलर (Ink Colours)',
-    'प्रिंटींग प्रकार (Printing Type)',
-    'नंबरींग (Numbering)',
-    'एकूण रक्कम ₹ (Total Amount)',
-    'ॲडव्हान्स ₹ (Advance Amount)',
-    'येणे बाकी ₹ (Balance Due)',
-    'वायदा ता. (Promise Date)',
-    'स्थिती (Status)',
-    'नोंदी (Notes)'
+    'Receipt No',
+    'Order Date',
+    'Party / Customer Name',
+    'Mobile No',
+    'Job Details',
+    'Order Type',
+    'Quantity',
+    'Primary Paper',
+    'Secondary Paper',
+    'Paper Size',
+    'Binding',
+    'Ink Colours',
+    'Printing Type',
+    'Numbering',
+    'Total Amount (₹)',
+    'Advance Amount (₹)',
+    'Balance Due (₹)',
+    'Promise Date',
+    'Status',
+    'Notes'
   ];
 
   const rows = orders.map(o => [
@@ -35,6 +36,7 @@ export function exportOrdersToCSV(orders: Order[]): void {
     `"${(o.party_name || '').replace(/"/g, '""')}"`,
     `"${(o.party_phone || '').replace(/"/g, '""')}"`,
     `"${(o.job_details || '').replace(/"/g, '""')}"`,
+    `"${(o.order_type || 'General').replace(/"/g, '""')}"`,
     o.quantity || 1,
     `"${(o.paper_primary || '').replace(/"/g, '""')}"`,
     `"${(o.paper_secondary || '').replace(/"/g, '""')}"`,

@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-semibold shadow-2xs transition-colors"
           >
             <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span>Khata (ग्राहक वही)</span>
+            <span>Customer Khata</span>
           </button>
 
           {/* Export Excel / CSV */}

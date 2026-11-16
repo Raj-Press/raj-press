@@ -102,24 +102,24 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                     </div>
                     {order.promise_date && (
                       <div className="text-xs text-[#ea580c] dark:text-[#f97316] font-semibold font-mono mt-0.5">
-                        वायदा: {formatDDMMYYYY(order.promise_date)}
+                        Promise: {formatDDMMYYYY(order.promise_date)}
                       </div>
                     )}
                     {/* Special Order split delivery tracking in date column */}
                     {isSpecialOrder && totalDelivered > 0 && !isFullyDelivered && (
                       <div className="mt-1 space-y-0.5">
                         <div className="text-xs text-sky-600 dark:text-sky-400 font-bold font-mono">
-                          डिलिव्हर: {totalDelivered.toLocaleString('en-IN')}/{order.quantity.toLocaleString('en-IN')}
+                          Delivered: {totalDelivered.toLocaleString('en-IN')}/{order.quantity.toLocaleString('en-IN')}
                         </div>
                         <div className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold font-mono">
-                          शिल्लक: {remainingQty.toLocaleString('en-IN')} नग
+                          Left: {remainingQty.toLocaleString('en-IN')}
                         </div>
                       </div>
                     )}
                     {isFullyDelivered && (
                       <div className="text-xs text-emerald-600 dark:text-emerald-400 font-bold font-mono mt-0.5">
-                        डिलिव्हरी: {formatDDMMYYYY(order.delivered_date || order.promise_date || order.order_date)}
-                        {isSpecialOrder && ` (${order.quantity.toLocaleString('en-IN')} नग पूर्ण)`}
+                        Delivered: {formatDDMMYYYY(order.delivered_date || order.promise_date || order.order_date)}
+                        {isSpecialOrder && ` (${order.quantity.toLocaleString('en-IN')} complete)`}
                       </div>
                     )}
                   </td>
@@ -136,7 +136,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                     </div>
                     <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                       <span className="px-2 py-0.5 bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 rounded text-xs font-bold">
-                        नग: {order.quantity.toLocaleString('en-IN')}
+                        Qty: {order.quantity.toLocaleString('en-IN')}
                       </span>
                       {order.order_type && order.order_type !== 'General' && (
                         <span className={`px-1.5 py-0.5 rounded text-[11px] font-bold border ${
@@ -144,32 +144,32 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                             ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-700'
                             : 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                         }`}>
-                          {order.order_type}
+                          {order.order_type === 'सप्ताह / Saptah' ? 'Saptah' : order.order_type}
                         </span>
                       )}
                       {/* Split delivery progress badge */}
                       {isSpecialOrder && (
                         isFullyDelivered ? (
                           <span className="px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 rounded text-[11px] font-bold">
-                            सर्व हप्ते पूर्ण ({order.quantity.toLocaleString('en-IN')})
+                            All Dispatches Complete ({order.quantity.toLocaleString('en-IN')})
                           </span>
                         ) : totalDelivered > 0 ? (
                           <button
                             type="button"
                             onClick={() => onOpenSplitDelivery(order)}
-                            title="हप्तेवारी डिलिव्हरी तपशील उघडा"
+                            title="View split delivery details"
                             className="px-1.5 py-0.5 bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-800 rounded text-[11px] font-bold hover:bg-sky-100 transition-colors"
                           >
-                            हप्ता: {totalDelivered.toLocaleString('en-IN')}/{order.quantity.toLocaleString('en-IN')} (बाकी: {remainingQty.toLocaleString('en-IN')})
+                            Dispatch: {totalDelivered.toLocaleString('en-IN')}/{order.quantity.toLocaleString('en-IN')} (Left: {remainingQty.toLocaleString('en-IN')})
                           </button>
                         ) : (
                           <button
                             type="button"
                             onClick={() => onOpenSplitDelivery(order)}
-                            title="हप्तेवारी डिलिव्हरी नोंदवा"
+                            title="Record split delivery"
                             className="px-1.5 py-0.5 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 rounded text-[11px] font-semibold hover:bg-amber-100 transition-colors"
                           >
-                            हप्तेवारी प्रलंबित
+                            Pending Dispatch
                           </button>
                         )
                       )}
@@ -240,11 +240,11 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                     <div className="pt-0.5">
                       {hasBalance ? (
                         <span className="inline-block px-2.5 py-1 bg-amber-100/90 dark:bg-amber-950/70 text-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-800 rounded-lg text-xs sm:text-sm font-bold font-mono shadow-2xs">
-                          बाकी: ₹{Number(order.balance_due).toLocaleString('en-IN')}
+                          Due: ₹{Number(order.balance_due).toLocaleString('en-IN')}
                         </span>
                       ) : (
                         <span className="inline-block px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 rounded-lg text-xs sm:text-sm font-bold shadow-2xs">
-                          Paid • पूर्ण
+                          Paid
                         </span>
                       )}
                     </div>
@@ -255,7 +255,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                     <div className="flex items-center justify-end">
                       {isFullyDelivered ? (
                         <span
-                          title={`ऑर्डर पूर्ण (${order.quantity.toLocaleString('en-IN')} नग) डिलिव्हर होऊन लॉक झाली आहे. चूक झाली असल्यास Edit बटनावरून बदला.`}
+                          title={`Order fully delivered (${order.quantity.toLocaleString('en-IN')} units) and locked. Use Edit to modify if needed.`}
                           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold border shadow-2xs bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-800 cursor-default select-none"
                         >
                           <Check className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -266,7 +266,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                         <button
                           type="button"
                           onClick={() => onOpenSplitDelivery(order)}
-                          title="हप्तेवारी डिलिव्हरी नोंदवा (Record Split Delivery)"
+                          title="Record Split Delivery"
                           className="px-3 py-1 rounded-xl text-xs sm:text-sm font-bold border shadow-2xs transition-all hover:scale-[1.03] active:scale-[0.98] bg-sky-50 text-sky-700 border-sky-300 dark:bg-sky-950/70 dark:text-sky-300 dark:border-sky-800"
                         >
                           {totalDelivered > 0 ? `Split Delivery (${totalDelivered.toLocaleString('en-IN')}/${order.quantity.toLocaleString('en-IN')})` : 'Split Delivery'}
@@ -288,7 +288,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                         <button
                           type="button"
                           onClick={() => onClearBalance(order.id)}
-                          title="बाकी रक्कम पूर्ण जमा करा"
+                          title="Clear remaining balance"
                           className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg shadow-2xs transition-all hover:scale-[1.02]"
                         >
                           <Check className="w-3.5 h-3.5" />
@@ -300,7 +300,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                         <button
                           type="button"
                           onClick={() => onOpenSplitDelivery(order)}
-                          title="हप्तेवारी डिलिव्हरी नोंदवा (Split Delivery)"
+                          title="Record Split Delivery"
                           className="p-1.5 text-sky-600 dark:text-sky-400 hover:text-sky-700 hover:bg-sky-50 dark:hover:bg-sky-950/40 rounded-lg transition-colors"
                         >
                           <Truck className="w-4 h-4" />
@@ -328,7 +328,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                       <button
                         type="button"
                         onClick={() => onRepeatOrder(order)}
-                        title="Repeat Order (नवीन ऑर्डर म्हणून लोड करा)"
+                        title="Repeat Order as new job ticket"
                         className="p-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg transition-colors"
                       >
                         <Copy className="w-4 h-4" />

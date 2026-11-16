@@ -275,7 +275,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 ? `Edit Ticket #${editingOrder.receipt_no}`
                 : repeatSource
                 ? `Repeat Order #${repeatSource.receipt_no}`
-                : 'New Job Ticket • नवीन ऑर्डर'}
+                : 'New Job Ticket'}
             </h2>
           </div>
           {(editingOrder || repeatSource) && (
@@ -308,7 +308,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
-                Date (तारीख)
+                Date
               </label>
               <span className="text-[10px] font-mono font-bold text-[#d9532f]">
                 {formatDDMMYYYY(date)}
@@ -325,7 +325,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
 
           <div>
             <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Receipt No. (पावती नं.)
+              Receipt No.
             </label>
             <input
               type="text"
@@ -342,13 +342,13 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <div className="sm:col-span-2">
             <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Party / Customer Name (नांव) *
+              Party / Customer Name *
             </label>
             <input
               type="text"
               required
               list="customer-datalist"
-              placeholder="उदा. ग्राहक किंवा फर्मचे नांव (Customer / Firm Name)"
+              placeholder="Customer or Firm Name"
               value={partyName}
               onChange={(e) => {
                 const val = e.target.value;
@@ -371,11 +371,11 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
 
           <div>
             <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Mobile No. (मोबाईल नं.)
+              Mobile No.
             </label>
             <input
               type="tel"
-              placeholder="उदा. 9822011223"
+              placeholder="e.g. 9822011223"
               value={partyPhone}
               onChange={(e) => setPartyPhone(e.target.value)}
               className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium font-mono focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
@@ -388,12 +388,12 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           <div className="grid grid-cols-3 gap-2">
             <div className="col-span-2">
               <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                Job Details (कामाचा तपशील) *
+                Job Details *
               </label>
               <input
                 type="text"
                 required
-                placeholder="उदा. बिल बुक, लेटरहेड, चलन (Job / Item Description)"
+                placeholder="e.g. Delivery Challan, Bill Book, Receipt Book"
                 value={jobDetails}
                 onChange={(e) => setJobDetails(e.target.value)}
                 className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
@@ -401,7 +401,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                Qty (नग) *
+                Quantity *
               </label>
               <input
                 type="number"
@@ -433,7 +433,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         <div>
           <div className="flex items-center justify-between mb-1">
             <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
-              Order Type (ऑर्डर प्रकार)
+              Order Type
             </label>
             <span className="text-xs font-bold text-[#d9532f] dark:text-[#f97316]">
               {orderType || 'General'}
@@ -490,7 +490,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                     : 'bg-stone-300 dark:bg-stone-600'
                 }`}
               />
-              <span>Other(s) / इतर...</span>
+              <span>Other(s)</span>
             </button>
           </div>
 
@@ -499,7 +499,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               <input
                 type="text"
                 autoFocus
-                placeholder="उदा. दिनदर्शिका, बिल, पावती... / Custom order type"
+                placeholder="Type custom order type..."
                 value={orderType}
                 onChange={(e) => setOrderType(e.target.value)}
                 onKeyDown={(e) => {
@@ -533,7 +533,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         <div>
           <div className="flex items-center justify-between mb-1">
             <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
-              Paper Type (कागदाची जात)
+              Paper Type
             </label>
             <span className="text-[10px] text-stone-400">
               Combine 2 if multi-part
@@ -573,7 +573,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         <div className="grid grid-cols-2 gap-2.5">
           <div className="min-w-0">
             <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Size (साईज)
+              Size
             </label>
             <SelectWithOther
               options={sizes}
@@ -586,7 +586,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
 
           <div className="min-w-0">
             <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Binding (बायडिंग)
+              Binding
             </label>
             <SelectWithOther
               options={bindings}
@@ -644,7 +644,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         {/* Row 7A: Printing */}
         <div className="w-full min-w-0">
           <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-            Printing (प्रिंटींग)
+            Printing
           </label>
           <SelectWithOther
             options={printings}
@@ -672,7 +672,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
 
           <div>
             <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Numbering (नंबरींग)
+              Numbering
             </label>
             <input
               type="text"
@@ -687,11 +687,11 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         {/* Row 8: Remarks Section */}
         <div>
           <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-            Remarks / Instructions (नोंदी / सूचना)
+            Remarks / Instructions
           </label>
           <input
             type="text"
-            placeholder="e.g. प्रूफ तपासणी, कटिंग फिनिशिंग..."
+            placeholder="e.g. Proof checking, cutting, finishing notes..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"

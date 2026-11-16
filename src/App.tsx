@@ -146,10 +146,10 @@ export const App: React.FC = () => {
       new Set([
         'General',
         'Patrika / Wedding Cards',
-        'सप्ताह / Saptah',
+        'Saptah',
         'Special Order',
         ...customPresets.filter((p) => p.category === 'order_type').map((p) => p.value),
-        ...orders.map((o) => o.order_type).filter(Boolean) as string[],
+        ...orders.map((o) => (o.order_type === 'सप्ताह / Saptah' ? 'Saptah' : o.order_type)).filter(Boolean) as string[],
       ])
     );
   }, [customPresets, orders]);
@@ -163,6 +163,8 @@ export const App: React.FC = () => {
       if (orderTypeFilter !== 'ALL') {
         if (orderTypeFilter === 'General') {
           if (order.order_type && order.order_type !== 'General') return false;
+        } else if (orderTypeFilter === 'Saptah') {
+          if (order.order_type !== 'Saptah' && order.order_type !== 'सप्ताह / Saptah') return false;
         } else {
           if (order.order_type !== orderTypeFilter) return false;
         }

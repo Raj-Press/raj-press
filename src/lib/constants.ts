@@ -15,10 +15,10 @@ export const INK_COLORS: InkColorOption[] = [
 ];
 
 export const FREQUENT_PARTIES = [
-  'Cash Customer (रोख)',
-  'Regular Party (नियमित)',
+  'Cash Customer',
+  'Regular Party',
   'Counter / Walk-in',
-  'Shop / Trader (व्यापारी)',
+  'Shop / Trader',
   'School / College',
   'Hospital / Clinic'
 ];
@@ -27,9 +27,9 @@ export const FREQUENT_JOBS = [
   'Delivery Challan',
   'Bill Book',
   'Receipt Book',
-  'Letterhead / पॅड',
+  'Letterhead',
   'Certificate',
-  'Labels / स्टिकर'
+  'Labels / Stickers'
 ];
 
 // Exact Paper varieties from Raj Press order sheet
@@ -97,7 +97,7 @@ export const DEFAULT_PRINTINGS = [
 export const DEFAULT_ORDER_TYPES = [
   'General',
   'Patrika / Wedding Cards',
-  'सप्ताह / Saptah',
+  'Saptah',
   'Special Order'
 ];
 
@@ -141,7 +141,7 @@ export const STATUS_LABELS: Record<OrderStatus, { en: string; mr: string; color:
   },
   'Split Delivery': {
     en: 'Split Delivery',
-    mr: 'हप्तेवारी डिलिव्हरी',
+    mr: 'Split Delivery',
     color: 'text-sky-800 dark:text-sky-300',
     bg: 'bg-sky-50 border-sky-300 dark:bg-sky-950/60 dark:border-sky-800',
     badge: 'bg-sky-50 text-sky-800 border-sky-300 dark:bg-sky-950/70 dark:text-sky-300 dark:border-sky-800'
