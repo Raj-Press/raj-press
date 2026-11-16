@@ -2,242 +2,13 @@ import { get, set } from 'idb-keyval';
 import { Order, Party, Preset, DeliveryDispatch } from '../types';
 import { supabase, isSupabaseConfigured } from './supabase';
 
-const ORDERS_KEY = 'raj_press_orders_v2';
-const PARTIES_KEY = 'raj_press_parties_v2';
-const PRESETS_KEY = 'raj_press_presets_v2';
+const ORDERS_KEY = 'raj_press_orders_v3';
+const PARTIES_KEY = 'raj_press_parties_v3';
+const PRESETS_KEY = 'raj_press_presets_v3';
 
-const INITIAL_PARTIES: Party[] = [
-  {
-    id: 'p1',
-    name: 'आदित्य इंजिनिअर्स / Aditya Engineers',
-    phone: '9822011223',
-    total_billed: 1500,
-    total_pending: 500
-  },
-  {
-    id: 'p2',
-    name: 'शिवाजी महाविद्यालय, पंढरपूर / Shivaji Mahavidyalaya',
-    phone: '9423055443',
-    total_billed: 850,
-    total_pending: 0
-  },
-  {
-    id: 'p3',
-    name: 'डॉ. सुहास राऊत / Dr. Suhas Raut',
-    phone: '9890123789',
-    total_billed: 950,
-    total_pending: 450
-  },
-  {
-    id: 'p4',
-    name: 'नालेवाडी फूड & पॅकेजिंग / Nalewadi Food & Packaging',
-    phone: '9765432098',
-    total_billed: 1200,
-    total_pending: 600
-  },
-  {
-    id: 'p5',
-    name: 'गजानन लॅब / Gajanan Lab',
-    phone: '9823456781',
-    total_billed: 1600,
-    total_pending: 0
-  },
-  {
-    id: 'p6',
-    name: 'करवळ कृषी सेवा केंद्र / Karawale Krushi Seva',
-    phone: '9922114455',
-    total_billed: 1200,
-    total_pending: 200
-  }
-];
+const INITIAL_PARTIES: Party[] = [];
 
-const INITIAL_ORDERS: Order[] = [
-  {
-    id: 'ord-101',
-    created_at: '2026-11-14T10:00:00.000Z',
-    order_date: '2026-11-14',
-    receipt_no: '101',
-    party_id: 'p1',
-    party_name: 'आदित्य इंजिनिअर्स / Aditya Engineers',
-    party_phone: '9822011223',
-    job_details: 'डिलिव्हरी चलन (Delivery Challan)',
-    quantity: 10,
-    paper_primary: 'SPB [Yellow]',
-    paper_secondary: 'White (पांढरा)',
-    paper_size: '1/8',
-    binding_type: 'Regzin',
-    ink_colours: ['Brown'],
-    printing_type: 'One-side',
-    print_qty: '2000',
-    numbering_range: '1 to 1000',
-    total_amount: 1500,
-    advance_amount: 1000,
-    balance_due: 500,
-    promise_date: '2026-11-16',
-    status: 'Printing',
-    notes: 'पिवळी व पांढरी प्रत'
-  },
-  {
-    id: 'ord-102',
-    created_at: '2026-11-14T11:30:00.000Z',
-    order_date: '2026-11-14',
-    receipt_no: '102',
-    party_id: 'p2',
-    party_name: 'शिवाजी महाविद्यालय, पंढरपूर / Shivaji Mahavidyalaya',
-    party_phone: '9423055443',
-    job_details: 'बोनाफाईट सर्टिफिकेट (Bonafide Certificate)',
-    quantity: 2,
-    paper_primary: 'Ledgore (80)',
-    paper_secondary: '',
-    paper_size: '20x30 (1/8)',
-    binding_type: 'Cloth',
-    ink_colours: ['Red', 'Black'],
-    printing_type: 'One-side',
-    print_qty: '400',
-    numbering_range: '2001 to 2200',
-    total_amount: 850,
-    advance_amount: 850,
-    balance_due: 0,
-    promise_date: '2026-11-17',
-    status: 'Ready',
-    notes: '२ पुस्तके'
-  },
-  {
-    id: 'ord-103',
-    created_at: '2026-11-15T09:15:00.000Z',
-    order_date: '2026-11-15',
-    receipt_no: '103',
-    party_id: 'p3',
-    party_name: 'डॉ. सुहास राऊत / Dr. Suhas Raut',
-    party_phone: '9890123789',
-    job_details: 'मुख्य बाह्य रजिस्टर (200 पानी)',
-    quantity: 1,
-    paper_primary: '9-map',
-    paper_secondary: '',
-    paper_size: '1/4',
-    binding_type: 'Cloth (Regzin)',
-    ink_colours: ['Black'],
-    printing_type: 'F/b',
-    print_qty: '200',
-    numbering_range: '1 to 200',
-    total_amount: 950,
-    advance_amount: 500,
-    balance_due: 450,
-    promise_date: '2026-11-19',
-    status: 'Binding',
-    notes: 'हार्ड बायडिंग'
-  },
-  {
-    id: 'ord-104',
-    created_at: '2026-11-15T14:40:00.000Z',
-    order_date: '2026-11-15',
-    receipt_no: '104',
-    party_id: 'p4',
-    party_name: 'नालेवाडी फूड & पॅकेजिंग / Nalewadi Food & Packaging',
-    party_phone: '9765432098',
-    job_details: 'कॅश / क्रेडिट मेमो (100x2)',
-    quantity: 5,
-    paper_primary: '7.7-map',
-    paper_secondary: 'Pink (गुलाबी)',
-    paper_size: '1/8',
-    binding_type: 'Regzin',
-    ink_colours: ['Orange'],
-    printing_type: 'Duplicate',
-    print_qty: '1000',
-    numbering_range: '1 to 500',
-    total_amount: 1200,
-    advance_amount: 600,
-    balance_due: 600,
-    promise_date: '2026-11-20',
-    status: 'Pending',
-    notes: '५ पुस्तके'
-  },
-  {
-    id: 'ord-105',
-    created_at: '2026-11-16T09:00:00.000Z',
-    order_date: '2026-11-16',
-    receipt_no: '105',
-    party_id: 'p5',
-    party_name: 'गजानन लॅब / Gajanan Lab',
-    party_phone: '9823456781',
-    job_details: 'लेटरहेड पॅड (Letterhead Pads)',
-    quantity: 20,
-    paper_primary: '9-map',
-    paper_secondary: '',
-    paper_size: '1/8',
-    binding_type: 'Perforation Pad',
-    ink_colours: ['Orange'],
-    printing_type: 'One-side',
-    print_qty: '2000',
-    numbering_range: '',
-    total_amount: 1600,
-    advance_amount: 1600,
-    balance_due: 0,
-    promise_date: '2026-11-16',
-    delivered_date: '2026-11-16',
-    status: 'Delivered',
-    notes: '२० पॅड डिस्पॅच पूर्ण'
-  },
-  {
-    id: 'ord-106',
-    created_at: '2026-11-16T11:00:00.000Z',
-    order_date: '2026-11-16',
-    receipt_no: '106',
-    party_id: 'p6',
-    party_name: 'करवळ कृषी सेवा केंद्र / Karawale Krushi Seva',
-    party_phone: '9922114455',
-    job_details: 'बिल बुक (डुप्लिकेट) / Duplicate Bill Book',
-    quantity: 5,
-    paper_primary: 'SPB [Yellow]',
-    paper_secondary: 'Pink (गुलाबी)',
-    paper_size: '1/8',
-    binding_type: 'Regzin',
-    ink_colours: ['Orange'],
-    printing_type: 'Duplicate',
-    print_qty: '1000',
-    numbering_range: '1 to 500',
-    total_amount: 1200,
-    advance_amount: 1000,
-    balance_due: 200,
-    promise_date: '2026-11-21',
-    status: 'Pending',
-    notes: 'कव्हर प्रिंटींग काळी'
-  },
-  {
-    id: 'ord-107',
-    created_at: '2026-11-16T12:00:00.000Z',
-    order_date: '2026-11-16',
-    receipt_no: '107',
-    party_id: 'p1',
-    party_name: 'आदित्य इंजिनिअर्स / Aditya Engineers',
-    party_phone: '9822011223',
-    job_details: 'कंपनी कामाचे चलन (हप्तेवारी डिलिव्हरी)',
-    quantity: 6000,
-    paper_primary: '7.7-map',
-    paper_secondary: '',
-    paper_size: '1/8',
-    binding_type: 'Regzin',
-    ink_colours: ['Blue'],
-    printing_type: 'One-side',
-    print_qty: '6000',
-    numbering_range: '1 to 6000',
-    total_amount: 8500,
-    advance_amount: 5000,
-    balance_due: 3500,
-    promise_date: '2026-11-22',
-    order_type: 'Special Order',
-    status: 'Split Delivery',
-    dispatches: [
-      {
-        id: 'disp-1',
-        dispatch_date: '2026-11-16',
-        quantity: 2000,
-        notes: '१ला हप्ता (1st lot dispatch)'
-      }
-    ],
-    notes: '६००० नग पैकी २००० नग दिले आहेत'
-  }
-];
+const INITIAL_ORDERS: Order[] = [];
 
 export async function getOrders(): Promise<Order[]> {
   if (isSupabaseConfigured && supabase && navigator.onLine) {
@@ -247,7 +18,7 @@ export async function getOrders(): Promise<Order[]> {
         .select('*')
         .order('order_date', { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         await set(ORDERS_KEY, data);
         return data as Order[];
       }
@@ -542,7 +313,7 @@ export async function getParties(): Promise<Party[]> {
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
       const { data, error } = await supabase.from('parties').select('*').order('name');
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         await set(PARTIES_KEY, data);
         return data as Party[];
       }
