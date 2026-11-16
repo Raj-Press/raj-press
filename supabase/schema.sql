@@ -71,6 +71,12 @@ CREATE INDEX IF NOT EXISTS idx_orders_order_type ON public.orders (order_type);
 CREATE INDEX IF NOT EXISTS idx_orders_balance_due ON public.orders (balance_due);
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON public.orders (user_id);
 
+-- Ensure newly added columns exist if table was created previously
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS order_type TEXT DEFAULT 'General';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivered_date DATE;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS dispatches JSONB DEFAULT '[]'::JSONB;
+CREATE INDEX IF NOT EXISTS idx_orders_order_type ON public.orders (order_type);
+
 -- ------------------------------------------------------------------------------
 -- 3. PRESETS (Dynamic Dropdown Customizations persisted from "Others")
 -- ------------------------------------------------------------------------------
