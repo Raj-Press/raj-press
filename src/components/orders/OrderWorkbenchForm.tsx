@@ -11,6 +11,7 @@ import {
   STATUS_PROGRESSION,
 } from '../../lib/constants';
 import { saveCustomPreset } from '../../lib/db';
+import { formatDDMMYYYY } from '../../lib/date';
 import { SelectWithOther } from '../common/SelectWithOther';
 import { Check, RotateCcw, AlertCircle } from 'lucide-react';
 
@@ -282,9 +283,14 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         {/* Row 1: Date & Receipt No. */}
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Date (तारीख)
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
+                Date (तारीख)
+              </label>
+              <span className="text-[10px] font-mono font-bold text-[#d9532f]">
+                {formatDDMMYYYY(date)}
+              </span>
+            </div>
             <input
               type="date"
               required
@@ -611,9 +617,16 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           {/* Promise Date & Job Status */}
           <div className="grid grid-cols-2 gap-2 pt-1 border-t border-stone-800">
             <div>
-              <span className="text-[10px] text-stone-400 block mb-0.5">
-                Promise Date
-              </span>
+              <div className="flex items-center justify-between mb-0.5">
+                <span className="text-[10px] text-stone-400">
+                  Promise Date
+                </span>
+                {promiseDate && (
+                  <span className="text-[10px] text-[#d9532f] font-mono font-bold">
+                    {formatDDMMYYYY(promiseDate)}
+                  </span>
+                )}
+              </div>
               <input
                 type="date"
                 value={promiseDate}

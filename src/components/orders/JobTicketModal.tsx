@@ -2,6 +2,7 @@ import React from 'react';
 import { Order } from '../../types';
 import { X, Printer, MessageCircle } from 'lucide-react';
 import { openWhatsApp, RAJ_PRESS_PHONE } from '../../lib/whatsapp';
+import { formatDDMMYYYY } from '../../lib/date';
 
 interface JobTicketModalProps {
   order: Order | null;
@@ -64,7 +65,7 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
             </div>
             <div className="text-right">
               <span className="text-xs text-stone-500 block">ऑर्डर तारीख (Date):</span>
-              <strong className="text-sm text-stone-800 font-mono">{order.order_date}</strong>
+              <strong className="text-sm text-stone-800 font-mono">{formatDDMMYYYY(order.order_date)}</strong>
             </div>
             <div className="col-span-2 pt-2 border-t border-stone-200 flex justify-between items-center">
               <div>
@@ -153,8 +154,8 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
             <div className="grid grid-cols-2 gap-3 mb-2 pb-2 border-b border-stone-200">
               <div>
                 <span className="text-stone-500 block">डिलिव्हरी वायदा तारीख (Promise Date):</span>
-                <strong className="text-sm text-stone-900 font-bold">
-                  {order.promise_date ? order.promise_date : 'लवकरात लवकर (Urgent)'}
+                <strong className="text-sm text-stone-900 font-bold font-mono">
+                  {order.promise_date ? formatDDMMYYYY(order.promise_date) : 'लवकरात लवकर (Urgent)'}
                 </strong>
               </div>
               <div className="text-right">

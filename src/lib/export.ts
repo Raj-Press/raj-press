@@ -1,4 +1,5 @@
 import { Order } from '../types';
+import { formatDDMMYYYY } from './date';
 
 /**
  * Generates and triggers download of an Excel-compatible CSV file.
@@ -30,7 +31,7 @@ export function exportOrdersToCSV(orders: Order[]): void {
 
   const rows = orders.map(o => [
     `"${(o.receipt_no || '').replace(/"/g, '""')}"`,
-    `"${o.order_date || ''}"`,
+    `"${formatDDMMYYYY(o.order_date)}"`,
     `"${(o.party_name || '').replace(/"/g, '""')}"`,
     `"${(o.party_phone || '').replace(/"/g, '""')}"`,
     `"${(o.job_details || '').replace(/"/g, '""')}"`,
@@ -45,7 +46,7 @@ export function exportOrdersToCSV(orders: Order[]): void {
     o.total_amount || 0,
     o.advance_amount || 0,
     o.balance_due || 0,
-    `"${o.promise_date || ''}"`,
+    `"${formatDDMMYYYY(o.promise_date)}"`,
     `"${o.status || ''}"`,
     `"${(o.notes || '').replace(/"/g, '""')}"`
   ]);

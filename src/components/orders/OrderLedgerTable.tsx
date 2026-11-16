@@ -9,6 +9,7 @@ import {
   AlertCircle,
   MessageCircle,
 } from 'lucide-react';
+import { formatDDMMYYYY } from '../../lib/date';
 import { openWhatsApp } from '../../lib/whatsapp';
 
 interface OrderLedgerTableProps {
@@ -86,11 +87,11 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                       #{order.receipt_no}
                     </span>
                     <div className="text-xs text-stone-500 dark:text-stone-400 font-mono">
-                      {order.order_date}
+                      {formatDDMMYYYY(order.order_date)}
                     </div>
                     {order.promise_date && (
                       <div className="text-[11px] text-[#c2410c] dark:text-[#ea580c] font-medium font-mono mt-0.5">
-                        वायदा: {order.promise_date}
+                        वायदा: {formatDDMMYYYY(order.promise_date)}
                       </div>
                     )}
                   </td>
