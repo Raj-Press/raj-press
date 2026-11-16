@@ -262,18 +262,14 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                           <span>Delivered</span>
                           <Lock className="w-3 h-3 text-emerald-600 dark:text-emerald-400 ml-0.5" />
                         </span>
-                      ) : isSpecialOrder ? (
+                      ) : order.status === 'Split Delivery' ? (
                         <button
                           type="button"
                           onClick={() => onOpenSplitDelivery(order)}
                           title="हप्तेवारी डिलिव्हरी नोंदवा (Record Split Delivery)"
-                          className={`px-3 py-1 rounded-xl text-xs sm:text-sm font-bold border shadow-2xs transition-all hover:scale-[1.03] active:scale-[0.98] ${
-                            totalDelivered > 0
-                              ? 'bg-sky-50 text-sky-700 border-sky-300 dark:bg-sky-950/70 dark:text-sky-300 dark:border-sky-800'
-                              : statusMeta.badge
-                          }`}
+                          className="px-3 py-1 rounded-xl text-xs sm:text-sm font-bold border shadow-2xs transition-all hover:scale-[1.03] active:scale-[0.98] bg-sky-50 text-sky-700 border-sky-300 dark:bg-sky-950/70 dark:text-sky-300 dark:border-sky-800"
                         >
-                          {totalDelivered > 0 ? `Delivered (${totalDelivered.toLocaleString('en-IN')}/${order.quantity.toLocaleString('en-IN')})` : 'Split Deliver'}
+                          {totalDelivered > 0 ? `Split Delivery (${totalDelivered.toLocaleString('en-IN')}/${order.quantity.toLocaleString('en-IN')})` : 'Split Delivery'}
                         </button>
                       ) : (
                         <button

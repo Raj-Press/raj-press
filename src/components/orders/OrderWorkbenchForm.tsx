@@ -338,25 +338,49 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
         </div>
 
-        {/* Row 2: Party / Customer Name */}
-        <div>
-          <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-            Party / Customer Name (नांव) *
-          </label>
-          <input
-            type="text"
-            required
-            list="customer-datalist"
-            placeholder="उदा. ग्राहक किंवा फर्मचे नांव (Customer / Firm Name)"
-            value={partyName}
-            onChange={(e) => setPartyName(e.target.value)}
-            className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
-          />
-          <datalist id="customer-datalist">
-            {existingParties.map((p) => (
-              <option key={p.id} value={p.name} />
-            ))}
-          </datalist>
+        {/* Row 2: Party / Customer Name & Mobile No. */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="sm:col-span-2">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+              Party / Customer Name (नांव) *
+            </label>
+            <input
+              type="text"
+              required
+              list="customer-datalist"
+              placeholder="उदा. ग्राहक किंवा फर्मचे नांव (Customer / Firm Name)"
+              value={partyName}
+              onChange={(e) => {
+                const val = e.target.value;
+                setPartyName(val);
+                const matched = existingParties.find(
+                  (p) => p.name.toLowerCase() === val.toLowerCase()
+                );
+                if (matched && matched.phone && !partyPhone) {
+                  setPartyPhone(matched.phone);
+                }
+              }}
+              className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+            />
+            <datalist id="customer-datalist">
+              {existingParties.map((p) => (
+                <option key={p.id} value={p.name} />
+              ))}
+            </datalist>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+              Mobile No. (मोबाईल नं.)
+            </label>
+            <input
+              type="tel"
+              placeholder="उदा. 9822011223"
+              value={partyPhone}
+              onChange={(e) => setPartyPhone(e.target.value)}
+              className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium font-mono focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+            />
+          </div>
         </div>
 
         {/* Row 3: Job Details & Qty + Frequent Job Pills */}

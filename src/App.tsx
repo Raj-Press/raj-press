@@ -147,6 +147,7 @@ export const App: React.FC = () => {
         'General',
         'Patrika / Wedding Cards',
         'सप्ताह / Saptah',
+        'Special Order',
         ...customPresets.filter((p) => p.category === 'order_type').map((p) => p.value),
         ...orders.map((o) => o.order_type).filter(Boolean) as string[],
       ])
@@ -230,12 +231,28 @@ export const App: React.FC = () => {
     const order = orders.find(o => o.id === id);
     const isSpecial = order?.order_type === 'Special Order' || (order?.dispatches && order.dispatches.length > 0);
 
-    // If Special Order or has split dispatches, clicking status opens split delivery modal
     if (isSpecial) {
-      if (order) {
-        setSplitDeliveryOrder(order);
+      // For Special Order: Pending -> Printing -> Binding -> Ready -> Split Delivery
+      const specialNextMap: Record<OrderStatus, OrderStatus> = {
+        Pending: 'Printing',
+        Printing: 'Binding',
+        Binding: 'Ready',
+        Ready: 'Split Delivery',
+        'Split Delivery': 'Split Delivery',
+        Delivered: 'Delivered',
+      };
+
+      if (currentStatus === 'Split Delivery') {
+        if (order) setSplitDeliveryOrder(order);
         return;
       }
+
+      const next = specialNextMap[currentStatus];
+      if (next && next !== currentStatus) {
+        await updateOrderStatus(id, next);
+        await refreshData();
+      }
+      return;
     }
 
     const nextMap: Record<OrderStatus, OrderStatus> = {
@@ -243,6 +260,7 @@ export const App: React.FC = () => {
       Printing: 'Binding',
       Binding: 'Ready',
       Ready: 'Delivered',
+      'Split Delivery': 'Delivered',
       Delivered: 'Pending',
     };
     const next = nextMap[currentStatus];

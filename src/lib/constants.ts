@@ -106,6 +106,7 @@ export const STATUS_PROGRESSION: OrderStatus[] = [
   'Printing',
   'Binding',
   'Ready',
+  'Split Delivery',
   'Delivered'
 ];
 
@@ -137,6 +138,13 @@ export const STATUS_LABELS: Record<OrderStatus, { en: string; mr: string; color:
     color: 'text-amber-800 dark:text-amber-300',
     bg: 'bg-amber-50 border-amber-300 dark:bg-amber-950/60 dark:border-amber-800',
     badge: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-800'
+  },
+  'Split Delivery': {
+    en: 'Split Delivery',
+    mr: 'हप्तेवारी डिलिव्हरी',
+    color: 'text-sky-800 dark:text-sky-300',
+    bg: 'bg-sky-50 border-sky-300 dark:bg-sky-950/60 dark:border-sky-800',
+    badge: 'bg-sky-50 text-sky-800 border-sky-300 dark:bg-sky-950/70 dark:text-sky-300 dark:border-sky-800'
   },
   Delivered: {
     en: 'Delivered',

@@ -1,6 +1,6 @@
 // TypeScript Models for Raj Press ERP
 
-export type OrderStatus = 'Pending' | 'Printing' | 'Binding' | 'Ready' | 'Delivered';
+export type OrderStatus = 'Pending' | 'Printing' | 'Binding' | 'Ready' | 'Split Delivery' | 'Delivered';
 
 export interface DeliveryDispatch {
   id: string;
