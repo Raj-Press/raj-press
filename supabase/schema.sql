@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
     balance_due NUMERIC(12, 2) GENERATED ALWAYS AS (GREATEST(0, total_amount - advance_amount)) STORED,
     promise_date DATE,
     status TEXT NOT NULL DEFAULT 'Pending',
+    order_type TEXT DEFAULT 'General',
     notes TEXT,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE
 );
@@ -64,6 +65,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_receipt_no ON public.orders (receipt_no);
 CREATE INDEX IF NOT EXISTS idx_orders_party_name ON public.orders (party_name);
 CREATE INDEX IF NOT EXISTS idx_orders_order_date ON public.orders (order_date DESC);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders (status);
+CREATE INDEX IF NOT EXISTS idx_orders_order_type ON public.orders (order_type);
 CREATE INDEX IF NOT EXISTS idx_orders_balance_due ON public.orders (balance_due);
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON public.orders (user_id);
 
