@@ -9,6 +9,10 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
+  .dark body {
+    background-color: #0c0a09;
+    color: #fafaf9;
+  }
 }
 
 /* Custom scrollbars for clean look */

@@ -11,7 +11,8 @@ import {
   STATUS_PROGRESSION,
 } from '../../lib/constants';
 import { saveCustomPreset } from '../../lib/db';
-import { Check, RotateCcw } from 'lucide-react';
+import { SelectWithOther } from '../common/SelectWithOther';
+import { Check, RotateCcw, AlertCircle } from 'lucide-react';
 
 interface OrderWorkbenchFormProps {
   onSave: (order: Partial<Order>) => Promise<void>;
@@ -40,22 +41,23 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
 
   const [paperPrimary, setPaperPrimary] = useState(DEFAULT_PAPERS[0]);
   const [paperSecondary, setPaperSecondary] = useState('None (Single Paper)');
-  const [paperSize, setPaperSize] = useState(DEFAULT_SIZES[0]);
-  const [bindingType, setBindingType] = useState(DEFAULT_BINDINGS[0]);
+  const [paperSize, setPaperSize] = useState(DEFAULT_SIZES[2] || '8');
+  const [bindingType, setBindingType] = useState(DEFAULT_BINDINGS[0] || 'Regzin');
   const [inkColours, setInkColours] = useState<string[]>(['Black']);
 
-  const [printingType, setPrintingType] = useState(DEFAULT_PRINTINGS[0]);
-  const [printQty, setPrintQty] = useState('2000');
-  const [numberingRange, setNumberingRange] = useState('1 to 1000');
+  const [printingType, setPrintingType] = useState(DEFAULT_PRINTINGS[1] || 'One-side');
+  const [printQty, setPrintQty] = useState('');
+  const [numberingRange, setNumberingRange] = useState('');
+  const [notes, setNotes] = useState('');
 
   const [totalAmount, setTotalAmount] = useState<number | string>(1500);
   const [advanceAmount, setAdvanceAmount] = useState<number | string>(1000);
   const [promiseDate, setPromiseDate] = useState('');
   const [status, setStatus] = useState<Order['status']>('Pending');
-  const [notes, setNotes] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [inkWarning, setInkWarning] = useState('');
 
   // Combined options
   const papers = Array.from(
@@ -86,6 +88,19 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
     ])
   );
 
+  // Maximum ink colors rule:
+  // Up to 3 colours allowed ONLY when printingType is Triplicate; otherwise max 2 colours
+  const maxInksAllowed = printingType.toLowerCase().includes('triplicate') ? 3 : 2;
+
+  // Trim ink colors if printing type changes and exceeds limit
+  useEffect(() => {
+    if (!inkColours.includes('F/C') && inkColours.length > maxInksAllowed) {
+      setInkColours((prev) => prev.slice(0, maxInksAllowed));
+      setInkWarning(`Ink colours adjusted to max ${maxInksAllowed} for ${printingType}`);
+      setTimeout(() => setInkWarning(''), 3000);
+    }
+  }, [printingType, maxInksAllowed, inkColours]);
+
   // Sync state when editing an order
   useEffect(() => {
     if (editingOrder) {
@@ -97,38 +112,37 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
       setQuantity(editingOrder.quantity || 1);
       setPaperPrimary(editingOrder.paper_primary || DEFAULT_PAPERS[0]);
       setPaperSecondary(editingOrder.paper_secondary || 'None (Single Paper)');
-      setPaperSize(editingOrder.paper_size || DEFAULT_SIZES[0]);
-      setBindingType(editingOrder.binding_type || DEFAULT_BINDINGS[0]);
+      setPaperSize(editingOrder.paper_size || DEFAULT_SIZES[2] || '8');
+      setBindingType(editingOrder.binding_type || DEFAULT_BINDINGS[0] || 'Regzin');
       setInkColours(editingOrder.ink_colours && editingOrder.ink_colours.length > 0 ? editingOrder.ink_colours : ['Black']);
-      setPrintingType(editingOrder.printing_type || DEFAULT_PRINTINGS[0]);
+      setPrintingType(editingOrder.printing_type || DEFAULT_PRINTINGS[1] || 'One-side');
       setPrintQty(editingOrder.print_qty || '');
       setNumberingRange(editingOrder.numbering_range || '');
+      setNotes(editingOrder.notes || '');
       setTotalAmount(editingOrder.total_amount || 0);
       setAdvanceAmount(editingOrder.advance_amount || 0);
       setPromiseDate(editingOrder.promise_date || '');
       setStatus(editingOrder.status || 'Pending');
-      setNotes(editingOrder.notes || '');
     } else {
-      // Reset to defaults
       setDate(new Date().toISOString().split('T')[0]);
       setReceiptNo(nextReceiptNo);
       setPartyName('');
       setPartyPhone('');
       setJobDetails('');
       setQuantity(10);
-      setPaperPrimary('9-map (९-मॅपलिथो)');
+      setPaperPrimary(DEFAULT_PAPERS[0]);
       setPaperSecondary('None (Single Paper)');
-      setPaperSize('1/8 (१० x ६.२५)');
-      setBindingType('Regzin (रेक्झीन बायडिंग)');
+      setPaperSize(DEFAULT_SIZES[2] || '8');
+      setBindingType(DEFAULT_BINDINGS[0] || 'Regzin');
       setInkColours(['Black']);
       setPrintingType('One-side');
-      setPrintQty('2000');
-      setNumberingRange('1 to 1000');
+      setPrintQty('');
+      setNumberingRange('');
+      setNotes('');
       setTotalAmount(1500);
       setAdvanceAmount(1000);
       setPromiseDate('');
       setStatus('Pending');
-      setNotes('');
     }
   }, [editingOrder, nextReceiptNo]);
 
@@ -138,20 +152,36 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
   const balance = Math.max(0, total - adv);
 
   const toggleInk = (inkId: string) => {
+    setInkWarning('');
+
+    // If F/C is clicked
     if (inkId === 'F/C') {
       setInkColours(['F/C']);
       return;
     }
-    let updated = inkColours.filter((c) => c !== 'F/C');
-    if (updated.includes(inkId)) {
-      updated = updated.filter((c) => c !== inkId);
+
+    // If F/C was previously selected, clear it
+    let current = inkColours.filter((c) => c !== 'F/C');
+
+    if (current.includes(inkId)) {
+      // Toggle off
+      current = current.filter((c) => c !== inkId);
+      if (current.length === 0) {
+        current = ['Black'];
+      }
+      setInkColours(current);
     } else {
-      updated.push(inkId);
+      // Check maximum limit
+      if (current.length >= maxInksAllowed) {
+        // Shift out earliest color to make room for new one (smoothest UX)
+        current = [...current.slice(1), inkId];
+        setInkWarning(`Maximum ${maxInksAllowed} colours allowed (${printingType === 'Triplicate' ? 'Triplicate allows 3' : '2 max'}). Replaced earliest.`);
+        setTimeout(() => setInkWarning(''), 3500);
+      } else {
+        current.push(inkId);
+      }
+      setInkColours(current);
     }
-    if (updated.length === 0) {
-      updated = ['Black'];
-    }
-    setInkColours(updated);
   };
 
   const handleFrequentPartyClick = (frequent: string) => {
@@ -181,11 +211,6 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
 
     setIsSubmitting(true);
     try {
-      // Save presets if custom
-      if (paperPrimary.startsWith('Custom:')) {
-        await saveCustomPreset('paper_primary', paperPrimary.replace('Custom: ', ''));
-      }
-
       await onSave({
         id: editingOrder?.id,
         receipt_no: receiptNo || nextReceiptNo,
@@ -195,7 +220,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         job_details: jobDetails.trim(),
         quantity: Number(quantity) || 1,
         paper_primary: paperPrimary,
-        paper_secondary: paperSecondary === 'None (Single Paper)' ? null : paperSecondary,
+        paper_secondary: paperSecondary === 'None (Single Paper)' || paperSecondary === 'None' ? null : paperSecondary,
         paper_size: paperSize,
         binding_type: bindingType,
         ink_colours: inkColours,
@@ -211,16 +236,17 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
       });
 
       if (!editingOrder) {
-        // Reset form for next fast entry
         setPartyName('');
         setPartyPhone('');
         setJobDetails('');
         setQuantity(10);
+        setPrintQty('');
+        setNumberingRange('');
+        setNotes('');
         setTotalAmount(0);
         setAdvanceAmount(0);
         setPromiseDate('');
         setStatus('Pending');
-        setNotes('');
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Error saving ticket.');
@@ -230,9 +256,9 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
   };
 
   return (
-    <div className="w-full bg-white rounded-3xl shadow-sm border border-stone-200/90 overflow-hidden">
+    <div className="w-full bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200/90 dark:border-stone-800 overflow-hidden transition-colors">
       {/* Sleek Dark Header */}
-      <div className="bg-[#18181b] text-white p-4 sm:p-5">
+      <div className="bg-[#18181b] dark:bg-black text-white p-4 sm:p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#d9532f] animate-pulse"></span>
@@ -258,7 +284,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
       {/* Form Fields */}
       <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
         {errorMsg && (
-          <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold">
+          <div className="p-2.5 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold">
             ⚠️ {errorMsg}
           </div>
         )}
@@ -266,7 +292,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         {/* Row 1: Date & Receipt No. */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-stone-600 mb-1">
+            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Date (तारीख)
             </label>
             <input
@@ -274,12 +300,12 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
+              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-stone-600 mb-1">
+            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Receipt No. (पावती नं.)
             </label>
             <input
@@ -288,7 +314,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               value={receiptNo}
               onChange={(e) => setReceiptNo(e.target.value)}
               placeholder="107"
-              className="w-full px-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl font-bold font-mono text-stone-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
+              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-bold font-mono focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
             />
           </div>
         </div>
@@ -296,7 +322,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         {/* Row 2: Party / Customer Name + Frequent Pills */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-stone-600">
+            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300">
               Party / Customer Name (नांव) *
             </label>
             <span className="text-[11px] text-stone-400">
@@ -310,7 +336,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
             placeholder="उदा. आदित्य इंजिनिअर्स / Aditya Engineers"
             value={partyName}
             onChange={(e) => setPartyName(e.target.value)}
-            className="w-full px-3.5 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+            className="w-full px-3.5 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
           />
           <datalist id="customer-datalist">
             {existingParties.map((p) => (
@@ -325,7 +351,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 key={party}
                 type="button"
                 onClick={() => handleFrequentPartyClick(party)}
-                className="px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-[11px] font-medium transition-colors border border-stone-200/60"
+                className="px-2.5 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-lg text-[11px] font-medium transition-colors border border-stone-200/60 dark:border-stone-700"
               >
                 {party.split(' ')[0]} {party.includes('College') ? 'College' : party.includes('Raut') ? 'Raut' : ''}
               </button>
@@ -337,7 +363,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
         <div>
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs font-semibold text-stone-600 mb-1">
+              <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
                 Job Details (कामाचा तपशील) *
               </label>
               <input
@@ -346,11 +372,11 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 placeholder="उदा. डिलिव्हरी चलन / Bill Book"
                 value={jobDetails}
                 onChange={(e) => setJobDetails(e.target.value)}
-                className="w-full px-3.5 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+                className="w-full px-3.5 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-stone-600 mb-1">
+              <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
                 Qty (नग) *
               </label>
               <input
@@ -359,7 +385,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 required
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl font-bold text-stone-800 text-center focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
+                className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-bold text-center focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
               />
             </div>
           </div>
@@ -371,7 +397,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 key={job}
                 type="button"
                 onClick={() => handleFrequentJobClick(job)}
-                className="px-2.5 py-1 bg-amber-50/70 hover:bg-amber-100/70 text-amber-900 border border-amber-200/70 rounded-lg text-[11px] font-medium transition-colors"
+                className="px-2.5 py-1 bg-amber-50/70 dark:bg-amber-950/40 hover:bg-amber-100/70 dark:hover:bg-amber-900/40 text-amber-900 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800 rounded-lg text-[11px] font-medium transition-colors"
               >
                 {job}
               </button>
@@ -379,10 +405,10 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
         </div>
 
-        {/* Row 4: Paper Type (Primary + Secondary) */}
+        {/* Row 4: Paper Type (Primary + Secondary) with "Others" reveal */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-stone-600">
+            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300">
               Paper Type (कागदाची जात)
             </label>
             <span className="text-[11px] text-stone-400">
@@ -394,77 +420,80 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
                 Primary Paper
               </span>
-              <select
+              <SelectWithOther
+                options={papers}
                 value={paperPrimary}
-                onChange={(e) => setPaperPrimary(e.target.value)}
-                className="w-full px-2.5 py-2 text-xs sm:text-sm bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
-              >
-                {papers.map((p) => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
+                onChange={setPaperPrimary}
+                placeholder=""
+                onCustomSave={(val) => saveCustomPreset('paper_primary', val)}
+              />
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
                 + Secondary Layer (Optional)
               </span>
-              <select
+              <SelectWithOther
+                options={papers}
                 value={paperSecondary}
-                onChange={(e) => setPaperSecondary(e.target.value)}
-                className="w-full px-2.5 py-2 text-xs sm:text-sm bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
-              >
-                <option value="None (Single Paper)">None (Single Paper)</option>
-                {papers.map((p) => (
-                  <option key={`sec-${p}`} value={p}>{p}</option>
-                ))}
-              </select>
+                onChange={setPaperSecondary}
+                allowNone
+                noneLabel="None (Single Paper)"
+                placeholder=""
+                onCustomSave={(val) => saveCustomPreset('paper_secondary', val)}
+              />
             </div>
           </div>
         </div>
 
-        {/* Row 5: Size & Binding */}
+        {/* Row 5: Size & Binding with "Others" reveal */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-stone-600 mb-1">
+            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Size (साईज)
             </label>
-            <select
+            <SelectWithOther
+              options={sizes}
               value={paperSize}
-              onChange={(e) => setPaperSize(e.target.value)}
-              className="w-full px-2.5 py-2 text-xs sm:text-sm bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
-            >
-              {sizes.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
+              onChange={setPaperSize}
+              placeholder=""
+              onCustomSave={(val) => saveCustomPreset('paper_size', val)}
+            />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-stone-600 mb-1">
+            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Binding (बायडिंग)
             </label>
-            <select
+            <SelectWithOther
+              options={bindings}
               value={bindingType}
-              onChange={(e) => setBindingType(e.target.value)}
-              className="w-full px-2.5 py-2 text-xs sm:text-sm bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
-            >
-              {bindings.map((b) => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
+              onChange={setBindingType}
+              placeholder=""
+              onCustomSave={(val) => saveCustomPreset('binding_type', val)}
+            />
           </div>
         </div>
 
-        {/* Row 6: Ink Colour Pill Swatches */}
+        {/* Row 6: Ink Colour Pill Swatches (Max 2, or 3 for Triplicate) */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-semibold text-stone-600">
+            <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300">
               Ink Colour (शाई कलर)
+              <span className="ml-1 text-[10px] font-normal text-stone-400">
+                (Max {maxInksAllowed} colours{printingType.toLowerCase().includes('triplicate') ? ' for Triplicate' : ''})
+              </span>
             </label>
             <span className="text-xs font-bold text-[#d9532f]">
               {inkColours.join(', ')}
             </span>
           </div>
+
+          {inkWarning && (
+            <div className="flex items-center gap-1.5 p-1.5 mb-1.5 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-[11px] rounded-lg">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>{inkWarning}</span>
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-1.5">
             {INK_COLORS.map((ink) => {
@@ -476,8 +505,8 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                   onClick={() => toggleInk(ink.id)}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
                     isSelected
-                      ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
-                      : 'bg-white hover:bg-stone-100 text-stone-700 border-stone-200'
+                      ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-white shadow-2xs'
+                      : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
                   }`}
                 >
                   <span
@@ -491,38 +520,36 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
           </div>
         </div>
 
-        {/* Row 7: Printing, Copies/Imp., Numbering */}
+        {/* Row 7: Printing with "Others" reveal, Copies/Imp., Numbering */}
         <div className="grid grid-cols-3 gap-2.5">
           <div>
-            <label className="block text-[11px] font-semibold text-stone-600 mb-1">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Printing (प्रिंटींग)
             </label>
-            <select
+            <SelectWithOther
+              options={printings}
               value={printingType}
-              onChange={(e) => setPrintingType(e.target.value)}
-              className="w-full px-2 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
-            >
-              {printings.map((pr) => (
-                <option key={pr} value={pr}>{pr}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold text-stone-600 mb-1">
-              Copies/Imp.
-            </label>
-            <input
-              type="text"
-              placeholder="2000"
-              value={printQty}
-              onChange={(e) => setPrintQty(e.target.value)}
-              className="w-full px-2 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 text-center"
+              onChange={setPrintingType}
+              placeholder=""
+              onCustomSave={(val) => saveCustomPreset('printing_type', val)}
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-stone-600 mb-1">
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+              Copies/Imp.
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. 1000"
+              value={printQty}
+              onChange={(e) => setPrintQty(e.target.value)}
+              className="w-full px-2 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 text-center"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
               Numbering (नंबरींग)
             </label>
             <input
@@ -530,13 +557,27 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               placeholder="1 to 1000"
               value={numberingRange}
               onChange={(e) => setNumberingRange(e.target.value)}
-              className="w-full px-2 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 text-center font-mono"
+              className="w-full px-2 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 text-center font-mono"
             />
           </div>
         </div>
 
-        {/* Row 8: Dark Financial & Schedule Box */}
-        <div className="bg-[#18181b] text-white rounded-2xl p-4 space-y-3.5">
+        {/* Row 8: Remarks Section (Requested right before the dark financial box) */}
+        <div>
+          <label className="block text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            Remarks / Instructions (नोंदी / सूचना)
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. प्रूफ तपासणी, कटिंग फिनिशिंग, कव्हर प्रिंटिंग सूचना..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="w-full px-3.5 py-2 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+          />
+        </div>
+
+        {/* Row 9: Dark Financial & Schedule Box */}
+        <div className="bg-[#18181b] dark:bg-black text-white rounded-2xl p-4 space-y-3.5 border border-stone-800">
           {/* Amounts */}
           <div className="grid grid-cols-3 gap-2.5">
             <div>
@@ -548,7 +589,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 min="0"
                 value={totalAmount}
                 onChange={(e) => setTotalAmount(e.target.value)}
-                className="w-full px-2.5 py-1.5 text-sm font-bold bg-stone-800 border border-stone-700 rounded-lg text-white focus:outline-none focus:border-[#d9532f]"
+                className="w-full px-2.5 py-1.5 text-sm font-bold bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-white focus:outline-none focus:border-[#d9532f]"
               />
             </div>
 
@@ -561,7 +602,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 min="0"
                 value={advanceAmount}
                 onChange={(e) => setAdvanceAmount(e.target.value)}
-                className="w-full px-2.5 py-1.5 text-sm font-bold bg-stone-800 border border-stone-700 rounded-lg text-white focus:outline-none focus:border-[#d9532f]"
+                className="w-full px-2.5 py-1.5 text-sm font-bold bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-white focus:outline-none focus:border-[#d9532f]"
               />
             </div>
 
@@ -589,7 +630,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
                 type="date"
                 value={promiseDate}
                 onChange={(e) => setPromiseDate(e.target.value)}
-                className="w-full px-2.5 py-1.5 text-xs bg-stone-800 border border-stone-700 rounded-lg text-stone-200 focus:outline-none focus:border-[#d9532f]"
+                className="w-full px-2.5 py-1.5 text-xs bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-stone-200 focus:outline-none focus:border-[#d9532f]"
               />
             </div>
 
@@ -600,7 +641,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = ({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as Order['status'])}
-                className="w-full px-2.5 py-1.5 text-xs bg-stone-800 border border-stone-700 rounded-lg text-stone-200 font-semibold focus:outline-none focus:border-[#d9532f]"
+                className="w-full px-2.5 py-1.5 text-xs bg-stone-800 dark:bg-stone-900 border border-stone-700 rounded-lg text-stone-200 font-semibold focus:outline-none focus:border-[#d9532f]"
               >
                 {STATUS_PROGRESSION.map((st) => (
                   <option key={st} value={st}>

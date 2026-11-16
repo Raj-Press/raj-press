@@ -30,29 +30,29 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
 }) => {
   if (orders.length === 0) {
     return (
-      <div className="bg-white border border-stone-200/90 rounded-3xl p-12 text-center shadow-2xs">
-        <AlertCircle className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-        <h3 className="text-base font-bold text-stone-700">No Orders in Register</h3>
+      <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-12 text-center shadow-2xs transition-colors">
+        <AlertCircle className="w-12 h-12 text-stone-300 dark:text-stone-600 mx-auto mb-3" />
+        <h3 className="text-base font-bold text-stone-700 dark:text-stone-300">No Orders Match Filter</h3>
         <p className="text-xs text-stone-400 mt-1">
-          Use the workbench on the left to add your first job ticket.
+          Try clearing search filters or add a new job ticket on the left.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white border border-stone-200/90 rounded-3xl shadow-2xs overflow-hidden">
+    <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl shadow-2xs overflow-hidden transition-colors">
       {/* Table Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between px-5 py-4 border-b border-stone-200/80 gap-1.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between px-5 py-4 border-b border-stone-200/80 dark:border-stone-800 gap-1.5">
         <div className="flex items-center gap-2">
-          <h2 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+          <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight">
             Live Order Register
           </h2>
-          <span className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded-full text-xs font-bold border border-stone-200">
+          <span className="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-full text-xs font-bold border border-stone-200 dark:border-stone-700">
             {orders.length}
           </span>
         </div>
-        <p className="text-xs text-stone-500 font-medium">
+        <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
           Click status badge to advance workflow • Click ticket icon to print
         </p>
       </div>
@@ -61,7 +61,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[850px]">
           <thead>
-            <tr className="bg-stone-50/80 text-stone-500 font-bold uppercase tracking-wider text-[11px] border-b border-stone-200/80">
+            <tr className="bg-stone-50/80 dark:bg-stone-800/60 text-stone-500 dark:text-stone-400 font-bold uppercase tracking-wider text-[11px] border-b border-stone-200/80 dark:border-stone-800">
               <th className="p-3.5 sm:px-4 sm:py-3 whitespace-nowrap">Receipt / Date</th>
               <th className="p-3.5 sm:px-4 sm:py-3 min-w-[200px]">Party & Job Details</th>
               <th className="p-3.5 sm:px-4 sm:py-3 min-w-[150px]">Paper, Size & Ink</th>
@@ -70,7 +70,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
               <th className="p-3.5 sm:px-4 sm:py-3 text-right whitespace-nowrap">Status & Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-100 font-normal">
+          <tbody className="divide-y divide-stone-100 dark:divide-stone-800 font-normal">
             {orders.map((order) => {
               const statusMeta = STATUS_LABELS[order.status] || STATUS_LABELS.Pending;
               const hasBalance = order.balance_due > 0;
@@ -78,18 +78,18 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
               return (
                 <tr
                   key={order.id}
-                  className="hover:bg-amber-50/20 transition-colors group"
+                  className="hover:bg-amber-50/30 dark:hover:bg-stone-800/50 transition-colors group"
                 >
                   {/* Column 1: Receipt & Date */}
                   <td className="p-3.5 sm:px-4 sm:py-3.5 align-top whitespace-nowrap">
-                    <span className="inline-block px-2.5 py-1 bg-[#18181b] text-white font-mono font-bold rounded-lg text-xs shadow-2xs mb-1">
+                    <span className="inline-block px-2.5 py-1 bg-[#18181b] dark:bg-black text-white font-mono font-bold rounded-lg text-xs shadow-2xs mb-1">
                       #{order.receipt_no}
                     </span>
-                    <div className="text-xs text-stone-500 font-mono">
+                    <div className="text-xs text-stone-500 dark:text-stone-400 font-mono">
                       {order.order_date}
                     </div>
                     {order.promise_date && (
-                      <div className="text-[11px] text-[#c2410c] font-medium font-mono mt-0.5">
+                      <div className="text-[11px] text-[#c2410c] dark:text-[#ea580c] font-medium font-mono mt-0.5">
                         वायदा: {order.promise_date}
                       </div>
                     )}
@@ -97,40 +97,45 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
 
                   {/* Column 2: Party & Job Details */}
                   <td className="p-3.5 sm:px-4 sm:py-3.5 align-top">
-                    <div className="font-bold text-stone-900 text-sm sm:text-base leading-snug">
+                    <div className="font-bold text-stone-900 dark:text-stone-100 text-sm sm:text-base leading-snug">
                       {order.party_name}
                     </div>
-                    <div className="text-xs text-stone-600 font-medium mt-0.5">
+                    <div className="text-xs text-stone-600 dark:text-stone-300 font-medium mt-0.5">
                       {order.job_details}
                     </div>
                     <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
-                      <span className="px-2 py-0.5 bg-amber-50 text-amber-900 border border-amber-300 rounded text-[11px] font-bold">
+                      <span className="px-2 py-0.5 bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 rounded text-[11px] font-bold">
                         नग: {order.quantity}
                       </span>
                       {order.party_phone && (
-                        <span className="text-[11px] text-stone-400 font-mono">
+                        <span className="text-[11px] text-stone-400 dark:text-stone-500 font-mono">
                           • {order.party_phone}
                         </span>
                       )}
                     </div>
+                    {order.notes && (
+                      <div className="text-[11px] text-stone-500 dark:text-stone-400 italic mt-1 bg-stone-50 dark:bg-stone-800/80 px-2 py-0.5 rounded border border-stone-200/50 dark:border-stone-700 max-w-sm">
+                        "{order.notes}"
+                      </div>
+                    )}
                   </td>
 
                   {/* Column 3: Paper, Size & Ink */}
                   <td className="p-3.5 sm:px-4 sm:py-3.5 align-top space-y-1">
-                    <div className="text-xs font-semibold text-stone-800">
+                    <div className="text-xs font-semibold text-stone-800 dark:text-stone-200">
                       {order.paper_primary}
                       {order.paper_secondary && (
-                        <span className="text-stone-500 font-normal"> + {order.paper_secondary}</span>
+                        <span className="text-stone-500 dark:text-stone-400 font-normal"> + {order.paper_secondary}</span>
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                      <span className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded text-[11px] font-medium border border-stone-200">
+                      <span className="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded text-[11px] font-medium border border-stone-200 dark:border-stone-700">
                         Size: {order.paper_size}
                       </span>
                       {order.ink_colours.map((ink) => (
                         <span
                           key={ink}
-                          className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded text-[11px] font-semibold border border-stone-200"
+                          className="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded text-[11px] font-semibold border border-stone-200 dark:border-stone-700"
                         >
                           {ink}
                         </span>
@@ -140,35 +145,35 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
 
                   {/* Column 4: Print & Binding */}
                   <td className="p-3.5 sm:px-4 sm:py-3.5 align-top space-y-0.5 text-xs">
-                    <div className="text-stone-800 font-medium">
+                    <div className="text-stone-800 dark:text-stone-200 font-medium">
                       {order.printing_type}
                       {order.print_qty ? ` (${order.print_qty})` : ''}
                     </div>
-                    <div className="text-stone-500">
-                      Bind: <strong className="text-stone-700 font-medium">{order.binding_type}</strong>
+                    <div className="text-stone-500 dark:text-stone-400">
+                      Bind: <strong className="text-stone-700 dark:text-stone-300 font-medium">{order.binding_type}</strong>
                     </div>
                     {order.numbering_range && (
-                      <div className="text-stone-500 font-mono">
-                        No: <strong className="text-stone-700">{order.numbering_range}</strong>
+                      <div className="text-stone-500 dark:text-stone-400 font-mono">
+                        No: <strong className="text-stone-700 dark:text-stone-300">{order.numbering_range}</strong>
                       </div>
                     )}
                   </td>
 
                   {/* Column 5: Billing & Balance */}
                   <td className="p-3.5 sm:px-4 sm:py-3.5 align-top whitespace-nowrap text-xs space-y-0.5">
-                    <div className="font-semibold text-stone-800">
+                    <div className="font-semibold text-stone-800 dark:text-stone-200">
                       Total: ₹{Number(order.total_amount).toLocaleString('en-IN')}
                     </div>
-                    <div className="text-stone-500">
+                    <div className="text-stone-500 dark:text-stone-400">
                       Adv: ₹{Number(order.advance_amount).toLocaleString('en-IN')}
                     </div>
                     <div className="pt-1">
                       {hasBalance ? (
-                        <span className="inline-block px-2 py-0.5 bg-amber-100/80 text-amber-900 border border-amber-300 rounded text-xs font-bold font-mono">
+                        <span className="inline-block px-2 py-0.5 bg-amber-100/80 dark:bg-amber-950/70 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 rounded text-xs font-bold font-mono">
                           बाकी: ₹{Number(order.balance_due).toLocaleString('en-IN')}
                         </span>
                       ) : (
-                        <span className="inline-block px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-300 rounded text-xs font-bold">
+                        <span className="inline-block px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 rounded text-xs font-bold">
                           Paid • पूर्ण
                         </span>
                       )}
@@ -182,7 +187,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                       <button
                         type="button"
                         onClick={() => onAdvanceStatus(order.id, order.status)}
-                        title="Click to cycle status"
+                        title="Click to advance status"
                         className={`px-3 py-1 rounded-xl text-xs font-bold border shadow-2xs transition-all hover:scale-[1.03] active:scale-[0.98] ${statusMeta.badge}`}
                       >
                         {statusMeta.en}
@@ -208,7 +213,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                         type="button"
                         onClick={() => onPrintTicket(order)}
                         title="Print Job Slip / Ticket"
-                        className="p-1.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors"
+                        className="p-1.5 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-colors"
                       >
                         <Printer className="w-4 h-4" />
                       </button>
@@ -218,7 +223,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                         type="button"
                         onClick={() => openWhatsApp(order)}
                         title="Send WhatsApp Receipt"
-                        className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+                        className="p-1.5 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg transition-colors"
                       >
                         <MessageCircle className="w-4 h-4" />
                       </button>
@@ -228,7 +233,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                         type="button"
                         onClick={() => onEdit(order)}
                         title="Edit Order in Workbench"
-                        className="p-1.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors"
+                        className="p-1.5 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -238,7 +243,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                         type="button"
                         onClick={() => onDelete(order.id)}
                         title="Delete Order"
-                        className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                        className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

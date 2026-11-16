@@ -32,47 +32,66 @@ export const FREQUENT_JOBS = [
   'Labels / स्टिकर'
 ];
 
+// Exact Paper varieties from Raj Press order sheet
 export const DEFAULT_PAPERS = [
-  '9-map (९-मॅपलिथो)',
-  '7.7-map (७.७-मॅपलिथो)',
-  'SPB [Yellow] (यलो प्रत)',
-  'SPB [Pink] (गुलाबी प्रत)',
-  'White (पांढरा)',
-  'Ledger (80) (८० लेजर)',
-  'Bond (80 GSM)',
-  'Art Paper 130 GSM',
-  'Art Card 300 GSM',
-  'Sticker Sheet (स्वयं-चिकट)'
+  '9-map',
+  '7.7-map',
+  'SPB [Yellow]',
+  'SPB [Green]',
+  'SPB [Pink]',
+  'SPB [Blue]',
+  'GVG [Green]',
+  'GVG [Yellow]',
+  'GVG [Pink]',
+  'GVG [Blue]',
+  'Duplicate',
+  'Ledgore (70)',
+  'Ledgore (80)',
+  'Bond',
+  'Ruling',
+  'SPB-70 [Yellow]',
+  'SPB-70 [Green]',
+  'SPB-70 [Pink]',
+  'SPB-70 [Blue]',
+  'MS Cover [Yellow]',
+  'MS Cover [Green]',
+  'MS Cover [Pink]',
+  'MS Cover [Blue]',
+  'Cardsheet [Yellow]',
+  'Cardsheet [Green]',
+  'Cardsheet [Pink]',
+  'Cardsheet [Blue]',
+  'Cardsheet [White]'
 ];
 
+// Exact Sizes from Raj Press order sheet
 export const DEFAULT_SIZES = [
-  '1/8 (१० x ६.२५)',
-  '1/4 (११ x ८.५)',
-  '1/2 (१७ x ११)',
-  'A4 (८.२७ x ११.६९)',
-  'A5 (५.८ x ८.२७)',
-  '20x30 (1/8)',
-  '12 x 18 Digital',
-  '13 x 19 Digital'
+  '16',
+  '12',
+  '8',
+  '6',
+  '5',
+  '4',
+  '2',
+  'L8',
+  'L6'
 ];
 
+// Exact Binding types from Raj Press order sheet
 export const DEFAULT_BINDINGS = [
-  'Regzin (रेक्झीन बायडिंग)',
-  'Cloth (रेक्झीन पट्टी)',
-  'Perforation Pad (पॅड गमिंग)',
-  'Center Pinning (सेंटर पिन)',
-  'Spiral Wiro',
-  'Loose / Cutting Only'
+  'Regzin',
+  'Cloth (Regzin)',
+  'Cloth',
+  'Lapeta',
+  'Double-Puttha'
 ];
 
+// Exact Printing types from Raj Press order sheet (clean without numbers)
 export const DEFAULT_PRINTINGS = [
+  'F/b',
   'One-side',
-  'Duplicate (1000)',
-  'Duplicate (2000)',
-  'Single-side (2000)',
-  'F/b (Front & Back)',
-  'Four Colour Process (F/C)',
-  'Digital Print'
+  'Duplicate',
+  'Triplicate'
 ];
 
 export const STATUS_PROGRESSION: OrderStatus[] = [
@@ -86,37 +105,37 @@ export const STATUS_PROGRESSION: OrderStatus[] = [
 export const STATUS_LABELS: Record<OrderStatus, { en: string; mr: string; color: string; bg: string; badge: string }> = {
   Pending: {
     en: 'Pending',
-    mr: 'Pending (प्रलंबित)',
-    color: 'text-stone-700',
-    bg: 'bg-stone-100 border-stone-300',
-    badge: 'bg-stone-100 text-stone-700 border-stone-200'
+    mr: 'Pending',
+    color: 'text-stone-700 dark:text-stone-300',
+    bg: 'bg-stone-100 border-stone-300 dark:bg-stone-800 dark:border-stone-700',
+    badge: 'bg-stone-100 text-stone-700 border-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-700'
   },
   Printing: {
     en: 'Printing',
     mr: 'Printing',
-    color: 'text-sky-800',
-    bg: 'bg-sky-50 border-sky-300',
-    badge: 'bg-sky-50 text-sky-700 border-sky-200'
+    color: 'text-sky-800 dark:text-sky-300',
+    bg: 'bg-sky-50 border-sky-300 dark:bg-sky-950/60 dark:border-sky-800',
+    badge: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/70 dark:text-sky-300 dark:border-sky-800'
   },
   Binding: {
     en: 'Binding',
     mr: 'Binding',
-    color: 'text-purple-800',
-    bg: 'bg-purple-50 border-purple-300',
-    badge: 'bg-purple-50 text-purple-700 border-purple-200'
+    color: 'text-purple-800 dark:text-purple-300',
+    bg: 'bg-purple-50 border-purple-300 dark:bg-purple-950/60 dark:border-purple-800',
+    badge: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/70 dark:text-purple-300 dark:border-purple-800'
   },
   Ready: {
     en: 'Ready',
     mr: 'Ready',
-    color: 'text-amber-800',
-    bg: 'bg-amber-50 border-amber-300',
-    badge: 'bg-amber-50 text-amber-800 border-amber-200'
+    color: 'text-amber-800 dark:text-amber-300',
+    bg: 'bg-amber-50 border-amber-300 dark:bg-amber-950/60 dark:border-amber-800',
+    badge: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-800'
   },
   Delivered: {
     en: 'Delivered',
     mr: 'Delivered',
-    color: 'text-emerald-800',
-    bg: 'bg-emerald-50 border-emerald-300',
-    badge: 'bg-emerald-50 text-emerald-800 border-emerald-200'
+    color: 'text-emerald-800 dark:text-emerald-300',
+    bg: 'bg-emerald-50 border-emerald-300 dark:bg-emerald-950/60 dark:border-emerald-800',
+    badge: 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-800'
   }
 };

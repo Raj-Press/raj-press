@@ -30,7 +30,7 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
 
   const sendPaymentReminder = (party: Party) => {
     if (!party.phone) {
-      alert('ग्राहकाचा मोबाईल नंबर उपलब्ध नाही.');
+      alert('Customer mobile number is not available.');
       return;
     }
     const cleanPhone = party.phone.replace(/[^0-9]/g, '');
@@ -47,22 +47,22 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-6">
+      <div className="relative w-full max-w-4xl bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden my-6 transition-colors">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-slate-900 text-white">
+        <div className="flex items-center justify-between px-6 py-4 bg-stone-900 dark:bg-black text-white">
           <div className="flex items-center gap-2">
-            <span className="p-2 bg-blue-600 rounded-lg">
+            <span className="p-2 bg-[#d9532f] rounded-xl">
               <Users className="w-5 h-5 text-white" />
             </span>
             <div>
-              <h2 className="text-lg font-bold">ग्राहक वही व खाते (Customer Khata Ledger)</h2>
-              <p className="text-xs text-slate-300">ग्राहकांची एकूण बिलिंग व येणे बाकी शिल्लक यादी</p>
+              <h2 className="text-lg font-bold">Customer Khata Ledger (ग्राहक वही)</h2>
+              <p className="text-xs text-stone-400">Total customer billing & pending dues</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+            className="p-1.5 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -71,23 +71,23 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
         {/* Khata Summary Stats */}
         <div className="p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-              <span className="text-xs text-slate-500 block">एकूण नोंदणीकृत ग्राहक:</span>
-              <strong className="text-xl text-slate-800">{parties.length}</strong>
+            <div className="p-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl">
+              <span className="text-xs text-stone-500 dark:text-stone-400 block">Total Customers:</span>
+              <strong className="text-xl text-stone-800 dark:text-stone-100">{parties.length}</strong>
             </div>
 
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl">
-              <span className="text-xs text-blue-600 block">एकूण पार्टी बिलिंग:</span>
-              <strong className="text-xl text-blue-900 font-mono">
+            <div className="p-3 bg-blue-50/70 dark:bg-sky-950/40 border border-blue-200 dark:border-sky-800 rounded-2xl">
+              <span className="text-xs text-sky-700 dark:text-sky-400 block">Total Billed:</span>
+              <strong className="text-xl text-sky-900 dark:text-sky-200 font-mono">
                 ₹{totalKhataBilled.toLocaleString('en-IN')}
               </strong>
             </div>
 
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl">
-              <span className="text-xs text-rose-600 font-bold block flex items-center gap-1">
-                <AlertTriangle className="w-3.5 h-3.5 text-rose-600" /> एकूण येणे बाकी शिल्लक:
+            <div className="p-3 bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl">
+              <span className="text-xs text-rose-700 dark:text-rose-400 font-bold block flex items-center gap-1">
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" /> Pending Dues (येणे बाकी):
               </span>
-              <strong className="text-xl text-rose-700 font-mono font-extrabold">
+              <strong className="text-xl text-[#c2410c] dark:text-[#ea580c] font-mono font-extrabold">
                 ₹{totalKhataPending.toLocaleString('en-IN')}
               </strong>
             </div>
@@ -95,48 +95,48 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
 
           {/* Search Bar */}
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="ग्राहक नांव किंवा फोन नंबर शोधा..."
+              placeholder="Search customer name or phone..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full pl-10 pr-3 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
             />
           </div>
 
           {/* Customer Table */}
-          <div className="border border-slate-200 rounded-xl overflow-hidden max-h-[50vh] overflow-y-auto">
-            <table className="w-full text-xs text-left border-collapse">
-              <thead className="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider sticky top-0">
+          <div className="border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden max-h-[50vh] overflow-y-auto">
+            <table className="w-full text-xs sm:text-sm text-left border-collapse">
+              <thead className="bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold uppercase tracking-wider text-[11px] sticky top-0">
                 <tr>
-                  <th className="p-3">ग्राहकाचे नांव</th>
-                  <th className="p-3">मोबाईल क्र.</th>
-                  <th className="p-3 text-right">एकूण बिलिंग</th>
-                  <th className="p-3 text-right">येणे बाकी ₹</th>
-                  <th className="p-3 text-center">ॲक्शन्स</th>
+                  <th className="p-3">Customer / Party</th>
+                  <th className="p-3">Phone</th>
+                  <th className="p-3 text-right">Total Billed</th>
+                  <th className="p-3 text-right">Due (येणे बाकी)</th>
+                  <th className="p-3 text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 font-medium">
+              <tbody className="divide-y divide-stone-100 dark:divide-stone-800 font-medium">
                 {filtered.map((party) => (
-                  <tr key={party.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={party.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/60 transition-colors">
                     <td className="p-3">
-                      <div className="font-bold text-slate-900">{party.name}</div>
+                      <div className="font-bold text-stone-900 dark:text-stone-100">{party.name}</div>
                       {party.address && (
-                        <div className="text-[11px] text-slate-500 truncate max-w-xs">{party.address}</div>
+                        <div className="text-[11px] text-stone-400 truncate max-w-xs">{party.address}</div>
                       )}
                     </td>
 
-                    <td className="p-3 font-mono text-slate-600">
+                    <td className="p-3 font-mono text-stone-600 dark:text-stone-400">
                       {party.phone || '-'}
                     </td>
 
-                    <td className="p-3 text-right font-mono font-bold text-slate-900">
+                    <td className="p-3 text-right font-mono font-bold text-stone-900 dark:text-stone-100">
                       ₹{Number(party.total_billed || 0).toLocaleString('en-IN')}
                     </td>
 
                     <td className="p-3 text-right font-mono font-bold text-sm">
-                      <span className={party.total_pending > 0 ? 'text-rose-700 font-extrabold' : 'text-slate-400'}>
+                      <span className={party.total_pending > 0 ? 'text-[#c2410c] dark:text-[#ea580c] font-extrabold' : 'text-stone-400'}>
                         ₹{Number(party.total_pending || 0).toLocaleString('en-IN')}
                       </span>
                     </td>
@@ -148,19 +148,19 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
                           onSelectPartyOrders(party.name);
                           onClose();
                         }}
-                        className="px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-semibold transition-colors"
+                        className="px-2.5 py-1 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-lg text-xs font-semibold transition-colors"
                       >
-                        ऑर्डर्स पहा
+                        View Orders
                       </button>
 
                       {party.total_pending > 0 && party.phone && (
                         <button
                           type="button"
                           onClick={() => sendPaymentReminder(party)}
-                          title="बाकी रकमेचा व्हॉट्सॲप मेसेज पाठवा"
-                          className="px-2.5 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-semibold transition-colors inline-flex items-center gap-1"
+                          title="Send WhatsApp payment reminder"
+                          className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-lg text-xs font-semibold transition-colors inline-flex items-center gap-1"
                         >
-                          <MessageSquare className="w-3 h-3" /> आठवण
+                          <MessageSquare className="w-3 h-3" /> Remind
                         </button>
                       )}
                     </td>

@@ -29,9 +29,25 @@ export const App: React.FC = () => {
   const [customPresets, setCustomPresets] = useState<Preset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Dark Mode State
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    return localStorage.getItem('raj_press_theme') === 'dark';
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('raj_press_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('raj_press_theme', 'light');
+    }
+  }, [isDark]);
+
   // Filter & Search
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterCategory>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
 
   // Editing state for workbench
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
@@ -121,6 +137,12 @@ export const App: React.FC = () => {
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
+      // 1. Status Filter
+      if (statusFilter !== 'ALL' && order.status !== statusFilter) {
+        return false;
+      }
+
+      // 2. Search Query
       const q = searchTerm.toLowerCase().trim();
       const matchesSearch =
         !q ||
@@ -133,6 +155,7 @@ export const App: React.FC = () => {
 
       if (!matchesSearch) return false;
 
+      // 3. Category Filter
       if (activeFilter === 'balance_due') {
         return order.balance_due > 0;
       }
@@ -145,7 +168,7 @@ export const App: React.FC = () => {
 
       return true;
     });
-  }, [orders, searchTerm, activeFilter]);
+  }, [orders, searchTerm, activeFilter, statusFilter]);
 
   // Handlers
   const handleSaveOrder = async (orderData: Partial<Order>) => {
@@ -189,7 +212,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f8f7f4] text-stone-900 antialiased font-sans">
+    <div className="min-h-screen flex flex-col bg-[#f8f7f4] dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased font-sans transition-colors duration-200">
       {/* Top Application Header */}
       <Header
         onExportCSV={() => exportOrdersToCSV(orders)}
@@ -197,18 +220,20 @@ export const App: React.FC = () => {
         onRefresh={refreshData}
         onOpenAuth={() => setIsAuthOpen(true)}
         currentUser={currentUser}
+        isDark={isDark}
+        onToggleTheme={() => setIsDark((prev) => !prev)}
       />
 
       {/* Mobile Tab Switcher (Visible on mobile/tablet) */}
       <div className="lg:hidden px-4 pt-3 pb-1">
-        <div className="grid grid-cols-2 p-1 bg-stone-200/80 rounded-2xl text-xs font-bold">
+        <div className="grid grid-cols-2 p-1 bg-stone-200/80 dark:bg-stone-800 rounded-2xl text-xs font-bold">
           <button
             type="button"
             onClick={() => setMobileTab('workbench')}
             className={`py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all ${
               mobileTab === 'workbench'
-                ? 'bg-white text-stone-900 shadow-2xs'
-                : 'text-stone-600'
+                ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-2xs'
+                : 'text-stone-600 dark:text-stone-400'
             }`}
           >
             <PlusCircle className="w-4 h-4 text-[#d9532f]" />
@@ -219,11 +244,11 @@ export const App: React.FC = () => {
             onClick={() => setMobileTab('register')}
             className={`py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all ${
               mobileTab === 'register'
-                ? 'bg-white text-stone-900 shadow-2xs'
-                : 'text-stone-600'
+                ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-2xs'
+                : 'text-stone-600 dark:text-stone-400'
             }`}
           >
-            <ListOrdered className="w-4 h-4 text-blue-600" />
+            <ListOrdered className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             <span>Order Register ({orders.length})</span>
           </button>
         </div>
@@ -259,8 +284,14 @@ export const App: React.FC = () => {
             <KPICards
               metrics={metrics}
               duePartiesCount={duePartiesCount}
-              onFilterBalanceDue={() => setActiveFilter('balance_due')}
-              onFilterActive={() => setActiveFilter('in_progress')}
+              onFilterBalanceDue={() => {
+                setActiveFilter('balance_due');
+                setStatusFilter('ALL');
+              }}
+              onFilterActive={() => {
+                setActiveFilter('in_progress');
+                setStatusFilter('ALL');
+              }}
             />
 
             {/* Instant Search Bar & Status Filter Pills */}
@@ -269,11 +300,13 @@ export const App: React.FC = () => {
               onSearchChange={setSearchTerm}
               activeFilter={activeFilter}
               onFilterChange={setActiveFilter}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
             />
 
             {/* Live Order Register Table */}
             {isLoading ? (
-              <div className="bg-white border border-stone-200/90 rounded-3xl p-12 text-center text-stone-500 font-medium">
+              <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-12 text-center text-stone-500 font-medium">
                 Loading orders...
               </div>
             ) : (
@@ -304,6 +337,7 @@ export const App: React.FC = () => {
         onSelectPartyOrders={(partyName) => {
           setSearchTerm(partyName);
           setActiveFilter('all');
+          setStatusFilter('ALL');
           setMobileTab('register');
         }}
       />
