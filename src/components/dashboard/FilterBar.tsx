@@ -24,7 +24,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onStatusFilterChange,
   orderTypeFilter,
   onOrderTypeFilterChange,
-  availableOrderTypes = ['General', 'Patrika / Wedding Cards', 'सप्ताह / Saptah'],
+  availableOrderTypes = ['General', 'Patrika / Wedding Cards', 'सप्ताह / Saptah', 'Special Order'],
 }) => {
   return (
     <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 my-2">

@@ -54,6 +54,8 @@ CREATE TABLE IF NOT EXISTS public.orders (
     advance_amount NUMERIC(12, 2) NOT NULL DEFAULT 0.00,
     balance_due NUMERIC(12, 2) GENERATED ALWAYS AS (GREATEST(0, total_amount - advance_amount)) STORED,
     promise_date DATE,
+    delivered_date DATE,
+    dispatches JSONB DEFAULT '[]'::JSONB,
     status TEXT NOT NULL DEFAULT 'Pending',
     order_type TEXT DEFAULT 'General',
     notes TEXT,

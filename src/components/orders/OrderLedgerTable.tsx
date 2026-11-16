@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Copy,
   Lock,
+  Truck,
 } from 'lucide-react';
 import { formatDDMMYYYY } from '../../lib/date';
 import { openWhatsApp } from '../../lib/whatsapp';
@@ -22,6 +23,7 @@ interface OrderLedgerTableProps {
   onAdvanceStatus: (id: string, currentStatus: OrderStatus) => void;
   onClearBalance: (id: string) => void;
   onRepeatOrder: (order: Order) => void;
+  onOpenSplitDelivery: (order: Order) => void;
 }
 
 export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
@@ -32,6 +34,7 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
   onAdvanceStatus,
   onClearBalance,
   onRepeatOrder,
+  onOpenSplitDelivery,
 }) => {
   if (orders.length === 0) {
     return (
@@ -79,6 +82,10 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
             {orders.map((order) => {
               const statusMeta = STATUS_LABELS[order.status] || STATUS_LABELS.Pending;
               const hasBalance = order.balance_due > 0;
+              const isSpecialOrder = order.order_type === 'Special Order' || (order.dispatches && order.dispatches.length > 0);
+              const totalDelivered = (order.dispatches || []).reduce((sum, d) => sum + Number(d.quantity || 0), 0);
+              const remainingQty = Math.max(0, order.quantity - totalDelivered);
+              const isFullyDelivered = order.status === 'Delivered' || (isSpecialOrder && totalDelivered >= order.quantity && order.quantity > 0);
 
               return (
                 <tr
@@ -98,9 +105,21 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                         वायदा: {formatDDMMYYYY(order.promise_date)}
                       </div>
                     )}
-                    {order.status === 'Delivered' && (
+                    {/* Special Order split delivery tracking in date column */}
+                    {isSpecialOrder && totalDelivered > 0 && !isFullyDelivered && (
+                      <div className="mt-1 space-y-0.5">
+                        <div className="text-xs text-sky-600 dark:text-sky-400 font-bold font-mono">
+                          डिलिव्हर: {totalDelivered.toLocaleString('en-IN')}/{order.quantity.toLocaleString('en-IN')}
+                        </div>
+                        <div className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold font-mono">
+                          शिल्लक: {remainingQty.toLocaleString('en-IN')} नग
+                        </div>
+                      </div>
+                    )}
+                    {isFullyDelivered && (
                       <div className="text-xs text-emerald-600 dark:text-emerald-400 font-bold font-mono mt-0.5">
                         डिलिव्हरी: {formatDDMMYYYY(order.delivered_date || order.promise_date || order.order_date)}
+                        {isSpecialOrder && ` (${order.quantity.toLocaleString('en-IN')} नग पूर्ण)`}
                       </div>
                     )}
                   </td>
@@ -117,12 +136,42 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                     </div>
                     <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                       <span className="px-2 py-0.5 bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 rounded text-xs font-bold">
-                        नग: {order.quantity}
+                        नग: {order.quantity.toLocaleString('en-IN')}
                       </span>
                       {order.order_type && order.order_type !== 'General' && (
-                        <span className="px-1.5 py-0.5 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded text-[11px] font-bold">
+                        <span className={`px-1.5 py-0.5 rounded text-[11px] font-bold border ${
+                          order.order_type === 'Special Order'
+                            ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-700'
+                            : 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                        }`}>
                           {order.order_type}
                         </span>
+                      )}
+                      {/* Split delivery progress badge */}
+                      {isSpecialOrder && (
+                        isFullyDelivered ? (
+                          <span className="px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 rounded text-[11px] font-bold">
+                            सर्व हप्ते पूर्ण ({order.quantity.toLocaleString('en-IN')})
+                          </span>
+                        ) : totalDelivered > 0 ? (
+                          <button
+                            type="button"
+                            onClick={() => onOpenSplitDelivery(order)}
+                            title="हप्तेवारी डिलिव्हरी तपशील उघडा"
+                            className="px-1.5 py-0.5 bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-800 rounded text-[11px] font-bold hover:bg-sky-100 transition-colors"
+                          >
+                            हप्ता: {totalDelivered.toLocaleString('en-IN')}/{order.quantity.toLocaleString('en-IN')} (बाकी: {remainingQty.toLocaleString('en-IN')})
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => onOpenSplitDelivery(order)}
+                            title="हप्तेवारी डिलिव्हरी नोंदवा"
+                            className="px-1.5 py-0.5 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 rounded text-[11px] font-semibold hover:bg-amber-100 transition-colors"
+                          >
+                            हप्तेवारी प्रलंबित
+                          </button>
+                        )
                       )}
                       {order.party_phone && (
                         <span className="text-xs text-stone-400 dark:text-stone-500 font-mono">
@@ -204,15 +253,28 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                   {/* Column 6: Status & Action */}
                   <td className="px-3 py-3 align-top text-right whitespace-nowrap space-y-2">
                     <div className="flex items-center justify-end">
-                      {order.status === 'Delivered' ? (
+                      {isFullyDelivered ? (
                         <span
-                          title="Order delivered and locked. चूक झाली असल्यास Edit बटनावरून बदला."
+                          title={`ऑर्डर पूर्ण (${order.quantity.toLocaleString('en-IN')} नग) डिलिव्हर होऊन लॉक झाली आहे. चूक झाली असल्यास Edit बटनावरून बदला.`}
                           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold border shadow-2xs bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-800 cursor-default select-none"
                         >
                           <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                           <span>Delivered</span>
                           <Lock className="w-3 h-3 text-emerald-600 dark:text-emerald-400 ml-0.5" />
                         </span>
+                      ) : isSpecialOrder ? (
+                        <button
+                          type="button"
+                          onClick={() => onOpenSplitDelivery(order)}
+                          title="हप्तेवारी डिलिव्हरी नोंदवा (Record Split Delivery)"
+                          className={`px-3 py-1 rounded-xl text-xs sm:text-sm font-bold border shadow-2xs transition-all hover:scale-[1.03] active:scale-[0.98] ${
+                            totalDelivered > 0
+                              ? 'bg-sky-50 text-sky-700 border-sky-300 dark:bg-sky-950/70 dark:text-sky-300 dark:border-sky-800'
+                              : statusMeta.badge
+                          }`}
+                        >
+                          {totalDelivered > 0 ? `Delivered (${totalDelivered.toLocaleString('en-IN')}/${order.quantity.toLocaleString('en-IN')})` : 'Split Deliver'}
+                        </button>
                       ) : (
                         <button
                           type="button"
@@ -235,6 +297,17 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = ({
                         >
                           <Check className="w-3.5 h-3.5" />
                           <span>Clear ₹{order.balance_due}</span>
+                        </button>
+                      )}
+
+                      {isSpecialOrder && (
+                        <button
+                          type="button"
+                          onClick={() => onOpenSplitDelivery(order)}
+                          title="हप्तेवारी डिलिव्हरी नोंदवा (Split Delivery)"
+                          className="p-1.5 text-sky-600 dark:text-sky-400 hover:text-sky-700 hover:bg-sky-50 dark:hover:bg-sky-950/40 rounded-lg transition-colors"
+                        >
+                          <Truck className="w-4 h-4" />
                         </button>
                       )}
 

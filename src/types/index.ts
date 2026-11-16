@@ -2,6 +2,14 @@
 
 export type OrderStatus = 'Pending' | 'Printing' | 'Binding' | 'Ready' | 'Delivered';
 
+export interface DeliveryDispatch {
+  id: string;
+  dispatch_date: string; // YYYY-MM-DD
+  quantity: number;
+  notes?: string | null;
+  created_at?: string;
+}
+
 export interface Order {
   id: string;
   created_at: string;
@@ -27,6 +35,7 @@ export interface Order {
   balance_due: number;
   promise_date?: string | null; // YYYY-MM-DD
   delivered_date?: string | null; // YYYY-MM-DD
+  dispatches?: DeliveryDispatch[] | null;
   status: OrderStatus;
   notes?: string | null;
   user_id?: string | null;

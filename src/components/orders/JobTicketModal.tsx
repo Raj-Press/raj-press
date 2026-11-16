@@ -162,6 +162,44 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
               </div>
             </div>
 
+            {/* Split Delivery Dispatch Log if any */}
+            {order.dispatches && order.dispatches.length > 0 && (
+              <div className="mb-2 pb-2 border-b border-black">
+                <div className="flex justify-between items-center mb-1 text-xs font-bold text-black uppercase">
+                  <span>★ हप्तेवारी डिलिव्हरी नोंद (Split Delivery Log) ★</span>
+                  <span className="font-mono text-[11px]">
+                    एकूण: {order.quantity.toLocaleString('en-IN')} | डिलिव्हर: {order.dispatches.reduce((s, d) => s + Number(d.quantity || 0), 0).toLocaleString('en-IN')} | शिल्लक: {Math.max(0, order.quantity - order.dispatches.reduce((s, d) => s + Number(d.quantity || 0), 0)).toLocaleString('en-IN')}
+                  </span>
+                </div>
+                <table className="w-full text-xs text-black border border-black text-left border-collapse">
+                  <thead>
+                    <tr className="bg-stone-100 border-b border-black font-bold text-[11px]">
+                      <th className="py-1 px-1.5 border-r border-black w-14">हप्ता #</th>
+                      <th className="py-1 px-1.5 border-r border-black">तारीख</th>
+                      <th className="py-1 px-1.5 border-r border-black text-right">डिलिव्हर नग</th>
+                      <th className="py-1 px-1.5 border-r border-black text-right">शिल्लक नग</th>
+                      <th className="py-1 px-1.5">नोंद / स्वाक्षरी</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-black font-mono">
+                    {order.dispatches.map((disp, idx) => {
+                      const cumulative = order.dispatches!.slice(0, idx + 1).reduce((s, d) => s + Number(d.quantity || 0), 0);
+                      const bal = Math.max(0, order.quantity - cumulative);
+                      return (
+                        <tr key={disp.id || idx}>
+                          <td className="py-1 px-1.5 border-r border-black font-bold">#{idx + 1}</td>
+                          <td className="py-1 px-1.5 border-r border-black">{formatDDMMYYYY(disp.dispatch_date)}</td>
+                          <td className="py-1 px-1.5 border-r border-black text-right font-bold">{Number(disp.quantity).toLocaleString('en-IN')}</td>
+                          <td className="py-1 px-1.5 border-r border-black text-right">{bal.toLocaleString('en-IN')}</td>
+                          <td className="py-1 px-1.5 font-sans text-[11px] italic">{disp.notes || '-'}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             {/* Press Floor Quality Checklist */}
             <div className="grid grid-cols-3 gap-2 text-[11px] font-bold text-black pt-1">
               <label className="flex items-center gap-1.5 cursor-pointer">

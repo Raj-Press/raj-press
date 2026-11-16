@@ -6,6 +6,8 @@ import {
   deleteOrder,
   updateOrderStatus,
   clearOrderBalance,
+  addOrderDispatch,
+  removeOrderDispatch,
   getParties,
   getCustomPresets,
   generateNextReceiptNo,
@@ -18,6 +20,7 @@ import { FilterBar, FilterCategory } from './components/dashboard/FilterBar';
 import { OrderWorkbenchForm } from './components/orders/OrderWorkbenchForm';
 import { OrderLedgerTable } from './components/orders/OrderLedgerTable';
 import { JobTicketModal } from './components/orders/JobTicketModal';
+import { SplitDeliveryModal } from './components/orders/SplitDeliveryModal';
 import { CustomerKhataModal } from './components/parties/CustomerKhataModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { ConfirmDialog } from './components/common/ConfirmDialog';
@@ -54,6 +57,7 @@ export const App: React.FC = () => {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [repeatSource, setRepeatSource] = useState<Order | null>(null);
   const [ticketOrder, setTicketOrder] = useState<Order | null>(null);
+  const [splitDeliveryOrder, setSplitDeliveryOrder] = useState<Order | null>(null);
   const [isKhataOpen, setIsKhataOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -223,6 +227,17 @@ export const App: React.FC = () => {
   };
 
   const handleAdvanceStatus = async (id: string, currentStatus: OrderStatus) => {
+    const order = orders.find(o => o.id === id);
+    const isSpecial = order?.order_type === 'Special Order' || (order?.dispatches && order.dispatches.length > 0);
+
+    // If Special Order or has split dispatches, clicking status opens split delivery modal
+    if (isSpecial) {
+      if (order) {
+        setSplitDeliveryOrder(order);
+        return;
+      }
+    }
+
     const nextMap: Record<OrderStatus, OrderStatus> = {
       Pending: 'Printing',
       Printing: 'Binding',
@@ -235,6 +250,24 @@ export const App: React.FC = () => {
       await updateOrderStatus(id, next);
       await refreshData();
     }
+  };
+
+  const handleSaveDispatch = async (orderId: string, dispatch: { dispatch_date: string; quantity: number; notes?: string }) => {
+    const updated = await addOrderDispatch(orderId, dispatch);
+    if (updated) {
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+      setSplitDeliveryOrder(updated);
+    }
+    await refreshData();
+  };
+
+  const handleRemoveDispatch = async (orderId: string, dispatchId: string) => {
+    const updated = await removeOrderDispatch(orderId, dispatchId);
+    if (updated) {
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+      setSplitDeliveryOrder(updated);
+    }
+    await refreshData();
   };
 
   const handleClearBalance = async (id: string) => {
@@ -366,6 +399,7 @@ export const App: React.FC = () => {
                 onAdvanceStatus={handleAdvanceStatus}
                 onClearBalance={handleClearBalance}
                 onRepeatOrder={handleRepeatOrder}
+                onOpenSplitDelivery={setSplitDeliveryOrder}
               />
             )}
           </div>
@@ -378,6 +412,15 @@ export const App: React.FC = () => {
         order={ticketOrder}
         onClose={() => setTicketOrder(null)}
       />
+
+      {splitDeliveryOrder && (
+        <SplitDeliveryModal
+          order={splitDeliveryOrder}
+          onClose={() => setSplitDeliveryOrder(null)}
+          onSaveDispatch={handleSaveDispatch}
+          onRemoveDispatch={handleRemoveDispatch}
+        />
+      )}
 
       <CustomerKhataModal
         isOpen={isKhataOpen}

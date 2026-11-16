@@ -97,7 +97,8 @@ export const DEFAULT_PRINTINGS = [
 export const DEFAULT_ORDER_TYPES = [
   'General',
   'Patrika / Wedding Cards',
-  'सप्ताह / Saptah'
+  'सप्ताह / Saptah',
+  'Special Order'
 ];
 
 export const STATUS_PROGRESSION: OrderStatus[] = [

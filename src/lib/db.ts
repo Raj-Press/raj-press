@@ -1,5 +1,5 @@
 import { get, set } from 'idb-keyval';
-import { Order, Party, Preset } from '../types';
+import { Order, Party, Preset, DeliveryDispatch } from '../types';
 import { supabase, isSupabaseConfigured } from './supabase';
 
 const ORDERS_KEY = 'raj_press_orders_v2';
@@ -202,6 +202,40 @@ const INITIAL_ORDERS: Order[] = [
     promise_date: '2026-11-21',
     status: 'Pending',
     notes: 'कव्हर प्रिंटींग काळी'
+  },
+  {
+    id: 'ord-107',
+    created_at: '2026-11-16T12:00:00.000Z',
+    order_date: '2026-11-16',
+    receipt_no: '107',
+    party_id: 'p1',
+    party_name: 'आदित्य इंजिनिअर्स / Aditya Engineers',
+    party_phone: '9822011223',
+    job_details: 'कंपनी कामाचे चलन (हप्तेवारी डिलिव्हरी)',
+    quantity: 6000,
+    paper_primary: '7.7-map',
+    paper_secondary: '',
+    paper_size: '1/8',
+    binding_type: 'Regzin',
+    ink_colours: ['Blue'],
+    printing_type: 'One-side',
+    print_qty: '6000',
+    numbering_range: '1 to 6000',
+    total_amount: 8500,
+    advance_amount: 5000,
+    balance_due: 3500,
+    promise_date: '2026-11-22',
+    order_type: 'Special Order',
+    status: 'Ready',
+    dispatches: [
+      {
+        id: 'disp-1',
+        dispatch_date: '2026-11-16',
+        quantity: 2000,
+        notes: '१ला हप्ता (1st lot dispatch)'
+      }
+    ],
+    notes: '६००० नग पैकी २००० नग दिले आहेत'
   }
 ];
 
@@ -257,6 +291,7 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
       ...orderData,
       status: newStatus,
       delivered_date: delDate,
+      dispatches: orderData.dispatches !== undefined ? orderData.dispatches : (existing?.dispatches || null),
       total_amount: total,
       advance_amount: advance,
       balance_due: balance,
@@ -300,6 +335,7 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
       balance_due: balance,
       promise_date: orderData.promise_date || null,
       delivered_date: delDate,
+      dispatches: orderData.dispatches || null,
       status: newStatus,
       notes: orderData.notes || null,
       _synced: false
@@ -368,6 +404,98 @@ export async function updateOrderStatus(id: string, status: Order['status']): Pr
   }
 
   return currentOrders[index];
+}
+
+export async function addOrderDispatch(
+  orderId: string,
+  dispatch: Omit<DeliveryDispatch, 'id'>
+): Promise<Order | null> {
+  const currentOrders = await getOrders();
+  const index = currentOrders.findIndex(o => o.id === orderId);
+  if (index === -1) return null;
+
+  const order = currentOrders[index];
+  const newDispatch: DeliveryDispatch = {
+    id: crypto.randomUUID(),
+    dispatch_date: dispatch.dispatch_date || new Date().toISOString().split('T')[0],
+    quantity: Number(dispatch.quantity) || 0,
+    notes: dispatch.notes?.trim() || null,
+  };
+
+  const currentDispatches = order.dispatches ? [...order.dispatches] : [];
+  currentDispatches.push(newDispatch);
+
+  const totalDelivered = currentDispatches.reduce((sum, d) => sum + Number(d.quantity || 0), 0);
+  const isFullyDelivered = totalDelivered >= order.quantity && order.quantity > 0;
+
+  const newStatus: Order['status'] = isFullyDelivered ? 'Delivered' : order.status;
+  const delivered_date = isFullyDelivered ? newDispatch.dispatch_date : (order.delivered_date || null);
+
+  const updated: Order = {
+    ...order,
+    dispatches: currentDispatches,
+    status: newStatus,
+    delivered_date,
+    updated_at: new Date().toISOString(),
+  };
+
+  currentOrders[index] = updated;
+  await set(ORDERS_KEY, currentOrders);
+
+  if (isSupabaseConfigured && supabase && navigator.onLine) {
+    try {
+      await supabase.from('orders').update({
+        dispatches: currentDispatches,
+        status: newStatus,
+        delivered_date,
+        updated_at: updated.updated_at
+      }).eq('id', orderId);
+    } catch {
+      // offline
+    }
+  }
+
+  return updated;
+}
+
+export async function removeOrderDispatch(orderId: string, dispatchId: string): Promise<Order | null> {
+  const currentOrders = await getOrders();
+  const index = currentOrders.findIndex(o => o.id === orderId);
+  if (index === -1) return null;
+
+  const order = currentOrders[index];
+  const currentDispatches = (order.dispatches || []).filter(d => d.id !== dispatchId);
+  const totalDelivered = currentDispatches.reduce((sum, d) => sum + Number(d.quantity || 0), 0);
+  const isFullyDelivered = totalDelivered >= order.quantity && order.quantity > 0;
+
+  const newStatus: Order['status'] = isFullyDelivered ? 'Delivered' : (order.status === 'Delivered' ? 'Ready' : order.status);
+  const delivered_date = isFullyDelivered ? (currentDispatches[currentDispatches.length - 1]?.dispatch_date || new Date().toISOString().split('T')[0]) : null;
+
+  const updated: Order = {
+    ...order,
+    dispatches: currentDispatches,
+    status: newStatus,
+    delivered_date,
+    updated_at: new Date().toISOString(),
+  };
+
+  currentOrders[index] = updated;
+  await set(ORDERS_KEY, currentOrders);
+
+  if (isSupabaseConfigured && supabase && navigator.onLine) {
+    try {
+      await supabase.from('orders').update({
+        dispatches: currentDispatches,
+        status: newStatus,
+        delivered_date,
+        updated_at: updated.updated_at
+      }).eq('id', orderId);
+    } catch {
+      // offline
+    }
+  }
+
+  return updated;
 }
 
 export async function clearOrderBalance(id: string): Promise<Order | null> {
