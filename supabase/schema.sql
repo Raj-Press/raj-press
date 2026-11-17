@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
     quantity INTEGER NOT NULL DEFAULT 1,
     paper_primary TEXT NOT NULL,
     paper_secondary TEXT,
+    paper_tertiary TEXT,
     paper_size TEXT NOT NULL,
     binding_type TEXT NOT NULL,
     ink_colours TEXT[] DEFAULT ARRAY[]::TEXT[] NOT NULL,
@@ -75,6 +76,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_user_id ON public.orders (user_id);
 -- Ensure newly added columns exist if table was created previously
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS order_type TEXT DEFAULT 'General';
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS patrika_cost NUMERIC(12, 2) DEFAULT NULL;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS paper_tertiary TEXT;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivered_date DATE;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS dispatches JSONB DEFAULT '[]'::JSONB;
 CREATE INDEX IF NOT EXISTS idx_orders_order_type ON public.orders (order_type);

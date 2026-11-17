@@ -46,6 +46,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
 
   const [paperPrimary, setPaperPrimary] = useState(DEFAULT_PAPERS[0]);
   const [paperSecondary, setPaperSecondary] = useState('None (Single Paper)');
+  const [paperTertiary, setPaperTertiary] = useState('None (Single Paper)');
   const [paperSize, setPaperSize] = useState(DEFAULT_SIZES[2] || '8');
   const [bindingType, setBindingType] = useState(DEFAULT_BINDINGS[0] || 'Regzin');
   const [inkColours, setInkColours] = useState<string[]>(['Black']);
@@ -71,7 +72,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
   const papers = useMemo(() => Array.from(
     new Set([
       ...DEFAULT_PAPERS,
-      ...customPresets.filter((p) => p.category === 'paper_primary' || p.category === 'paper_secondary').map((p) => p.value),
+      ...customPresets.filter((p) => p.category === 'paper_primary' || p.category === 'paper_secondary' || p.category === 'paper_tertiary').map((p) => p.value),
     ])
   ), [customPresets]);
 
@@ -123,6 +124,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
       setQuantity(editingOrder.quantity || 1);
       setPaperPrimary(editingOrder.paper_primary || DEFAULT_PAPERS[0]);
       setPaperSecondary(editingOrder.paper_secondary || 'None (Single Paper)');
+      setPaperTertiary(editingOrder.paper_tertiary || 'None (Single Paper)');
       setPaperSize(editingOrder.paper_size || DEFAULT_SIZES[2] || '8');
       setBindingType(editingOrder.binding_type || DEFAULT_BINDINGS[0] || 'Regzin');
       setInkColours(editingOrder.ink_colours && editingOrder.ink_colours.length > 0 ? editingOrder.ink_colours : ['Black']);
@@ -149,6 +151,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
       setQuantity(10);
       setPaperPrimary(DEFAULT_PAPERS[0]);
       setPaperSecondary('None (Single Paper)');
+      setPaperTertiary('None (Single Paper)');
       setPaperSize(DEFAULT_SIZES[2] || '8');
       setBindingType(DEFAULT_BINDINGS[0] || 'Regzin');
       setInkColours(['Black']);
@@ -171,6 +174,12 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
   const balance = Math.max(0, total - adv);
 
   const isPatrikaOrder = orderType === 'Patrika';
+  const isSaptahOrder = orderType === 'Saptah';
+  const isStandardOrder = !isPatrikaOrder && !isSaptahOrder;
+
+  const isDuplicate = isStandardOrder && printingType.toLowerCase().includes('duplicate');
+  const isTriplicate = isStandardOrder && printingType.toLowerCase().includes('triplicate');
+
   const patrikaCostNum = Number(patrikaCost) || 0;
   const finalPriceNum = total;
   const patrikaProfit = finalPriceNum - patrikaCostNum;
@@ -223,6 +232,38 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
 
     setIsSubmitting(true);
     try {
+      let finalPaperPrimary = paperPrimary;
+      let finalPaperSecondary: string | null = null;
+      let finalPaperTertiary: string | null = null;
+      let finalPaperSize = paperSize;
+      let finalBinding = bindingType;
+      let finalPrinting = printingType;
+      let finalPrintQty: string | null = printQty.trim() || null;
+      let finalNumbering: string | null = numberingRange.trim() || null;
+
+      if (isPatrikaOrder) {
+        finalPaperPrimary = 'Patrika Card';
+        finalPaperSecondary = null;
+        finalPaperTertiary = null;
+        finalPaperSize = 'Card';
+        finalBinding = 'None';
+        finalPrinting = 'Card';
+        finalNumbering = null;
+      } else if (isSaptahOrder) {
+        finalPaperPrimary = paperPrimary;
+        finalPaperSecondary = null;
+        finalPaperTertiary = null;
+        finalPaperSize = 'Standard';
+        finalBinding = 'None';
+        finalPrinting = 'One-side';
+        finalPrintQty = null;
+        finalNumbering = null;
+      } else {
+        finalPaperPrimary = paperPrimary;
+        finalPaperSecondary = (isDuplicate || isTriplicate) && paperSecondary !== 'None (Single Paper)' && paperSecondary !== 'None' ? paperSecondary : null;
+        finalPaperTertiary = isTriplicate && paperTertiary !== 'None (Single Paper)' && paperTertiary !== 'None' ? paperTertiary : null;
+      }
+
       await onSave({
         id: editingOrder?.id,
         receipt_no: receiptNo || nextReceiptNo,
@@ -231,16 +272,17 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
         party_phone: partyPhone.trim() || null,
         job_details: jobDetails.trim(),
         quantity: Number(quantity) || 1,
-        paper_primary: paperPrimary,
-        paper_secondary: paperSecondary === 'None (Single Paper)' || paperSecondary === 'None' ? null : paperSecondary,
-        paper_size: paperSize,
-        binding_type: bindingType,
+        paper_primary: finalPaperPrimary,
+        paper_secondary: finalPaperSecondary,
+        paper_tertiary: finalPaperTertiary,
+        paper_size: finalPaperSize,
+        binding_type: finalBinding,
         ink_colours: inkColours,
-        printing_type: printingType,
-        print_qty: printQty.trim() || null,
-        numbering_range: numberingRange.trim() || null,
+        printing_type: finalPrinting,
+        print_qty: finalPrintQty,
+        numbering_range: finalNumbering,
         order_type: orderType,
-        patrika_cost: orderType === 'Patrika' && patrikaCost !== '' ? Number(patrikaCost) : null,
+        patrika_cost: isPatrikaOrder && patrikaCost !== '' ? Number(patrikaCost) : null,
         total_amount: total,
         advance_amount: adv,
         balance_due: balance,
@@ -254,6 +296,9 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
         setPartyPhone('');
         setJobDetails('');
         setQuantity(10);
+        setPaperPrimary(DEFAULT_PAPERS[0]);
+        setPaperSecondary('None (Single Paper)');
+        setPaperTertiary('None (Single Paper)');
         setPrintQty('');
         setNumberingRange('');
         setOrderType(DEFAULT_ORDER_TYPES[0] || 'General');
@@ -542,21 +587,164 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
           )}
         </div>
 
-        {/* Row 4: Paper Type (Primary + Secondary) */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
-              Paper Type
-            </label>
-            <span className="text-[10px] text-stone-400">
-              Combine 2 if multi-part
-            </span>
+        {/* ======================================================== */}
+        {/* CONDITIONAL SPECIFICATIONS BASED ON ORDER TYPE           */}
+        {/* ======================================================== */}
+
+        {/* -------------------------------------------------------- */}
+        {/* MODE 1: PATRIKA ORDER                                    */}
+        {/* Display: Patrika Cost & Profit, Inks, Copies/Imp, Remarks */}
+        {/* -------------------------------------------------------- */}
+        {isPatrikaOrder && (
+          <div className="space-y-3">
+            {/* Patrika Pricing & Profit Analysis */}
+            <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800/80 rounded-2xl p-2.5 sm:p-3 space-y-2 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-950 dark:text-amber-200">
+                  Patrika Cost & Profit
+                </span>
+                {patrikaCostNum > 0 && finalPriceNum > 0 && (
+                  <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 font-mono">
+                    {patrikaMarginPercent}% Margin
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                    Card Cost (₹)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={patrikaCost}
+                    onChange={(e) => setPatrikaCost(e.target.value)}
+                    placeholder="e.g. 3000"
+                    className="w-full px-2.5 py-1.5 text-xs sm:text-sm font-bold bg-white dark:bg-stone-900 border border-amber-300 dark:border-amber-700 rounded-xl text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                    Final Price (₹)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={totalAmount}
+                    onChange={(e) => setTotalAmount(e.target.value)}
+                    placeholder="e.g. 5500"
+                    className="w-full px-2.5 py-1.5 text-xs sm:text-sm font-bold bg-white dark:bg-stone-900 border border-amber-300 dark:border-amber-700 rounded-xl text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Horizontal Net Profit Strip */}
+              <div
+                className={`px-3 py-1.5 rounded-xl border flex items-center justify-between font-mono ${
+                  patrikaCostNum > 0 && patrikaProfit >= 0
+                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
+                    : patrikaCostNum > 0 && patrikaProfit < 0
+                    ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700'
+                    : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-amber-200 dark:border-stone-700'
+                }`}
+              >
+                <span className="text-[11px] font-sans font-semibold text-stone-700 dark:text-stone-300">
+                  Net Profit
+                </span>
+                <span className="text-sm font-black tracking-tight">
+                  {patrikaCostNum > 0
+                    ? `${patrikaProfit >= 0 ? '+' : ''}₹${patrikaProfit.toLocaleString('en-IN')}`
+                    : '₹0'}
+                </span>
+              </div>
+            </div>
+
+            {/* Ink Colour Pill Swatches */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
+                  Ink Colour (Max {maxInksAllowed})
+                </label>
+                <span className="text-xs font-bold text-[#d9532f]">
+                  {inkColours.join(', ')}
+                </span>
+              </div>
+
+              {inkWarning && (
+                <div className="flex items-center gap-1 p-1 mb-1 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-[10px] rounded-lg">
+                  <AlertCircle className="w-3 h-3 shrink-0" />
+                  <span>{inkWarning}</span>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-1">
+                {INK_COLORS.map((ink) => {
+                  const isSelected = inkColours.includes(ink.id);
+                  return (
+                    <button
+                      key={ink.id}
+                      type="button"
+                      onClick={() => toggleInk(ink.id)}
+                      className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all border ${
+                        isSelected
+                          ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-white shadow-2xs'
+                          : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
+                      }`}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0 border border-black/10"
+                        style={{ background: ink.hex }}
+                      />
+                      <span>{ink.id}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Copies / Impressions */}
+            <div>
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                Copies / Impressions
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. 500"
+                value={printQty}
+                onChange={(e) => setPrintQty(e.target.value)}
+                className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
+              />
+            </div>
+
+            {/* Remarks */}
+            <div>
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                Remarks / Instructions
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Proof checking, card design, delivery notes..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div className="min-w-0">
-              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
-                Primary Paper
-              </span>
+        )}
+
+        {/* -------------------------------------------------------- */}
+        {/* MODE 2: SAPTAH ORDER                                     */}
+        {/* Display: Paper Type (Primary only), Inks, Remarks        */}
+        {/* -------------------------------------------------------- */}
+        {isSaptahOrder && (
+          <div className="space-y-3">
+            {/* Primary Paper only */}
+            <div>
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                Paper Type
+              </label>
               <SelectWithOther
                 options={papers}
                 value={paperPrimary}
@@ -565,214 +753,275 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
                 onCustomSave={(val) => saveCustomPreset('paper_primary', val)}
               />
             </div>
-            <div className="min-w-0">
-              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
-                + Secondary Layer
-              </span>
-              <SelectWithOther
-                options={papers}
-                value={paperSecondary}
-                onChange={setPaperSecondary}
-                allowNone
-                noneLabel="None (Single Paper)"
-                placeholder=""
-                onCustomSave={(val) => saveCustomPreset('paper_secondary', val)}
+
+            {/* Ink Colour Pill Swatches */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
+                  Ink Colour (Max {maxInksAllowed})
+                </label>
+                <span className="text-xs font-bold text-[#d9532f]">
+                  {inkColours.join(', ')}
+                </span>
+              </div>
+
+              {inkWarning && (
+                <div className="flex items-center gap-1 p-1 mb-1 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-[10px] rounded-lg">
+                  <AlertCircle className="w-3 h-3 shrink-0" />
+                  <span>{inkWarning}</span>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-1">
+                {INK_COLORS.map((ink) => {
+                  const isSelected = inkColours.includes(ink.id);
+                  return (
+                    <button
+                      key={ink.id}
+                      type="button"
+                      onClick={() => toggleInk(ink.id)}
+                      className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all border ${
+                        isSelected
+                          ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-white shadow-2xs'
+                          : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
+                      }`}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0 border border-black/10"
+                        style={{ background: ink.hex }}
+                      />
+                      <span>{ink.id}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Remarks */}
+            <div>
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                Remarks / Instructions
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Saptah booklet instructions, dates, program details..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
               />
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Row 5: Size & Binding */}
-        <div className="grid grid-cols-2 gap-2.5">
-          <div className="min-w-0">
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Size
-            </label>
-            <SelectWithOther
-              options={sizes}
-              value={paperSize}
-              onChange={setPaperSize}
-              placeholder=""
-              onCustomSave={(val) => saveCustomPreset('paper_size', val)}
-            />
-          </div>
-
-          <div className="min-w-0">
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Binding
-            </label>
-            <SelectWithOther
-              options={bindings}
-              value={bindingType}
-              onChange={setBindingType}
-              placeholder=""
-              onCustomSave={(val) => saveCustomPreset('binding_type', val)}
-            />
-          </div>
-        </div>
-
-        {/* Row 6: Ink Colour Pill Swatches */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
-              Ink Colour (Max {maxInksAllowed})
-            </label>
-            <span className="text-xs font-bold text-[#d9532f]">
-              {inkColours.join(', ')}
-            </span>
-          </div>
-
-          {inkWarning && (
-            <div className="flex items-center gap-1 p-1 mb-1 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-[10px] rounded-lg">
-              <AlertCircle className="w-3 h-3 shrink-0" />
-              <span>{inkWarning}</span>
+        {/* -------------------------------------------------------- */}
+        {/* MODE 3: STANDARD / GENERAL ORDERS                        */}
+        {/* Printing Type, Dynamic Paper Grid, Size & Binding, Inks, */}
+        {/* Copies & Numbering, Remarks                              */}
+        {/* -------------------------------------------------------- */}
+        {isStandardOrder && (
+          <div className="space-y-3">
+            {/* Printing */}
+            <div className="w-full min-w-0">
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                Printing
+              </label>
+              <SelectWithOther
+                options={printings}
+                value={printingType}
+                onChange={setPrintingType}
+                placeholder=""
+                onCustomSave={(val) => saveCustomPreset('printing_type', val)}
+              />
             </div>
-          )}
 
-          <div className="flex flex-wrap gap-1">
-            {INK_COLORS.map((ink) => {
-              const isSelected = inkColours.includes(ink.id);
-              return (
-                <button
-                  key={ink.id}
-                  type="button"
-                  onClick={() => toggleInk(ink.id)}
-                  className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all border ${
-                    isSelected
-                      ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-white shadow-2xs'
-                      : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
-                  }`}
-                >
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0 border border-black/10"
-                    style={{ background: ink.hex }}
+            {/* Dynamic Paper Type Grid: 1 col for One-side/F/b, 2 cols for Duplicate, 3 cols for Triplicate */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
+                  Paper Type
+                </label>
+                {isTriplicate ? (
+                  <span className="text-[10px] text-stone-400">
+                    Triplicate (3 paper layers)
+                  </span>
+                ) : isDuplicate ? (
+                  <span className="text-[10px] text-stone-400">
+                    Duplicate (2 paper layers)
+                  </span>
+                ) : null}
+              </div>
+
+              <div
+                className={`grid gap-2 ${
+                  isTriplicate
+                    ? 'grid-cols-1 sm:grid-cols-3'
+                    : isDuplicate
+                    ? 'grid-cols-1 sm:grid-cols-2'
+                    : 'grid-cols-1'
+                }`}
+              >
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
+                    Primary Paper
+                  </span>
+                  <SelectWithOther
+                    options={papers}
+                    value={paperPrimary}
+                    onChange={setPaperPrimary}
+                    placeholder=""
+                    onCustomSave={(val) => saveCustomPreset('paper_primary', val)}
                   />
-                  <span>{ink.id}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                </div>
 
-        {/* Row 7A: Printing */}
-        <div className="w-full min-w-0">
-          <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-            Printing
-          </label>
-          <SelectWithOther
-            options={printings}
-            value={printingType}
-            onChange={setPrintingType}
-            placeholder=""
-            onCustomSave={(val) => saveCustomPreset('printing_type', val)}
-          />
-        </div>
+                {(isDuplicate || isTriplicate) && (
+                  <div className="min-w-0">
+                    <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
+                      + Secondary Layer
+                    </span>
+                    <SelectWithOther
+                      options={papers}
+                      value={paperSecondary}
+                      onChange={setPaperSecondary}
+                      allowNone
+                      noneLabel="None (Single Paper)"
+                      placeholder=""
+                      onCustomSave={(val) => saveCustomPreset('paper_secondary', val)}
+                    />
+                  </div>
+                )}
 
-        {/* Row 7B: Copies/Imp. and Numbering */}
-        <div className="grid grid-cols-2 gap-2.5">
-          <div>
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Copies / Impressions
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. 1000"
-              value={printQty}
-              onChange={(e) => setPrintQty(e.target.value)}
-              className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
-            />
-          </div>
+                {isTriplicate && (
+                  <div className="min-w-0">
+                    <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
+                      + Tertiary Layer
+                    </span>
+                    <SelectWithOther
+                      options={papers}
+                      value={paperTertiary}
+                      onChange={setPaperTertiary}
+                      allowNone
+                      noneLabel="None (Single Paper)"
+                      placeholder=""
+                      onCustomSave={(val) => saveCustomPreset('paper_tertiary', val)}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-              Numbering
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. 1 to 1000"
-              value={numberingRange}
-              onChange={(e) => setNumberingRange(e.target.value)}
-              className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
-            />
-          </div>
-        </div>
+            {/* Size & Binding */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="min-w-0">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                  Size
+                </label>
+                <SelectWithOther
+                  options={sizes}
+                  value={paperSize}
+                  onChange={setPaperSize}
+                  placeholder=""
+                  onCustomSave={(val) => saveCustomPreset('paper_size', val)}
+                />
+              </div>
 
-        {/* Row 8: Remarks Section */}
-        <div>
-          <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-            Remarks / Instructions
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. Proof checking, cutting, finishing notes..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
-          />
-        </div>
+              <div className="min-w-0">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                  Binding
+                </label>
+                <SelectWithOther
+                  options={bindings}
+                  value={bindingType}
+                  onChange={setBindingType}
+                  placeholder=""
+                  onCustomSave={(val) => saveCustomPreset('binding_type', val)}
+                />
+              </div>
+            </div>
 
-        {/* Patrika Pricing & Profit Analysis (Only shown when Order Type is Patrika) */}
-        {isPatrikaOrder && (
-          <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800/80 rounded-2xl p-2.5 sm:p-3 space-y-2 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-amber-950 dark:text-amber-200">
-                Patrika Cost & Profit
-              </span>
-              {patrikaCostNum > 0 && finalPriceNum > 0 && (
-                <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 font-mono">
-                  {patrikaMarginPercent}% Margin
+            {/* Ink Colour Pill Swatches */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
+                  Ink Colour (Max {maxInksAllowed})
+                </label>
+                <span className="text-xs font-bold text-[#d9532f]">
+                  {inkColours.join(', ')}
                 </span>
+              </div>
+
+              {inkWarning && (
+                <div className="flex items-center gap-1 p-1 mb-1 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-[10px] rounded-lg">
+                  <AlertCircle className="w-3 h-3 shrink-0" />
+                  <span>{inkWarning}</span>
+                </div>
               )}
+
+              <div className="flex flex-wrap gap-1">
+                {INK_COLORS.map((ink) => {
+                  const isSelected = inkColours.includes(ink.id);
+                  return (
+                    <button
+                      key={ink.id}
+                      type="button"
+                      onClick={() => toggleInk(ink.id)}
+                      className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all border ${
+                        isSelected
+                          ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-white shadow-2xs'
+                          : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
+                      }`}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0 border border-black/10"
+                        style={{ background: ink.hex }}
+                      />
+                      <span>{ink.id}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            {/* Copies/Imp. and Numbering */}
+            <div className="grid grid-cols-2 gap-2.5">
               <div>
-                <label className="block text-[10px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                  Card Cost (₹)
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                  Copies / Impressions
                 </label>
                 <input
-                  type="number"
-                  min="0"
-                  value={patrikaCost}
-                  onChange={(e) => setPatrikaCost(e.target.value)}
-                  placeholder="e.g. 3000"
-                  className="w-full px-2.5 py-1.5 text-xs sm:text-sm font-bold bg-white dark:bg-stone-900 border border-amber-300 dark:border-amber-700 rounded-xl text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
+                  type="text"
+                  placeholder="e.g. 1000"
+                  value={printQty}
+                  onChange={(e) => setPrintQty(e.target.value)}
+                  className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                  Final Price (₹)
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                  Numbering
                 </label>
                 <input
-                  type="number"
-                  min="0"
-                  value={totalAmount}
-                  onChange={(e) => setTotalAmount(e.target.value)}
-                  placeholder="e.g. 5500"
-                  className="w-full px-2.5 py-1.5 text-xs sm:text-sm font-bold bg-white dark:bg-stone-900 border border-amber-300 dark:border-amber-700 rounded-xl text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
+                  type="text"
+                  placeholder="e.g. 1 to 1000"
+                  value={numberingRange}
+                  onChange={(e) => setNumberingRange(e.target.value)}
+                  className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
                 />
               </div>
             </div>
 
-            {/* Horizontal Net Profit Strip */}
-            <div
-              className={`px-3 py-1.5 rounded-xl border flex items-center justify-between font-mono ${
-                patrikaCostNum > 0 && patrikaProfit >= 0
-                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
-                  : patrikaCostNum > 0 && patrikaProfit < 0
-                  ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700'
-                  : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-amber-200 dark:border-stone-700'
-              }`}
-            >
-              <span className="text-[11px] font-sans font-semibold text-stone-700 dark:text-stone-300">
-                Net Profit
-              </span>
-              <span className="text-sm font-black tracking-tight">
-                {patrikaCostNum > 0
-                  ? `${patrikaProfit >= 0 ? '+' : ''}₹${patrikaProfit.toLocaleString('en-IN')}`
-                  : '₹0'}
-              </span>
+            {/* Remarks Section */}
+            <div>
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                Remarks / Instructions
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Proof checking, cutting, finishing notes..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+              />
             </div>
           </div>
         )}

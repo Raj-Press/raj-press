@@ -203,9 +203,14 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = React.memo(({
               <div className="text-[11px] text-stone-600 dark:text-stone-400 flex flex-wrap items-center gap-1.5 pt-0.5 border-t border-stone-200/60 dark:border-stone-700/60">
                 <span className="font-semibold text-stone-800 dark:text-stone-200">{order.paper_primary}</span>
                 {order.paper_secondary && <span>+{order.paper_secondary}</span>}
-                <span>• Size: {order.paper_size}</span>
-                <span>• Bind: {order.binding_type}</span>
-                <span>• {order.printing_type.replace(/\s*\(\d+[^)]*\)/g, '')}</span>
+                {order.paper_tertiary && <span>+{order.paper_tertiary}</span>}
+                {order.order_type !== 'Patrika' && order.order_type !== 'Saptah' && (
+                  <>
+                    <span>• Size: {order.paper_size}</span>
+                    <span>• Bind: {order.binding_type}</span>
+                    <span>• {order.printing_type.replace(/\s*\(\d+[^)]*\)/g, '')}</span>
+                  </>
+                )}
                 {order.ink_colours.map((ink) => (
                   <span key={ink} className="px-1.5 py-0.2 bg-stone-200 dark:bg-stone-700 rounded text-[10px] font-bold text-stone-800 dark:text-stone-200">
                     {ink}
@@ -449,11 +454,16 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = React.memo(({
                       {order.paper_secondary && (
                         <span className="text-stone-600 dark:text-stone-400 font-normal"> + {order.paper_secondary}</span>
                       )}
+                      {order.paper_tertiary && (
+                        <span className="text-stone-600 dark:text-stone-400 font-normal"> + {order.paper_tertiary}</span>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                      <span className="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 rounded text-xs font-semibold border border-stone-200 dark:border-stone-700">
-                        Size: {order.paper_size}
-                      </span>
+                      {order.order_type !== 'Patrika' && order.order_type !== 'Saptah' && (
+                        <span className="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 rounded text-xs font-semibold border border-stone-200 dark:border-stone-700">
+                          Size: {order.paper_size}
+                        </span>
+                      )}
                       {order.ink_colours.map((ink) => (
                         <span
                           key={ink}
@@ -467,21 +477,37 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = React.memo(({
 
                   {/* Column 4: Print & Binding */}
                   <td className="px-3 py-3 align-top space-y-1">
-                    <div className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                      {order.printing_type.replace(/\s*\(\d+[^)]*\)/g, '')}
-                    </div>
-                    {order.print_qty && (
-                      <div className="text-xs sm:text-sm text-stone-600 dark:text-stone-400">
-                        Imp: <strong className="text-stone-900 dark:text-stone-100 font-mono font-bold">{order.print_qty}</strong>
-                      </div>
-                    )}
-                    <div className="text-xs sm:text-sm text-stone-600 dark:text-stone-400">
-                      Bind: <strong className="text-stone-900 dark:text-stone-100 font-semibold">{order.binding_type}</strong>
-                    </div>
-                    {order.numbering_range && (
-                      <div className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 font-mono">
-                        No: <strong className="text-stone-900 dark:text-stone-100 font-bold">{order.numbering_range}</strong>
-                      </div>
+                    {order.order_type !== 'Patrika' && order.order_type !== 'Saptah' ? (
+                      <>
+                        <div className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                          {order.printing_type.replace(/\s*\(\d+[^)]*\)/g, '')}
+                        </div>
+                        {order.print_qty && (
+                          <div className="text-xs sm:text-sm text-stone-600 dark:text-stone-400">
+                            Imp: <strong className="text-stone-900 dark:text-stone-100 font-mono font-bold">{order.print_qty}</strong>
+                          </div>
+                        )}
+                        <div className="text-xs sm:text-sm text-stone-600 dark:text-stone-400">
+                          Bind: <strong className="text-stone-900 dark:text-stone-100 font-semibold">{order.binding_type}</strong>
+                        </div>
+                        {order.numbering_range && (
+                          <div className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 font-mono">
+                            No: <strong className="text-stone-900 dark:text-stone-100 font-bold">{order.numbering_range}</strong>
+                          </div>
+                        )}
+                      </>
+                    ) : order.order_type === 'Patrika' ? (
+                      <>
+                        {order.print_qty ? (
+                          <div className="text-xs sm:text-sm text-stone-600 dark:text-stone-400">
+                            Imp: <strong className="text-stone-900 dark:text-stone-100 font-mono font-bold">{order.print_qty}</strong>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-stone-400 italic">None</span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-xs text-stone-400 italic">None</span>
                     )}
                   </td>
 

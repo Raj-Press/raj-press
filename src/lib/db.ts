@@ -33,7 +33,8 @@ export async function getOrders(): Promise<Order[]> {
             return {
               ...remote,
               printing_type: (remote.printing_type || '').replace(/\s*\(\d+[^)]*\)/g, '').trim() || remote.printing_type,
-              patrika_cost: remote.patrika_cost !== undefined ? remote.patrika_cost : (localMatch?.patrika_cost ?? null)
+              patrika_cost: remote.patrika_cost !== undefined ? remote.patrika_cost : (localMatch?.patrika_cost ?? null),
+              paper_tertiary: remote.paper_tertiary !== undefined ? remote.paper_tertiary : (localMatch?.paper_tertiary ?? null)
             } as Order;
           })
         ];
@@ -80,6 +81,8 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
     updatedOrder = {
       ...existing!,
       ...orderData,
+      paper_secondary: orderData.paper_secondary !== undefined ? orderData.paper_secondary : (existing?.paper_secondary || null),
+      paper_tertiary: orderData.paper_tertiary !== undefined ? orderData.paper_tertiary : (existing?.paper_tertiary || null),
       status: newStatus,
       delivered_date: delDate,
       dispatches: orderData.dispatches !== undefined ? orderData.dispatches : (existing?.dispatches || null),
@@ -114,6 +117,7 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
       quantity: Number(orderData.quantity || 1),
       paper_primary: orderData.paper_primary || '9-map',
       paper_secondary: orderData.paper_secondary || null,
+      paper_tertiary: orderData.paper_tertiary || null,
       paper_size: orderData.paper_size || '1/8',
       binding_type: orderData.binding_type || 'Regzin',
       ink_colours: orderData.ink_colours && orderData.ink_colours.length > 0 ? orderData.ink_colours : ['Black'],
@@ -155,11 +159,12 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
 
       if (error) {
         console.warn('Supabase initial upsert returned error:', error.message);
-        // If Supabase schema has not yet added the patrika_cost column (PGRST204),
-        // retry saving without patrika_cost so the order is 100% saved in Supabase!
-        if (error.code === 'PGRST204' || error.message?.includes('patrika_cost') || error.message?.includes('column')) {
+        // If Supabase schema has not yet added optional columns like patrika_cost or paper_tertiary (PGRST204),
+        // retry saving without them so the order is 100% saved in Supabase!
+        if (error.code === 'PGRST204' || error.message?.includes('patrika_cost') || error.message?.includes('paper_tertiary') || error.message?.includes('column')) {
           const fallbackPayload = { ...payload };
           delete fallbackPayload.patrika_cost;
+          delete fallbackPayload.paper_tertiary;
           const retry = await supabase.from('orders').upsert(fallbackPayload);
           if (!retry.error) {
             updatedOrder._synced = true;

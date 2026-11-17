@@ -23,6 +23,7 @@ export interface Order {
   quantity: number;
   paper_primary: string;
   paper_secondary?: string | null;
+  paper_tertiary?: string | null;
   paper_size: string;
   binding_type: string;
   ink_colours: string[];
@@ -58,7 +59,7 @@ export interface Party {
 
 export interface Preset {
   id?: string;
-  category: 'paper_primary' | 'paper_secondary' | 'paper_size' | 'binding_type' | 'printing_type' | 'order_type' | 'status';
+  category: 'paper_primary' | 'paper_secondary' | 'paper_tertiary' | 'paper_size' | 'binding_type' | 'printing_type' | 'order_type' | 'status';
   value: string;
   user_id?: string | null;
 }

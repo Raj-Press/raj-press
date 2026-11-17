@@ -99,7 +99,10 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
                   <td className="p-2.5 text-black font-semibold bg-stone-50 border-r border-black">मुख्य कागद (Paper)</td>
                   <td className="p-2.5 font-bold text-black border-r border-black">{order.paper_primary}</td>
                   <td className="p-2.5 text-black font-semibold bg-stone-50 border-r border-black">दुय्यम प्रत (Secondary)</td>
-                  <td className="p-2.5 font-semibold text-black">{order.paper_secondary || 'नाही (None)'}</td>
+                  <td className="p-2.5 font-semibold text-black">
+                    {order.paper_secondary || 'नाही (None)'}
+                    {order.paper_tertiary ? ` + ${order.paper_tertiary}` : ''}
+                  </td>
                 </tr>
 
                 <tr className="border-b border-black">
