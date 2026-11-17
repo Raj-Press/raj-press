@@ -47,11 +47,11 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden my-6 transition-colors">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-3 bg-black/60 backdrop-blur-xs overflow-y-auto">
+      <div className="relative w-full max-w-4xl bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-2xl sm:rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden my-3 sm:my-6 transition-colors">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-stone-900 dark:bg-black text-white">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 bg-stone-900 dark:bg-black text-white">
           <div className="flex items-center gap-2">
             <span className="p-2 bg-[#d9532f] rounded-xl">
               <Users className="w-5 h-5 text-white" />
@@ -70,7 +70,7 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
         </div>
 
         {/* Khata Summary Stats */}
-        <div className="p-6 space-y-4">
+        <div className="p-3.5 sm:p-6 space-y-3.5 sm:space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="p-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl">
               <span className="text-xs text-stone-500 dark:text-stone-400 block">Total Customers:</span>
@@ -106,43 +106,53 @@ export const CustomerKhataModal: React.FC<CustomerKhataModalProps> = ({
             />
           </div>
 
-          {/* Customer Table */}
-          <div className="border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden max-h-[50vh] overflow-y-auto">
-            <table className="w-full text-xs sm:text-sm text-left border-collapse">
-              <thead className="bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold uppercase tracking-wider text-[11px] sticky top-0">
+          {/* Table Header and Slide Hint */}
+          <div className="flex items-center justify-between px-1 text-xs text-stone-500 dark:text-stone-400">
+            <span className="font-medium">
+              Showing {filtered.length} {filtered.length === 1 ? 'Customer' : 'Customers'}
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 rounded-full border border-stone-200/80 dark:border-stone-700">
+              <span>Slide table &larr; &rarr; to view all entries</span>
+            </span>
+          </div>
+
+          {/* Customer Table Container (Horizontally & Vertically Scrollable with Touch Sliding) */}
+          <div className="border border-stone-200 dark:border-stone-800 rounded-2xl overflow-x-auto overflow-y-auto max-h-[55vh] overscroll-x-contain touch-pan-x shadow-2xs">
+            <table className="w-full min-w-[650px] text-xs sm:text-sm text-left border-collapse">
+              <thead className="bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold uppercase tracking-wider text-[11px] sticky top-0 z-10 shadow-2xs">
                 <tr>
-                  <th className="p-3">Customer / Party</th>
-                  <th className="p-3">Phone</th>
-                  <th className="p-3 text-right">Total Billed</th>
-                  <th className="p-3 text-right">Due Balance</th>
-                  <th className="p-3 text-center">Actions</th>
+                  <th className="p-3 min-w-[190px]">Customer / Party</th>
+                  <th className="p-3 min-w-[120px]">Phone</th>
+                  <th className="p-3 min-w-[110px] text-right">Total Billed</th>
+                  <th className="p-3 min-w-[110px] text-right">Due Balance</th>
+                  <th className="p-3 min-w-[150px] text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 dark:divide-stone-800 font-medium">
                 {filtered.map((party) => (
                   <tr key={party.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/60 transition-colors">
-                    <td className="p-3">
+                    <td className="p-3 min-w-[190px]">
                       <div className="font-bold text-stone-900 dark:text-stone-100">{party.name}</div>
                       {party.address && (
                         <div className="text-[11px] text-stone-400 truncate max-w-xs">{party.address}</div>
                       )}
                     </td>
 
-                    <td className="p-3 font-mono text-stone-600 dark:text-stone-400">
+                    <td className="p-3 font-mono text-stone-600 dark:text-stone-400 whitespace-nowrap min-w-[120px]">
                       {party.phone || '-'}
                     </td>
 
-                    <td className="p-3 text-right font-mono font-bold text-stone-900 dark:text-stone-100">
+                    <td className="p-3 text-right font-mono font-bold text-stone-900 dark:text-stone-100 whitespace-nowrap min-w-[110px]">
                       ₹{Number(party.total_billed || 0).toLocaleString('en-IN')}
                     </td>
 
-                    <td className="p-3 text-right font-mono font-bold text-sm">
+                    <td className="p-3 text-right font-mono font-bold text-sm whitespace-nowrap min-w-[110px]">
                       <span className={party.total_pending > 0 ? 'text-[#c2410c] dark:text-[#ea580c] font-extrabold' : 'text-stone-400'}>
                         ₹{Number(party.total_pending || 0).toLocaleString('en-IN')}
                       </span>
                     </td>
 
-                    <td className="p-3 text-center space-x-1.5 whitespace-nowrap">
+                    <td className="p-3 text-center space-x-1.5 whitespace-nowrap min-w-[150px]">
                       <button
                         type="button"
                         onClick={() => {

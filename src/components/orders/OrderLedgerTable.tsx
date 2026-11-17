@@ -301,8 +301,8 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = React.memo(({
       </div>
 
       {/* DESKTOP & TABLET VIEW: Wide dense tabular register (>= 768px) */}
-      <div className="hidden md:block overflow-x-auto w-full">
-        <table className="w-full text-left text-xs sm:text-sm border-collapse">
+      <div className="hidden md:block overflow-x-auto w-full touch-pan-x overscroll-x-contain">
+        <table className="w-full min-w-[850px] text-left text-xs sm:text-sm border-collapse">
           <thead>
             <tr className="bg-stone-50/80 dark:bg-stone-800/60 text-stone-500 dark:text-stone-400 font-bold uppercase tracking-wider text-[11px] border-b border-stone-200/80 dark:border-stone-800">
               <th className="px-3 py-2.5 whitespace-nowrap w-[13%]">Receipt / Date</th>
