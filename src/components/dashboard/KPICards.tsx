@@ -30,9 +30,8 @@ export const KPICards: React.FC<KPICardsProps> = React.memo(({
     return (
       <div className="space-y-1.5">
         <div className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950 dark:text-amber-200">
-            <span>💌</span>
-            <span>Patrika Profit & Cost Analysis</span>
+          <div className="text-xs font-bold text-amber-950 dark:text-amber-200">
+            Patrika Profit & Cost Analysis
           </div>
           <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">
             {patrikaMetrics.totalOrders} {patrikaMetrics.totalOrders === 1 ? 'order' : 'orders'} analysed
@@ -56,7 +55,7 @@ export const KPICards: React.FC<KPICardsProps> = React.memo(({
           {/* 2. Total Card Cost */}
           <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-2xl p-3 sm:p-4 shadow-2xs hover:shadow-xs transition-colors">
             <span className="text-[11px] sm:text-xs font-semibold text-stone-500 dark:text-stone-400 block truncate">
-              Total Card Cost (खरेदी)
+              Total Card Cost
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-[#c2410c] dark:text-[#ea580c] tracking-tight mt-0.5 sm:mt-1 font-mono">
               ₹{patrikaMetrics.totalCost.toLocaleString('en-IN')}
@@ -69,7 +68,7 @@ export const KPICards: React.FC<KPICardsProps> = React.memo(({
           {/* 3. Final Billed Price */}
           <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-2xl p-3 sm:p-4 shadow-2xs hover:shadow-xs transition-colors">
             <span className="text-[11px] sm:text-xs font-semibold text-stone-500 dark:text-stone-400 block truncate">
-              Final Billed Price (एकूण)
+              Final Billed Price
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-stone-900 dark:text-stone-100 tracking-tight mt-0.5 sm:mt-1 font-mono">
               ₹{patrikaMetrics.totalBilled.toLocaleString('en-IN')}
@@ -82,7 +81,7 @@ export const KPICards: React.FC<KPICardsProps> = React.memo(({
           {/* 4. Net Press Profit */}
           <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-300/90 dark:border-emerald-800/80 rounded-2xl p-3 sm:p-4 shadow-2xs hover:shadow-xs transition-colors">
             <span className="text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 block truncate">
-              Net Press Profit (निव्वळ नफा)
+              Net Press Profit
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-700 dark:text-emerald-300 tracking-tight mt-0.5 sm:mt-1 font-mono">
               {patrikaMetrics.netProfit >= 0 ? '+' : ''}₹{patrikaMetrics.netProfit.toLocaleString('en-IN')}

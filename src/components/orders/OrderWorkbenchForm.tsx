@@ -713,25 +713,23 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
 
         {/* Patrika Pricing & Profit Analysis (Only shown when Order Type is Patrika) */}
         {isPatrikaOrder && (
-          <div className="bg-amber-50/90 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800/80 rounded-2xl p-3 sm:p-3.5 space-y-2.5 shadow-2xs">
+          <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800/80 rounded-2xl p-2.5 sm:p-3 space-y-2 shadow-2xs">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm">💌</span>
-                <span className="text-xs font-bold text-amber-950 dark:text-amber-200">
-                  Patrika Cost & Profit Analysis
-                </span>
-              </div>
-              <span className="text-[10px] font-semibold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-700">
-                Analysis Mode
+              <span className="text-xs font-bold text-amber-950 dark:text-amber-200">
+                Patrika Cost & Profit
               </span>
+              {patrikaCostNum > 0 && finalPriceNum > 0 && (
+                <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 font-mono">
+                  {patrikaMarginPercent}% Margin
+                </span>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
-              {/* Patrika Price (Card Cost) */}
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-[10px] font-semibold text-stone-700 dark:text-stone-300 block mb-1">
-                  Patrika Card Cost (₹)
-                </span>
+                <label className="block text-[10px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                  Card Cost (₹)
+                </label>
                 <input
                   type="number"
                   min="0"
@@ -740,16 +738,12 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
                   placeholder="e.g. 3000"
                   className="w-full px-2.5 py-1.5 text-xs sm:text-sm font-bold bg-white dark:bg-stone-900 border border-amber-300 dark:border-amber-700 rounded-xl text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
                 />
-                <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5 block">
-                  Purchase / blank card cost
-                </span>
               </div>
 
-              {/* Final Price (Total Customer Bill) */}
               <div>
-                <span className="text-[10px] font-semibold text-stone-700 dark:text-stone-300 block mb-1">
+                <label className="block text-[10px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
                   Final Price (₹)
-                </span>
+                </label>
                 <input
                   type="number"
                   min="0"
@@ -758,35 +752,27 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
                   placeholder="e.g. 5500"
                   className="w-full px-2.5 py-1.5 text-xs sm:text-sm font-bold bg-white dark:bg-stone-900 border border-amber-300 dark:border-amber-700 rounded-xl text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
                 />
-                <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5 block">
-                  Customer billed total
-                </span>
               </div>
+            </div>
 
-              {/* Live Net Press Profit */}
-              <div>
-                <span className="text-[10px] font-semibold text-stone-700 dark:text-stone-300 block mb-1">
-                  Net Press Profit (निव्वळ नफा)
-                </span>
-                <div
-                  className={`px-2.5 py-1.5 rounded-xl border text-center font-mono ${
-                    patrikaCostNum > 0 && patrikaProfit >= 0
-                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
-                      : patrikaCostNum > 0 && patrikaProfit < 0
-                      ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700'
-                      : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-700'
-                  }`}
-                >
-                  <div className="text-sm font-black">
-                    {patrikaCostNum > 0
-                      ? `${patrikaProfit >= 0 ? '+' : ''}₹${patrikaProfit.toLocaleString('en-IN')}`
-                      : '₹0'}
-                  </div>
-                  <div className="text-[10px] font-semibold opacity-90">
-                    {finalPriceNum > 0 && patrikaCostNum > 0 ? `${patrikaMarginPercent}% net margin` : 'Enter card cost to calculate'}
-                  </div>
-                </div>
-              </div>
+            {/* Horizontal Net Profit Strip */}
+            <div
+              className={`px-3 py-1.5 rounded-xl border flex items-center justify-between font-mono ${
+                patrikaCostNum > 0 && patrikaProfit >= 0
+                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
+                  : patrikaCostNum > 0 && patrikaProfit < 0
+                  ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700'
+                  : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-amber-200 dark:border-stone-700'
+              }`}
+            >
+              <span className="text-[11px] font-sans font-semibold text-stone-700 dark:text-stone-300">
+                Net Profit
+              </span>
+              <span className="text-sm font-black tracking-tight">
+                {patrikaCostNum > 0
+                  ? `${patrikaProfit >= 0 ? '+' : ''}₹${patrikaProfit.toLocaleString('en-IN')}`
+                  : '₹0'}
+              </span>
             </div>
           </div>
         )}
