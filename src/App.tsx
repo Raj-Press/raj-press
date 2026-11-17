@@ -231,9 +231,17 @@ export const App: React.FC = () => {
 
   // Memoized Handlers with Optimistic Updates for Instant Zero-Lag Response
   const handleSaveOrder = useCallback(async (orderData: Partial<Order>) => {
-    await saveOrder(orderData);
+    const saved = await saveOrder(orderData);
     setEditingOrder(null);
     setRepeatSource(null);
+    // Optimistic UI state update so new order immediately appears in the ledger
+    setOrders((prev) => {
+      const exists = prev.some((o) => o.id === saved.id);
+      if (exists) {
+        return prev.map((o) => (o.id === saved.id ? saved : o));
+      }
+      return [saved, ...prev];
+    });
     await refreshData();
   }, []);
 

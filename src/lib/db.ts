@@ -11,6 +11,8 @@ const INITIAL_PARTIES: Party[] = [];
 const INITIAL_ORDERS: Order[] = [];
 
 export async function getOrders(): Promise<Order[]> {
+  const cached = (await get<Order[]>(ORDERS_KEY)) || [];
+
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
       const { data, error } = await supabase
@@ -19,15 +21,31 @@ export async function getOrders(): Promise<Order[]> {
         .order('order_date', { ascending: false });
 
       if (!error && data) {
-        await set(ORDERS_KEY, data);
-        return data as Order[];
+        // Merge Supabase orders with any local orders that have not synced yet
+        const supabaseIds = new Set(data.map((o: any) => o.id));
+        const localOnly = cached.filter(o => !supabaseIds.has(o.id));
+
+        // Preserve local fields (like patrika_cost) if remote Supabase doesn't have the column yet
+        const merged: Order[] = [
+          ...localOnly,
+          ...data.map((remote: any) => {
+            const localMatch = cached.find(c => c.id === remote.id);
+            return {
+              ...remote,
+              printing_type: (remote.printing_type || '').replace(/\s*\(\d+[^)]*\)/g, '').trim() || remote.printing_type,
+              patrika_cost: remote.patrika_cost !== undefined ? remote.patrika_cost : (localMatch?.patrika_cost ?? null)
+            } as Order;
+          })
+        ];
+
+        await set(ORDERS_KEY, merged);
+        return merged;
       }
     } catch {
       // offline
     }
   }
 
-  const cached = await get<Order[]>(ORDERS_KEY);
   if (cached && cached.length > 0) {
     return cached.map(o => ({
       ...o,
@@ -124,9 +142,29 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
 
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
-      const payload = { ...updatedOrder };
+      const payload: any = { ...updatedOrder };
       delete payload._synced;
-      await supabase.from('orders').upsert(payload);
+      delete payload.balance_due; // Crucial: PostgreSQL balance_due is GENERATED ALWAYS STORED column
+
+      const { error } = await supabase.from('orders').upsert(payload);
+
+      if (error) {
+        console.warn('Supabase initial upsert returned error:', error.message);
+        // If Supabase schema has not yet added the patrika_cost column (PGRST204),
+        // retry saving without patrika_cost so the order is 100% saved in Supabase!
+        if (error.code === 'PGRST204' || error.message?.includes('patrika_cost') || error.message?.includes('column')) {
+          const fallbackPayload = { ...payload };
+          delete fallbackPayload.patrika_cost;
+          const retry = await supabase.from('orders').upsert(fallbackPayload);
+          if (!retry.error) {
+            updatedOrder._synced = true;
+          } else {
+            console.error('Supabase fallback upsert failed:', retry.error);
+          }
+        }
+      } else {
+        updatedOrder._synced = true;
+      }
     } catch (e) {
       console.warn('Supabase sync deferred', e);
     }
