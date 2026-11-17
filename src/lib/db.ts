@@ -64,9 +64,11 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
   const balance = Math.max(0, total - advance);
 
   let updatedOrder: Order;
+  let oldPartyName: string | undefined;
 
   if (orderData.id) {
     const existing = currentOrders.find(o => o.id === orderData.id);
+    oldPartyName = existing?.party_name;
     const newStatus = orderData.status || existing?.status || 'Pending';
     let delDate = orderData.delivered_date !== undefined ? orderData.delivered_date : existing?.delivered_date;
     if (newStatus === 'Delivered' && !delDate) {
@@ -139,6 +141,9 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
   if (updatedOrder.party_name) {
     await upsertPartyFromOrder(updatedOrder, currentOrders);
   }
+  if (oldPartyName && oldPartyName.trim().toLowerCase() !== updatedOrder.party_name.trim().toLowerCase()) {
+    await updateOrRemovePartyAfterOrderChange(oldPartyName, currentOrders);
+  }
 
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
@@ -175,8 +180,13 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
 
 export async function deleteOrder(id: string): Promise<void> {
   const currentOrders = await getOrders();
+  const deletedOrder = currentOrders.find(o => o.id === id);
   const filtered = currentOrders.filter(o => o.id !== id);
   await set(ORDERS_KEY, filtered);
+
+  if (deletedOrder && deletedOrder.party_name) {
+    await updateOrRemovePartyAfterOrderChange(deletedOrder.party_name, filtered);
+  }
 
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
@@ -403,6 +413,50 @@ export async function upsertPartyFromOrder(order: Order, allOrders: Order[]): Pr
       await supabase.from('parties').upsert(existing);
     } catch {
       // offline
+    }
+  }
+}
+
+export async function updateOrRemovePartyAfterOrderChange(partyName: string, allOrders: Order[]): Promise<void> {
+  if (!partyName) return;
+  const parties = await getParties();
+  const cleanName = partyName.trim().toLowerCase();
+  const remainingPartyOrders = allOrders.filter(o => o.party_name.trim().toLowerCase() === cleanName);
+
+  const existingIndex = parties.findIndex(p => p.name.trim().toLowerCase() === cleanName);
+  const existingParty = existingIndex !== -1 ? parties[existingIndex] : null;
+
+  if (remainingPartyOrders.length === 0) {
+    // If no orders remain for this party, completely delete from Khata
+    if (existingParty) {
+      parties.splice(existingIndex, 1);
+      await set(PARTIES_KEY, parties);
+
+      if (isSupabaseConfigured && supabase && navigator.onLine) {
+        try {
+          await supabase.from('parties').delete().eq('id', existingParty.id);
+        } catch (e) {
+          console.warn('Supabase party delete error', e);
+        }
+      }
+    }
+  } else {
+    // Recalculate customer's balance & billing from remaining orders
+    const totalBilled = remainingPartyOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+    const totalPending = remainingPartyOrders.reduce((sum, o) => sum + Number(o.balance_due || 0), 0);
+
+    if (existingParty) {
+      existingParty.total_billed = totalBilled;
+      existingParty.total_pending = totalPending;
+      await set(PARTIES_KEY, parties);
+
+      if (isSupabaseConfigured && supabase && navigator.onLine) {
+        try {
+          await supabase.from('parties').upsert(existingParty);
+        } catch (e) {
+          console.warn('Supabase party update error', e);
+        }
+      }
     }
   }
 }

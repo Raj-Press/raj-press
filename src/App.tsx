@@ -80,8 +80,12 @@ export const App: React.FC = () => {
         getParties(),
         getCustomPresets(),
       ]);
+      // Guarantee Customer Khata only shows parties that have orders in the order book
+      const activePartyNames = new Set(orderList.map((o) => o.party_name.trim().toLowerCase()));
+      const cleanedParties = partyList.filter((p) => activePartyNames.has(p.name.trim().toLowerCase()));
+
       setOrders(orderList);
-      setParties(partyList);
+      setParties(cleanedParties);
       setCustomPresets(presetList);
     } catch (err) {
       console.error('Failed to load initial data', err);
@@ -273,13 +277,38 @@ export const App: React.FC = () => {
 
   const handleDeleteOrder = useCallback(async () => {
     if (deleteConfirmId) {
-      // Optimistic delete
-      setOrders((prev) => prev.filter((o) => o.id !== deleteConfirmId));
+      const orderToDelete = orders.find((o) => o.id === deleteConfirmId);
+      // 1. Optimistic delete from orders ledger
+      const remainingOrders = orders.filter((o) => o.id !== deleteConfirmId);
+      setOrders(remainingOrders);
+
+      // 2. Optimistic update for Customer Khata
+      if (orderToDelete) {
+        const cleanName = orderToDelete.party_name.trim().toLowerCase();
+        const partyRemaining = remainingOrders.filter((o) => o.party_name.trim().toLowerCase() === cleanName);
+
+        setParties((prevParties) => {
+          if (partyRemaining.length === 0) {
+            // Customer has 0 orders left -> Remove immediately from Khata
+            return prevParties.filter((p) => p.name.trim().toLowerCase() !== cleanName);
+          } else {
+            // Recalculate customer's balance & billing
+            const newBilled = partyRemaining.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+            const newPending = partyRemaining.reduce((sum, o) => sum + Number(o.balance_due || 0), 0);
+            return prevParties.map((p) =>
+              p.name.trim().toLowerCase() === cleanName
+                ? { ...p, total_billed: newBilled, total_pending: newPending }
+                : p
+            );
+          }
+        });
+      }
+
       await deleteOrder(deleteConfirmId);
       setDeleteConfirmId(null);
       await refreshData();
     }
-  }, [deleteConfirmId]);
+  }, [deleteConfirmId, orders]);
 
   const handleAdvanceStatus = useCallback(async (id: string, currentStatus: OrderStatus) => {
     const order = orders.find((o) => o.id === id);
