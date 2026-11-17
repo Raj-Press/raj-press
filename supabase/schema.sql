@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
     dispatches JSONB DEFAULT '[]'::JSONB,
     status TEXT NOT NULL DEFAULT 'Pending',
     order_type TEXT DEFAULT 'General',
+    patrika_cost NUMERIC(12, 2) DEFAULT NULL,
     notes TEXT,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE
 );
@@ -73,6 +74,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_user_id ON public.orders (user_id);
 
 -- Ensure newly added columns exist if table was created previously
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS order_type TEXT DEFAULT 'General';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS patrika_cost NUMERIC(12, 2) DEFAULT NULL;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivered_date DATE;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS dispatches JSONB DEFAULT '[]'::JSONB;
 CREATE INDEX IF NOT EXISTS idx_orders_order_type ON public.orders (order_type);

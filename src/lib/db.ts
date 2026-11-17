@@ -101,6 +101,7 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
       print_qty: orderData.print_qty || null,
       numbering_range: orderData.numbering_range || null,
       order_type: orderData.order_type || null,
+      patrika_cost: orderData.patrika_cost !== undefined ? orderData.patrika_cost : null,
       total_amount: total,
       advance_amount: advance,
       balance_due: balance,

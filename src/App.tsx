@@ -146,6 +146,25 @@ export const App: React.FC = () => {
     return uniqueDueParties.size;
   }, [orders]);
 
+  const patrikaMetrics = useMemo(() => {
+    const patrikaOrders = orders.filter(
+      (o) => o.order_type === 'Patrika' || o.order_type === 'Patrika / Wedding Cards'
+    );
+    const totalOrders = patrikaOrders.length;
+    const totalCost = patrikaOrders.reduce((sum, o) => sum + Number(o.patrika_cost || 0), 0);
+    const totalBilled = patrikaOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+    const netProfit = totalBilled - totalCost;
+    const profitMargin = totalBilled > 0 ? ((netProfit / totalBilled) * 100).toFixed(1) : '0';
+
+    return {
+      totalOrders,
+      totalCost,
+      totalBilled,
+      netProfit,
+      profitMargin,
+    };
+  }, [orders]);
+
   const availableOrderTypes = useMemo(() => {
     return Array.from(
       new Set([
@@ -431,7 +450,7 @@ export const App: React.FC = () => {
               mobileTab === 'register' ? 'block' : 'hidden lg:block'
             }`}
           >
-            {/* 4 Clean Top KPI Cards */}
+            {/* Top KPI Cards (Switches automatically to Patrika Analysis when Patrika is filtered) */}
             <KPICards
               metrics={metrics}
               duePartiesCount={duePartiesCount}
@@ -443,6 +462,8 @@ export const App: React.FC = () => {
                 setActiveFilter('in_progress');
                 setStatusFilter('ALL');
               }}
+              isPatrikaFilter={orderTypeFilter === 'Patrika'}
+              patrikaMetrics={patrikaMetrics}
             />
 
             {/* Instant Search Bar & Status Filter Pills */}

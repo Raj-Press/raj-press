@@ -55,6 +55,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
   const [numberingRange, setNumberingRange] = useState('');
   const [orderType, setOrderType] = useState(DEFAULT_ORDER_TYPES[0] || 'General');
   const [isCustomOrderType, setIsCustomOrderType] = useState(false);
+  const [patrikaCost, setPatrikaCost] = useState<number | string>('');
   const [notes, setNotes] = useState('');
 
   const [totalAmount, setTotalAmount] = useState<number | string>(1500);
@@ -133,6 +134,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
       if (ot === 'सप्ताह / Saptah') ot = 'Saptah';
       setOrderType(ot);
       setIsCustomOrderType(!orderTypes.includes(ot) && ot !== 'General');
+      setPatrikaCost(editingOrder.patrika_cost != null ? editingOrder.patrika_cost : '');
       setNotes(editingOrder.notes || '');
       setTotalAmount(editingOrder.total_amount || 0);
       setAdvanceAmount(editingOrder.advance_amount || 0);
@@ -155,6 +157,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
       setNumberingRange('');
       setOrderType(DEFAULT_ORDER_TYPES[0] || 'General');
       setIsCustomOrderType(false);
+      setPatrikaCost('');
       setNotes('');
       setTotalAmount(1500);
       setAdvanceAmount(1000);
@@ -166,6 +169,12 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
   const total = Number(totalAmount || 0);
   const adv = Number(advanceAmount || 0);
   const balance = Math.max(0, total - adv);
+
+  const isPatrikaOrder = orderType === 'Patrika';
+  const patrikaCostNum = Number(patrikaCost) || 0;
+  const finalPriceNum = total;
+  const patrikaProfit = finalPriceNum - patrikaCostNum;
+  const patrikaMarginPercent = finalPriceNum > 0 ? ((patrikaProfit / finalPriceNum) * 100).toFixed(1) : '0';
 
   const toggleInk = (inkId: string) => {
     setInkWarning('');
@@ -231,6 +240,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
         print_qty: printQty.trim() || null,
         numbering_range: numberingRange.trim() || null,
         order_type: orderType,
+        patrika_cost: orderType === 'Patrika' && patrikaCost !== '' ? Number(patrikaCost) : null,
         total_amount: total,
         advance_amount: adv,
         balance_due: balance,
@@ -248,6 +258,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
         setNumberingRange('');
         setOrderType(DEFAULT_ORDER_TYPES[0] || 'General');
         setIsCustomOrderType(false);
+        setPatrikaCost('');
         setNotes('');
         setTotalAmount(0);
         setAdvanceAmount(0);
@@ -700,13 +711,93 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
           />
         </div>
 
+        {/* Patrika Pricing & Profit Analysis (Only shown when Order Type is Patrika) */}
+        {isPatrikaOrder && (
+          <div className="bg-amber-50/90 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800/80 rounded-2xl p-3 sm:p-3.5 space-y-2.5 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm">💌</span>
+                <span className="text-xs font-bold text-amber-950 dark:text-amber-200">
+                  Patrika Cost & Profit Analysis
+                </span>
+              </div>
+              <span className="text-[10px] font-semibold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-700">
+                Analysis Mode
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
+              {/* Patrika Price (Card Cost) */}
+              <div>
+                <span className="text-[10px] font-semibold text-stone-700 dark:text-stone-300 block mb-1">
+                  Patrika Card Cost (₹)
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  value={patrikaCost}
+                  onChange={(e) => setPatrikaCost(e.target.value)}
+                  placeholder="e.g. 3000"
+                  className="w-full px-2.5 py-1.5 text-xs sm:text-sm font-bold bg-white dark:bg-stone-900 border border-amber-300 dark:border-amber-700 rounded-xl text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
+                />
+                <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5 block">
+                  Purchase / blank card cost
+                </span>
+              </div>
+
+              {/* Final Price (Total Customer Bill) */}
+              <div>
+                <span className="text-[10px] font-semibold text-stone-700 dark:text-stone-300 block mb-1">
+                  Final Price (₹)
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  value={totalAmount}
+                  onChange={(e) => setTotalAmount(e.target.value)}
+                  placeholder="e.g. 5500"
+                  className="w-full px-2.5 py-1.5 text-xs sm:text-sm font-bold bg-white dark:bg-stone-900 border border-amber-300 dark:border-amber-700 rounded-xl text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
+                />
+                <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5 block">
+                  Customer billed total
+                </span>
+              </div>
+
+              {/* Live Net Press Profit */}
+              <div>
+                <span className="text-[10px] font-semibold text-stone-700 dark:text-stone-300 block mb-1">
+                  Net Press Profit (निव्वळ नफा)
+                </span>
+                <div
+                  className={`px-2.5 py-1.5 rounded-xl border text-center font-mono ${
+                    patrikaCostNum > 0 && patrikaProfit >= 0
+                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
+                      : patrikaCostNum > 0 && patrikaProfit < 0
+                      ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700'
+                      : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-700'
+                  }`}
+                >
+                  <div className="text-sm font-black">
+                    {patrikaCostNum > 0
+                      ? `${patrikaProfit >= 0 ? '+' : ''}₹${patrikaProfit.toLocaleString('en-IN')}`
+                      : '₹0'}
+                  </div>
+                  <div className="text-[10px] font-semibold opacity-90">
+                    {finalPriceNum > 0 && patrikaCostNum > 0 ? `${patrikaMarginPercent}% net margin` : 'Enter card cost to calculate'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Row 9: Dark Financial & Schedule Box */}
         <div className="bg-[#18181b] dark:bg-black text-white rounded-2xl p-3 sm:p-3.5 space-y-2.5 border border-stone-800">
           {/* Amounts */}
           <div className="grid grid-cols-3 gap-2">
             <div>
               <span className="text-[10px] text-stone-400 block mb-1">
-                Total (₹)
+                {isPatrikaOrder ? 'Final Price (₹)' : 'Total (₹)'}
               </span>
               <input
                 type="number"

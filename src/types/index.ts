@@ -30,6 +30,7 @@ export interface Order {
   print_qty?: string | null;
   numbering_range?: string | null;
   order_type?: string | null;
+  patrika_cost?: number | null; // Purchase cost of blank patrika card
   total_amount: number;
   advance_amount: number;
   balance_due: number;

@@ -71,6 +71,9 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = React.memo(({
           const statusMeta = STATUS_LABELS[order.status] || STATUS_LABELS.Pending;
           const hasBalance = order.balance_due > 0;
           const isSpecialOrder = order.order_type === 'Special Order' || (order.dispatches && order.dispatches.length > 0);
+          const isPatrika = order.order_type === 'Patrika' || order.order_type === 'Patrika / Wedding Cards';
+          const hasPatrikaCost = isPatrika && order.patrika_cost != null && Number(order.patrika_cost) > 0;
+          const patrikaProfit = hasPatrikaCost ? Number(order.total_amount) - Number(order.patrika_cost) : 0;
           const totalDelivered = (order.dispatches || []).reduce((sum, d) => sum + Number(d.quantity || 0), 0);
           const remainingQty = Math.max(0, order.quantity - totalDelivered);
           const isFullyDelivered = order.status === 'Delivered' || (isSpecialOrder && totalDelivered >= order.quantity && order.quantity > 0);
@@ -148,6 +151,25 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = React.memo(({
                         ? 'Patrika'
                         : order.order_type}
                     </span>
+                  )}
+                  {/* Patrika Card Cost & Profit Badge */}
+                  {hasPatrikaCost && (
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] sm:text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                        <span>Cost:</span>
+                        <strong className="font-mono">₹{Number(order.patrika_cost).toLocaleString('en-IN')}</strong>
+                      </span>
+                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] sm:text-[11px] font-bold border ${
+                        patrikaProfit >= 0
+                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                          : 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800'
+                      }`}>
+                        <span>Profit:</span>
+                        <strong className="font-mono">
+                          {patrikaProfit >= 0 ? '+' : ''}₹{patrikaProfit.toLocaleString('en-IN')}
+                        </strong>
+                      </span>
+                    </div>
                   )}
                   {order.party_phone && (
                     <button
@@ -291,6 +313,9 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = React.memo(({
               const statusMeta = STATUS_LABELS[order.status] || STATUS_LABELS.Pending;
               const hasBalance = order.balance_due > 0;
               const isSpecialOrder = order.order_type === 'Special Order' || (order.dispatches && order.dispatches.length > 0);
+              const isPatrika = order.order_type === 'Patrika' || order.order_type === 'Patrika / Wedding Cards';
+              const hasPatrikaCost = isPatrika && order.patrika_cost != null && Number(order.patrika_cost) > 0;
+              const patrikaProfit = hasPatrikaCost ? Number(order.total_amount) - Number(order.patrika_cost) : 0;
               const totalDelivered = (order.dispatches || []).reduce((sum, d) => sum + Number(d.quantity || 0), 0);
               const remainingQty = Math.max(0, order.quantity - totalDelivered);
               const isFullyDelivered = order.status === 'Delivered' || (isSpecialOrder && totalDelivered >= order.quantity && order.quantity > 0);
@@ -391,6 +416,25 @@ export const OrderLedgerTable: React.FC<OrderLedgerTableProps> = React.memo(({
                         </span>
                       )}
                     </div>
+                    {/* Patrika Card Cost & Profit Badge */}
+                    {hasPatrikaCost && (
+                      <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                          <span>Card Cost:</span>
+                          <strong className="font-mono">₹{Number(order.patrika_cost).toLocaleString('en-IN')}</strong>
+                        </span>
+                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-bold border ${
+                          patrikaProfit >= 0
+                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                            : 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800'
+                        }`}>
+                          <span>Net Profit:</span>
+                          <strong className="font-mono">
+                            {patrikaProfit >= 0 ? '+' : ''}₹{patrikaProfit.toLocaleString('en-IN')}
+                          </strong>
+                        </span>
+                      </div>
+                    )}
                     {order.notes && (
                       <div className="text-xs text-stone-500 dark:text-stone-400 italic mt-1 bg-stone-50 dark:bg-stone-800/80 px-2 py-0.5 rounded border border-stone-200/50 dark:border-stone-700">
                         "{order.notes}"
