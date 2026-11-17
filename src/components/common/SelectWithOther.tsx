@@ -93,7 +93,7 @@ export const SelectWithOther: React.FC<SelectWithOtherProps> = ({
             </option>
           ))}
           <option value="__OTHERS__" className="font-semibold text-[#d9532f] bg-amber-50 dark:bg-stone-900">
-            ➕ Others...
+            + Others...
           </option>
         </select>
       ) : (

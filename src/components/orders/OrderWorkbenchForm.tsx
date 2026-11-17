@@ -45,8 +45,8 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
   const [quantity, setQuantity] = useState<number | string>(10);
 
   const [paperPrimary, setPaperPrimary] = useState(DEFAULT_PAPERS[0]);
-  const [paperSecondary, setPaperSecondary] = useState('None (Single Paper)');
-  const [paperTertiary, setPaperTertiary] = useState('None (Single Paper)');
+  const [paperSecondary, setPaperSecondary] = useState('None');
+  const [paperTertiary, setPaperTertiary] = useState('None');
   const [paperSize, setPaperSize] = useState(DEFAULT_SIZES[2] || '8');
   const [bindingType, setBindingType] = useState(DEFAULT_BINDINGS[0] || 'Regzin');
   const [inkColours, setInkColours] = useState<string[]>(['Black']);
@@ -150,8 +150,8 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
       setJobDetails('');
       setQuantity(10);
       setPaperPrimary(DEFAULT_PAPERS[0]);
-      setPaperSecondary('None (Single Paper)');
-      setPaperTertiary('None (Single Paper)');
+      setPaperSecondary('None');
+      setPaperTertiary('None');
       setPaperSize(DEFAULT_SIZES[2] || '8');
       setBindingType(DEFAULT_BINDINGS[0] || 'Regzin');
       setInkColours(['Black']);
@@ -297,8 +297,8 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
         setJobDetails('');
         setQuantity(10);
         setPaperPrimary(DEFAULT_PAPERS[0]);
-        setPaperSecondary('None (Single Paper)');
-        setPaperTertiary('None (Single Paper)');
+        setPaperSecondary('None');
+        setPaperTertiary('None');
         setPrintQty('');
         setNumberingRange('');
         setOrderType(DEFAULT_ORDER_TYPES[0] || 'General');
@@ -820,18 +820,36 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
         {/* -------------------------------------------------------- */}
         {isStandardOrder && (
           <div className="space-y-3">
-            {/* Printing */}
-            <div className="w-full min-w-0">
-              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                Printing
-              </label>
-              <SelectWithOther
-                options={printings}
-                value={printingType}
-                onChange={setPrintingType}
-                placeholder=""
-                onCustomSave={(val) => saveCustomPreset('printing_type', val)}
-              />
+            {/* Row: Printing & Copies / Impressions */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="min-w-0">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 truncate h-4 leading-4 mb-1">
+                  Printing
+                </label>
+                <SelectWithOther
+                  options={printings}
+                  value={printingType}
+                  onChange={setPrintingType}
+                  placeholder=""
+                  onCustomSave={(val) => saveCustomPreset('printing_type', val)}
+                />
+              </div>
+
+              <div className="min-w-0">
+                <label
+                  className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 truncate h-4 leading-4 mb-1"
+                  title="Copies / Impressions"
+                >
+                  Copies / Impressions
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 1000"
+                  value={printQty}
+                  onChange={(e) => setPrintQty(e.target.value)}
+                  className="w-full px-2.5 py-2 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 transition-colors"
+                />
+              </div>
             </div>
 
             {/* Dynamic Paper Type Grid: 1 col for One-side/F/b, 2 cols for Duplicate, 3 cols for Triplicate */}
@@ -852,16 +870,19 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
               </div>
 
               <div
-                className={`grid gap-2 ${
+                className={`grid gap-2 items-end ${
                   isTriplicate
-                    ? 'grid-cols-1 sm:grid-cols-3'
+                    ? 'grid-cols-3'
                     : isDuplicate
-                    ? 'grid-cols-1 sm:grid-cols-2'
+                    ? 'grid-cols-2'
                     : 'grid-cols-1'
                 }`}
               >
                 <div className="min-w-0">
-                  <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
+                  <span
+                    className="text-[10px] uppercase font-bold text-stone-400 block truncate whitespace-nowrap h-4 leading-4 mb-1"
+                    title="Primary Paper"
+                  >
                     Primary Paper
                   </span>
                   <SelectWithOther
@@ -875,15 +896,18 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
 
                 {(isDuplicate || isTriplicate) && (
                   <div className="min-w-0">
-                    <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
-                      + Secondary Layer
+                    <span
+                      className="text-[10px] uppercase font-bold text-stone-400 block truncate whitespace-nowrap h-4 leading-4 mb-1"
+                      title="Secondary Layer"
+                    >
+                      Secondary Layer
                     </span>
                     <SelectWithOther
                       options={papers}
                       value={paperSecondary}
                       onChange={setPaperSecondary}
                       allowNone
-                      noneLabel="None (Single Paper)"
+                      noneLabel="None"
                       placeholder=""
                       onCustomSave={(val) => saveCustomPreset('paper_secondary', val)}
                     />
@@ -892,15 +916,18 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
 
                 {isTriplicate && (
                   <div className="min-w-0">
-                    <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
-                      + Tertiary Layer
+                    <span
+                      className="text-[10px] uppercase font-bold text-stone-400 block truncate whitespace-nowrap h-4 leading-4 mb-1"
+                      title="Tertiary Layer"
+                    >
+                      Tertiary Layer
                     </span>
                     <SelectWithOther
                       options={papers}
                       value={paperTertiary}
                       onChange={setPaperTertiary}
                       allowNone
-                      noneLabel="None (Single Paper)"
+                      noneLabel="None"
                       placeholder=""
                       onCustomSave={(val) => saveCustomPreset('paper_tertiary', val)}
                     />
@@ -909,10 +936,10 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
               </div>
             </div>
 
-            {/* Size & Binding */}
-            <div className="grid grid-cols-2 gap-2.5">
-              <div className="min-w-0">
-                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+            {/* Size, Binding & Numbering */}
+            <div className="grid grid-cols-12 gap-2 sm:gap-2.5">
+              <div className="col-span-3 min-w-0">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 truncate h-4 leading-4 mb-1">
                   Size
                 </label>
                 <SelectWithOther
@@ -924,8 +951,8 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
                 />
               </div>
 
-              <div className="min-w-0">
-                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+              <div className="col-span-5 min-w-0">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 truncate h-4 leading-4 mb-1">
                   Binding
                 </label>
                 <SelectWithOther
@@ -934,6 +961,19 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
                   onChange={setBindingType}
                   placeholder=""
                   onCustomSave={(val) => saveCustomPreset('binding_type', val)}
+                />
+              </div>
+
+              <div className="col-span-4 min-w-0">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 truncate h-4 leading-4 mb-1">
+                  Numbering
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 1 to 1000"
+                  value={numberingRange}
+                  onChange={(e) => setNumberingRange(e.target.value)}
+                  className="w-full px-2.5 py-2 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono transition-colors"
                 />
               </div>
             </div>
@@ -978,35 +1018,6 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
                     </button>
                   );
                 })}
-              </div>
-            </div>
-
-            {/* Copies/Imp. and Numbering */}
-            <div className="grid grid-cols-2 gap-2.5">
-              <div>
-                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                  Copies / Impressions
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 1000"
-                  value={printQty}
-                  onChange={(e) => setPrintQty(e.target.value)}
-                  className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                  Numbering
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 1 to 1000"
-                  value={numberingRange}
-                  onChange={(e) => setNumberingRange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 font-mono"
-                />
               </div>
             </div>
 
