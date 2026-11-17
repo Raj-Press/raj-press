@@ -593,10 +593,81 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
 
         {/* -------------------------------------------------------- */}
         {/* MODE 1: PATRIKA ORDER                                    */}
-        {/* Display: Patrika Cost & Profit, Inks, Copies/Imp, Remarks */}
+        {/* Display: Inks, Copies/Imp, Remarks, Patrika Cost & Profit */}
         {/* -------------------------------------------------------- */}
         {isPatrikaOrder && (
           <div className="space-y-3">
+            {/* Ink Colour Pill Swatches */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
+                  Ink Colour (Max {maxInksAllowed})
+                </label>
+                <span className="text-xs font-bold text-[#d9532f]">
+                  {inkColours.join(', ')}
+                </span>
+              </div>
+
+              {inkWarning && (
+                <div className="flex items-center gap-1 p-1 mb-1 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-[10px] rounded-lg">
+                  <AlertCircle className="w-3 h-3 shrink-0" />
+                  <span>{inkWarning}</span>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-1">
+                {INK_COLORS.map((ink) => {
+                  const isSelected = inkColours.includes(ink.id);
+                  return (
+                    <button
+                      key={ink.id}
+                      type="button"
+                      onClick={() => toggleInk(ink.id)}
+                      className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all border ${
+                        isSelected
+                          ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-white shadow-2xs'
+                          : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
+                      }`}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0 border border-black/10"
+                        style={{ background: ink.hex }}
+                      />
+                      <span>{ink.id}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Copies / Impressions */}
+            <div>
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                Copies / Impressions
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. 500"
+                value={printQty}
+                onChange={(e) => setPrintQty(e.target.value)}
+                className="w-full px-2.5 py-2 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 transition-colors"
+              />
+            </div>
+
+            {/* Remarks */}
+            <div>
+              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
+                Remarks / Instructions
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Proof checking, card design, delivery notes..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full px-3 py-2 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400 transition-colors"
+              />
+            </div>
+
             {/* Patrika Pricing & Profit Analysis */}
             <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800/80 rounded-2xl p-2.5 sm:p-3 space-y-2 shadow-2xs">
               <div className="flex items-center justify-between">
@@ -659,77 +730,6 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
                     : '₹0'}
                 </span>
               </div>
-            </div>
-
-            {/* Ink Colour Pill Swatches */}
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300">
-                  Ink Colour (Max {maxInksAllowed})
-                </label>
-                <span className="text-xs font-bold text-[#d9532f]">
-                  {inkColours.join(', ')}
-                </span>
-              </div>
-
-              {inkWarning && (
-                <div className="flex items-center gap-1 p-1 mb-1 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-[10px] rounded-lg">
-                  <AlertCircle className="w-3 h-3 shrink-0" />
-                  <span>{inkWarning}</span>
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-1">
-                {INK_COLORS.map((ink) => {
-                  const isSelected = inkColours.includes(ink.id);
-                  return (
-                    <button
-                      key={ink.id}
-                      type="button"
-                      onClick={() => toggleInk(ink.id)}
-                      className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all border ${
-                        isSelected
-                          ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-white shadow-2xs'
-                          : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
-                      }`}
-                    >
-                      <span
-                        className="w-2 h-2 rounded-full shrink-0 border border-black/10"
-                        style={{ background: ink.hex }}
-                      />
-                      <span>{ink.id}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Copies / Impressions */}
-            <div>
-              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                Copies / Impressions
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. 500"
-                value={printQty}
-                onChange={(e) => setPrintQty(e.target.value)}
-                className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
-              />
-            </div>
-
-            {/* Remarks */}
-            <div>
-              <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-1">
-                Remarks / Instructions
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Proof checking, card design, delivery notes..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-3 py-1.5 text-xs sm:text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl font-medium focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
-              />
             </div>
           </div>
         )}
