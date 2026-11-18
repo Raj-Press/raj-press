@@ -8,12 +8,14 @@ import {
   Moon,
   Sun,
   KeyRound,
+  BookOpen,
 } from 'lucide-react';
 import { isSupabaseConfigured } from '../../lib/supabase';
 
 interface HeaderProps {
   onExportCSV: () => void;
   onOpenKhata: () => void;
+  onOpenDaybook: () => void;
   onRefresh: () => void;
   onOpenAuth: () => void;
   onLockApp: () => void;
@@ -26,6 +28,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = React.memo(({
   onExportCSV,
   onOpenKhata,
+  onOpenDaybook,
   onRefresh,
   onOpenAuth,
   onLockApp,
@@ -79,6 +82,17 @@ export const Header: React.FC<HeaderProps> = React.memo(({
                 <span className="hidden sm:inline">Dark</span>
               </>
             )}
+          </button>
+
+          {/* Daily Daybook (दैनिक रोजमेळ) */}
+          <button
+            type="button"
+            onClick={onOpenDaybook}
+            title="Open Daily Daybook & Cash Drawer Reconciliation"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-semibold shadow-2xs transition-colors"
+          >
+            <BookOpen className="w-4 h-4 text-[#d9532f]" />
+            <span>Daybook (रोजमेळ)</span>
           </button>
 
           {/* Customer Khata Directory */}

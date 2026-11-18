@@ -79,7 +79,43 @@ ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS patrika_cost NUMERIC(12, 2) D
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS paper_tertiary TEXT;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivered_date DATE;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS dispatches JSONB DEFAULT '[]'::JSONB;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS advance_mode TEXT DEFAULT 'cash';
 CREATE INDEX IF NOT EXISTS idx_orders_order_type ON public.orders (order_type);
+
+-- ------------------------------------------------------------------------------
+-- 3. DAILY DAYBOOK & CLOSINGS (दैनिक रोजमेळ व ताळेबंद)
+-- ------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.daily_daybook (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    entry_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    entry_type TEXT NOT NULL CHECK (entry_type IN ('jama', 'naave')), -- 'jama' = Receipt, 'naave' = Expense
+    payment_mode TEXT NOT NULL CHECK (payment_mode IN ('cash', 'online')), -- 'cash' vs 'online'
+    amount NUMERIC(12, 2) NOT NULL CHECK (amount > 0),
+    party_name TEXT NOT NULL,
+    category TEXT DEFAULT 'Direct',
+    order_id UUID REFERENCES public.orders(id) ON DELETE SET NULL,
+    receipt_no TEXT,
+    notes TEXT,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_daybook_entry_date ON public.daily_daybook (entry_date DESC);
+CREATE INDEX IF NOT EXISTS idx_daybook_type_mode ON public.daily_daybook (entry_type, payment_mode);
+CREATE INDEX IF NOT EXISTS idx_daybook_order_id ON public.daily_daybook (order_id);
+CREATE INDEX IF NOT EXISTS idx_daybook_user_id ON public.daily_daybook (user_id);
+
+CREATE TABLE IF NOT EXISTS public.daybook_closings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    closing_date DATE UNIQUE NOT NULL,
+    opening_cash NUMERIC(12, 2) DEFAULT 0.00 NOT NULL,
+    denominations JSONB DEFAULT '{}'::JSONB,
+    notes TEXT,
+    updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_daybook_closings_date ON public.daybook_closings (closing_date);
 
 -- ------------------------------------------------------------------------------
 -- 3. PRESETS (Dynamic Dropdown Customizations persisted from "Others")

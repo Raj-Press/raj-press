@@ -1,14 +1,52 @@
 import { get, set } from 'idb-keyval';
-import { Order, Party, Preset, DeliveryDispatch } from '../types';
+import { Order, Party, Preset, DeliveryDispatch, DaybookEntry, DaybookClosing } from '../types';
 import { supabase, isSupabaseConfigured } from './supabase';
 
 const ORDERS_KEY = 'raj_press_orders_v3';
 const PARTIES_KEY = 'raj_press_parties_v3';
 const PRESETS_KEY = 'raj_press_presets_v3';
+const DAYBOOK_ENTRIES_KEY = 'raj_press_daybook_entries_v1';
+const DAYBOOK_CLOSINGS_KEY = 'raj_press_daybook_closings_v1';
 
 const INITIAL_PARTIES: Party[] = [];
 
 const INITIAL_ORDERS: Order[] = [];
+
+// Authentic 10 Jan 2026 notebook entries from Raj Press
+const INITIAL_DAYBOOK_ENTRIES: DaybookEntry[] = [
+  { id: 'rp-sample-1', created_at: '2026-01-10T09:30:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'cash', amount: 900, party_name: 'शेख V.कार्ड', category: 'Order', receipt_no: '1041', notes: 'Visiting card order', _synced: true },
+  { id: 'rp-sample-2', created_at: '2026-01-10T10:00:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'cash', amount: 3200, party_name: 'काशिद', category: 'Order', receipt_no: '1042', notes: 'Book printing advance', _synced: true },
+  { id: 'rp-sample-3', created_at: '2026-01-10T11:15:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'cash', amount: 500, party_name: 'पाटील', category: 'Order', receipt_no: '1043', notes: 'Bill book receipt', _synced: true },
+  { id: 'rp-sample-4', created_at: '2026-01-10T11:45:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'cash', amount: 200, party_name: 'शेख', category: 'Order', receipt_no: '1041', _synced: true },
+  { id: 'rp-sample-5', created_at: '2026-01-10T12:30:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'online', amount: 2000, party_name: 'बांगर', category: 'Order', receipt_no: '1044', notes: 'Online UPI transfer (Bank)', _synced: true },
+  { id: 'rp-sample-6', created_at: '2026-01-10T14:00:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'online', amount: 1500, party_name: 'गव्हाणे', category: 'Order', receipt_no: '1045', notes: 'Online GPay (Bank)', _synced: true },
+  { id: 'rp-sample-7', created_at: '2026-01-10T15:30:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'cash', amount: 90, party_name: 'पुठ्ठा व कात्रण', category: 'Scrap', notes: 'Paper scrap sale', _synced: true },
+  // NAAVE (Expenses)
+  { id: 'rp-sample-8', created_at: '2026-01-10T10:15:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 30, party_name: 'मास्तर-1', category: 'Platemaking', notes: 'Master plate making', _synced: true },
+  { id: 'rp-sample-9', created_at: '2026-01-10T11:00:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 40, party_name: 'चहा', category: 'Refreshment', notes: 'Press morning tea', _synced: true },
+  { id: 'rp-sample-10', created_at: '2026-01-10T12:00:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 60, party_name: 'उदबत्ती पुडा - 1', category: 'Puja', notes: 'Press puja incense', _synced: true },
+  { id: 'rp-sample-11', created_at: '2026-01-10T13:30:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 100, party_name: 'लातूर पार्सल - 1', category: 'Transport', notes: 'Transport / courier', _synced: true },
+  { id: 'rp-sample-12', created_at: '2026-01-10T16:00:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 500, party_name: 'भाजी', category: 'Personal', notes: 'Vegetables / home drawing', _synced: true },
+  { id: 'rp-sample-13', created_at: '2026-01-10T18:00:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 1970, party_name: 'बाळूजी', category: 'Staff', notes: 'Worker / staff advance drawing', _synced: true },
+  { id: 'rp-sample-14', created_at: '2026-01-10T19:30:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 160, party_name: 'अभय मोटर', category: 'Maintenance', notes: 'Delivery auto / vehicle fuel', _synced: true }
+];
+
+const INITIAL_DAYBOOK_CLOSINGS: DaybookClosing[] = [
+  {
+    closing_date: '2026-01-10',
+    opening_cash: 0,
+    denominations: {
+      n500: 3,
+      n200: 2,
+      n100: 1,
+      n50: 0,
+      n20: 1,
+      n10: 1,
+      coins: 0
+    },
+    notes: 'Saturday closing tally matches physical drawer (₹2,030) and UPI bank (₹3,500)'
+  }
+];
 
 export async function getOrders(): Promise<Order[]> {
   const cached = (await get<Order[]>(ORDERS_KEY)) || [];
@@ -88,6 +126,7 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
       dispatches: orderData.dispatches !== undefined ? orderData.dispatches : (existing?.dispatches || null),
       total_amount: total,
       advance_amount: advance,
+      advance_mode: orderData.advance_mode || 'cash',
       balance_due: balance,
       updated_at: new Date().toISOString()
     } as Order;
@@ -128,6 +167,7 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
       patrika_cost: orderData.patrika_cost !== undefined ? orderData.patrika_cost : null,
       total_amount: total,
       advance_amount: advance,
+      advance_mode: orderData.advance_mode || 'cash',
       balance_due: balance,
       promise_date: orderData.promise_date || null,
       delivered_date: delDate,
@@ -161,10 +201,11 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
         console.warn('Supabase initial upsert returned error:', error.message);
         // If Supabase schema has not yet added optional columns like patrika_cost or paper_tertiary (PGRST204),
         // retry saving without them so the order is 100% saved in Supabase!
-        if (error.code === 'PGRST204' || error.message?.includes('patrika_cost') || error.message?.includes('paper_tertiary') || error.message?.includes('column')) {
+        if (error.code === 'PGRST204' || error.message?.includes('patrika_cost') || error.message?.includes('paper_tertiary') || error.message?.includes('advance_mode') || error.message?.includes('column')) {
           const fallbackPayload = { ...payload };
           delete fallbackPayload.patrika_cost;
           delete fallbackPayload.paper_tertiary;
+          delete fallbackPayload.advance_mode;
           const retry = await supabase.from('orders').upsert(fallbackPayload);
           if (!retry.error) {
             updatedOrder._synced = true;
@@ -180,6 +221,13 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
     }
   }
 
+  // Auto-sync advance into Daybook if advance is specified
+  try {
+    await syncOrderAdvanceToDaybook(updatedOrder);
+  } catch (err) {
+    console.warn('Failed to sync advance to daybook', err);
+  }
+
   return updatedOrder;
 }
 
@@ -191,6 +239,17 @@ export async function deleteOrder(id: string): Promise<void> {
 
   if (deletedOrder && deletedOrder.party_name) {
     await updateOrRemovePartyAfterOrderChange(deletedOrder.party_name, filtered);
+  }
+
+  // Also clean up linked order daybook entries
+  try {
+    const daybookEntries = await getDaybookEntries();
+    const remainingDaybook = daybookEntries.filter(e => e.order_id !== id);
+    if (remainingDaybook.length !== daybookEntries.length) {
+      await set(DAYBOOK_ENTRIES_KEY, remainingDaybook);
+    }
+  } catch {
+    // ignore
   }
 
   if (isSupabaseConfigured && supabase && navigator.onLine) {
@@ -323,10 +382,12 @@ export async function removeOrderDispatch(orderId: string, dispatchId: string): 
   return updated;
 }
 
-export async function clearOrderBalance(id: string): Promise<Order | null> {
+export async function clearOrderBalance(id: string, paymentMode: 'cash' | 'online' = 'cash'): Promise<Order | null> {
   const currentOrders = await getOrders();
   const index = currentOrders.findIndex(o => o.id === id);
   if (index === -1) return null;
+
+  const previousBalance = Math.max(0, Number(currentOrders[index].balance_due || 0));
 
   currentOrders[index].advance_amount = currentOrders[index].total_amount;
   currentOrders[index].balance_due = 0;
@@ -334,6 +395,24 @@ export async function clearOrderBalance(id: string): Promise<Order | null> {
   await set(ORDERS_KEY, currentOrders);
 
   await upsertPartyFromOrder(currentOrders[index], currentOrders);
+
+  if (previousBalance > 0) {
+    try {
+      await saveDaybookEntry({
+        entry_date: new Date().toISOString().split('T')[0],
+        entry_type: 'jama',
+        payment_mode: paymentMode,
+        amount: previousBalance,
+        party_name: `${currentOrders[index].party_name} (Balance Paid)`.trim(),
+        category: 'Order',
+        order_id: currentOrders[index].id,
+        receipt_no: currentOrders[index].receipt_no,
+        notes: `Balance cleared for Order #${currentOrders[index].receipt_no}`
+      });
+    } catch (e) {
+      console.warn('Failed to post balance clearance to daybook', e);
+    }
+  }
 
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
@@ -494,5 +573,198 @@ export async function saveCustomPreset(category: Preset['category'], value: stri
     } catch {
       // offline
     }
+  }
+}
+
+// ==========================================
+// Daily Daybook / Rojmel (दैनिक रोजमेळ) Engine
+// ==========================================
+
+export async function getDaybookEntries(targetDate?: string): Promise<DaybookEntry[]> {
+  let entries = await get<DaybookEntry[]>(DAYBOOK_ENTRIES_KEY);
+  if (!entries || entries.length === 0) {
+    entries = [...INITIAL_DAYBOOK_ENTRIES];
+    await set(DAYBOOK_ENTRIES_KEY, entries);
+  }
+
+  if (isSupabaseConfigured && supabase && navigator.onLine) {
+    try {
+      let query = supabase.from('daily_daybook').select('*').order('created_at', { ascending: false });
+      if (targetDate) {
+        query = query.eq('entry_date', targetDate);
+      }
+      const { data, error } = await query;
+      if (!error && data) {
+        const supabaseIds = new Set(data.map((e: any) => e.id));
+        const localOnly = targetDate
+          ? entries.filter(e => e.entry_date === targetDate && !supabaseIds.has(e.id))
+          : entries.filter(e => !supabaseIds.has(e.id));
+        const merged = [...localOnly, ...data];
+        return targetDate ? merged.filter(e => e.entry_date === targetDate) : merged;
+      }
+    } catch {
+      // offline fallback
+    }
+  }
+
+  if (targetDate) {
+    return entries.filter(e => e.entry_date === targetDate);
+  }
+  return entries;
+}
+
+export async function saveDaybookEntry(entryData: Partial<DaybookEntry>): Promise<DaybookEntry> {
+  const currentEntries = await getDaybookEntries();
+  let updated: DaybookEntry;
+
+  if (entryData.id) {
+    const existingIndex = currentEntries.findIndex(e => e.id === entryData.id);
+    if (existingIndex !== -1) {
+      updated = {
+        ...currentEntries[existingIndex],
+        ...entryData,
+        amount: Number(entryData.amount !== undefined ? entryData.amount : currentEntries[existingIndex].amount)
+      };
+      currentEntries[existingIndex] = updated;
+    } else {
+      updated = {
+        id: entryData.id,
+        created_at: new Date().toISOString(),
+        entry_date: entryData.entry_date || new Date().toISOString().split('T')[0],
+        entry_type: entryData.entry_type || 'jama',
+        payment_mode: entryData.payment_mode || 'cash',
+        amount: Number(entryData.amount || 0),
+        party_name: entryData.party_name || '',
+        category: entryData.category || 'Direct',
+        order_id: entryData.order_id || null,
+        receipt_no: entryData.receipt_no || null,
+        notes: entryData.notes || null,
+        _synced: false
+      };
+      currentEntries.unshift(updated);
+    }
+  } else {
+    const newId = crypto.randomUUID();
+    updated = {
+      id: newId,
+      created_at: new Date().toISOString(),
+      entry_date: entryData.entry_date || new Date().toISOString().split('T')[0],
+      entry_type: entryData.entry_type || 'jama',
+      payment_mode: entryData.payment_mode || 'cash',
+      amount: Number(entryData.amount || 0),
+      party_name: entryData.party_name || '',
+      category: entryData.category || 'Direct',
+      order_id: entryData.order_id || null,
+      receipt_no: entryData.receipt_no || null,
+      notes: entryData.notes || null,
+      _synced: false
+    };
+    currentEntries.unshift(updated);
+  }
+
+  await set(DAYBOOK_ENTRIES_KEY, currentEntries);
+
+  if (isSupabaseConfigured && supabase && navigator.onLine) {
+    try {
+      const payload: any = { ...updated };
+      delete payload._synced;
+      const { error } = await supabase.from('daily_daybook').upsert(payload);
+      if (!error) {
+        updated._synced = true;
+      }
+    } catch {
+      // offline
+    }
+  }
+
+  return updated;
+}
+
+export async function deleteDaybookEntry(id: string): Promise<void> {
+  const currentEntries = await getDaybookEntries();
+  const filtered = currentEntries.filter(e => e.id !== id);
+  await set(DAYBOOK_ENTRIES_KEY, filtered);
+
+  if (isSupabaseConfigured && supabase && navigator.onLine) {
+    try {
+      await supabase.from('daily_daybook').delete().eq('id', id);
+    } catch (e) {
+      console.warn('Supabase daybook delete error', e);
+    }
+  }
+}
+
+export async function getDaybookClosing(date: string): Promise<DaybookClosing | null> {
+  let closings = await get<DaybookClosing[]>(DAYBOOK_CLOSINGS_KEY);
+  if (!closings || closings.length === 0) {
+    closings = [...INITIAL_DAYBOOK_CLOSINGS];
+    await set(DAYBOOK_CLOSINGS_KEY, closings);
+  }
+
+  const found = closings.find(c => c.closing_date === date);
+  return found || null;
+}
+
+export async function saveDaybookClosing(closing: DaybookClosing): Promise<DaybookClosing> {
+  let closings = (await get<DaybookClosing[]>(DAYBOOK_CLOSINGS_KEY)) || [];
+  const index = closings.findIndex(c => c.closing_date === closing.closing_date);
+
+  const updated: DaybookClosing = {
+    ...closing,
+    updated_at: new Date().toISOString()
+  };
+
+  if (index !== -1) {
+    closings[index] = updated;
+  } else {
+    closings.push(updated);
+  }
+
+  await set(DAYBOOK_CLOSINGS_KEY, closings);
+
+  if (isSupabaseConfigured && supabase && navigator.onLine) {
+    try {
+      await supabase.from('daybook_closings').upsert(updated);
+    } catch {
+      // offline
+    }
+  }
+
+  return updated;
+}
+
+export async function syncOrderAdvanceToDaybook(order: Order): Promise<void> {
+  if (!order || Number(order.advance_amount || 0) <= 0) return;
+  const entries = await getDaybookEntries();
+  const existingIndex = entries.findIndex(e => e.order_id === order.id && e.category === 'Order');
+  const advanceAmount = Number(order.advance_amount);
+  const paymentMode = order.advance_mode || 'cash';
+  const entryDate = order.order_date || new Date().toISOString().split('T')[0];
+  const partyName = order.party_name || 'Customer';
+
+  if (existingIndex !== -1) {
+    entries[existingIndex].amount = advanceAmount;
+    entries[existingIndex].payment_mode = paymentMode;
+    entries[existingIndex].party_name = `${partyName} ${order.job_details ? `(${order.job_details})` : ''}`.trim();
+    entries[existingIndex].receipt_no = order.receipt_no;
+    entries[existingIndex].entry_date = entryDate;
+    await set(DAYBOOK_ENTRIES_KEY, entries);
+  } else {
+    const newEntry: DaybookEntry = {
+      id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+      entry_date: entryDate,
+      entry_type: 'jama',
+      payment_mode: paymentMode,
+      amount: advanceAmount,
+      party_name: `${partyName} ${order.job_details ? `(${order.job_details})` : ''}`.trim(),
+      category: 'Order',
+      order_id: order.id,
+      receipt_no: order.receipt_no,
+      notes: `Advance for Order #${order.receipt_no}`,
+      _synced: false
+    };
+    entries.unshift(newEntry);
+    await set(DAYBOOK_ENTRIES_KEY, entries);
   }
 }

@@ -22,6 +22,7 @@ import { OrderLedgerTable } from './components/orders/OrderLedgerTable';
 import { JobTicketModal } from './components/orders/JobTicketModal';
 import { SplitDeliveryModal } from './components/orders/SplitDeliveryModal';
 import { CustomerKhataModal } from './components/parties/CustomerKhataModal';
+import { DailyDaybookModal } from './components/daybook/DailyDaybookModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { LockScreen } from './components/auth/LockScreen';
 import { ChangePasswordModal } from './components/auth/ChangePasswordModal';
@@ -62,6 +63,7 @@ export const App: React.FC = () => {
   const [ticketOrder, setTicketOrder] = useState<Order | null>(null);
   const [splitDeliveryOrder, setSplitDeliveryOrder] = useState<Order | null>(null);
   const [isKhataOpen, setIsKhataOpen] = useState(false);
+  const [isDaybookOpen, setIsDaybookOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState<boolean>(() => isAppUnlocked());
@@ -427,6 +429,7 @@ export const App: React.FC = () => {
       <Header
         onExportCSV={handleExportCSV}
         onOpenKhata={() => setIsKhataOpen(true)}
+        onOpenDaybook={() => setIsDaybookOpen(true)}
         onRefresh={refreshData}
         onOpenAuth={() => setIsAuthOpen(true)}
         onLockApp={handleLockApp}
@@ -574,6 +577,12 @@ export const App: React.FC = () => {
           setStatusFilter(hasActiveOrders ? 'ALL' : 'Delivered');
           setMobileTab('register');
         }}
+      />
+
+      <DailyDaybookModal
+        isOpen={isDaybookOpen}
+        onClose={() => setIsDaybookOpen(false)}
+        orders={orders}
       />
 
       <AuthModal

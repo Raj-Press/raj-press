@@ -34,6 +34,7 @@ export interface Order {
   patrika_cost?: number | null; // Purchase cost of blank patrika card
   total_amount: number;
   advance_amount: number;
+  advance_mode?: 'cash' | 'online';
   balance_due: number;
   promise_date?: string | null; // YYYY-MM-DD
   delivered_date?: string | null; // YYYY-MM-DD
@@ -78,4 +79,40 @@ export interface KPIMetrics {
   totalBilled: number;
   totalAdvance: number;
   pendingBalance: number;
+}
+
+// Daily Daybook / Rojmel (दैनिक रोजमेळ) Models
+export interface DaybookEntry {
+  id: string;
+  created_at: string;
+  entry_date: string; // YYYY-MM-DD
+  entry_type: 'jama' | 'naave'; // 'jama' = Receipt, 'naave' = Expense
+  payment_mode: 'cash' | 'online'; // 'cash' vs 'online'
+  amount: number;
+  party_name: string;
+  category?: string | null; // e.g. 'Order', 'Tea', 'Transport', 'Platemaking', 'Scrap', 'Maintenance', 'Personal', 'General'
+  order_id?: string | null;
+  receipt_no?: string | null;
+  notes?: string | null;
+  user_id?: string | null;
+  _synced?: boolean;
+}
+
+export interface DaybookDenominations {
+  n500: number;
+  n200: number;
+  n100: number;
+  n50: number;
+  n20: number;
+  n10: number;
+  coins: number;
+}
+
+export interface DaybookClosing {
+  id?: string;
+  closing_date: string; // YYYY-MM-DD
+  opening_cash: number;
+  denominations?: DaybookDenominations | null;
+  notes?: string | null;
+  updated_at?: string;
 }

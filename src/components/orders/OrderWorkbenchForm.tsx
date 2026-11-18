@@ -61,6 +61,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
 
   const [totalAmount, setTotalAmount] = useState<number | string>(1500);
   const [advanceAmount, setAdvanceAmount] = useState<number | string>(1000);
+  const [advanceMode, setAdvanceMode] = useState<'cash' | 'online'>('cash');
   const [promiseDate, setPromiseDate] = useState('');
   const [status, setStatus] = useState<Order['status']>('Pending');
 
@@ -140,6 +141,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
       setNotes(editingOrder.notes || '');
       setTotalAmount(editingOrder.total_amount || 0);
       setAdvanceAmount(editingOrder.advance_amount || 0);
+      setAdvanceMode(editingOrder.advance_mode || 'cash');
       setPromiseDate(editingOrder.promise_date || '');
       setStatus(editingOrder.status || 'Pending');
     } else {
@@ -164,6 +166,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
       setNotes('');
       setTotalAmount(1500);
       setAdvanceAmount(1000);
+      setAdvanceMode('cash');
       setPromiseDate('');
       setStatus('Pending');
     }
@@ -285,6 +288,7 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
         patrika_cost: isPatrikaOrder && patrikaCost !== '' ? Number(patrikaCost) : null,
         total_amount: total,
         advance_amount: adv,
+        advance_mode: advanceMode,
         balance_due: balance,
         promise_date: promiseDate || null,
         status,
@@ -1055,9 +1059,20 @@ export const OrderWorkbenchForm: React.FC<OrderWorkbenchFormProps> = React.memo(
             </div>
 
             <div>
-              <span className="text-[10px] text-stone-400 block mb-1">
-                Advance (₹)
-              </span>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] text-stone-400">
+                  Advance (₹)
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setAdvanceMode(prev => prev === 'cash' ? 'online' : 'cash')}
+                  title="Toggle Advance Payment Mode: Cash vs Online UPI"
+                  className="flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded bg-stone-800 border border-stone-700 hover:border-stone-500 text-stone-300 transition"
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${advanceMode === 'online' ? 'bg-sky-400' : 'bg-amber-400'}`}></span>
+                  <span>{advanceMode === 'online' ? 'UPI' : 'Cash'}</span>
+                </button>
+              </div>
               <input
                 type="number"
                 min="0"
