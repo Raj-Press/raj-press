@@ -439,8 +439,8 @@ export const App: React.FC = () => {
         onToggleTheme={handleToggleTheme}
       />
 
-      {/* Mobile Tab Switcher - Sticky below header for effortless 1-tap navigation */}
-      <div className="lg:hidden px-3 pt-2 pb-2 sticky top-[57px] z-20 bg-[#f8f7f4]/95 dark:bg-stone-950/95 backdrop-blur-xs border-b border-stone-200/60 dark:border-stone-800/60 print:hidden">
+      {/* Mobile Tab Switcher - Sticks cleanly at top of screen on mobile when scrolling */}
+      <div className="lg:hidden px-3 pt-2 pb-2 sticky top-0 z-20 bg-[#f8f7f4]/95 dark:bg-stone-950/95 backdrop-blur-xs border-b border-stone-200/60 dark:border-stone-800/60 print:hidden">
         <div className="grid grid-cols-2 p-1 bg-stone-200/80 dark:bg-stone-800 rounded-2xl text-xs font-bold">
           <button
             type="button"

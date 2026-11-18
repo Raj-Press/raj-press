@@ -32,9 +32,9 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
   onClose,
   orders: _orders,
 }) => {
-  // Selected Date (defaults to today, or 2026-01-10 if sample is loaded)
+  // Selected Date (defaults to today)
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    return '2026-01-10'; // Pre-select authentic 10-Jan-2026 notebook ledger
+    return new Date().toISOString().split('T')[0];
   });
 
   const [entries, setEntries] = useState<DaybookEntry[]>([]);
@@ -52,15 +52,15 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
   const [filterMode, setFilterMode] = useState<'all' | 'cash' | 'online'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Currency Denomination Drawer
+  // Currency Denomination Drawer (all zero by default)
   const [showDenom, setShowDenom] = useState<boolean>(false);
   const [denoms, setDenoms] = useState<DaybookDenominations>({
-    n500: 3,
-    n200: 2,
-    n100: 1,
+    n500: 0,
+    n200: 0,
+    n100: 0,
     n50: 0,
-    n20: 1,
-    n10: 1,
+    n20: 0,
+    n10: 0,
     coins: 0,
   });
 
@@ -325,34 +325,48 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-5xl bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden my-3 sm:my-6 transition-colors">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-1.5 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+      <div className="relative w-full max-w-5xl bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-2xl sm:rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden my-auto flex flex-col max-h-[96vh] sm:max-h-[92vh] transition-colors">
         
         {/* Sleek Dark Header (Exact match to Job Ticket Header) */}
-        <div className="bg-[#18181b] text-white px-4 py-3 sm:px-6 sm:py-3.5 border-b border-stone-800">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#d9532f] animate-pulse shrink-0"></span>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-sm sm:text-base font-bold tracking-tight">Daily Daybook Ledger (दैनिक रोजमेळ)</h2>
-                  <span className="px-2 py-0.5 bg-stone-800 text-stone-300 rounded text-[10px] font-mono font-semibold border border-stone-700">
-                    {selectedDate}
-                  </span>
-                  <span className="px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded text-[10px] font-semibold">
-                    {isLoading ? 'Loading...' : 'Dual Reconciliation'}
-                  </span>
+        <div className="bg-[#18181b] text-white px-3.5 py-2.5 sm:px-6 sm:py-3.5 border-b border-stone-800 shrink-0 sticky top-0 z-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            
+            {/* Top row on mobile: Title & Close Button */}
+            <div className="flex items-center justify-between w-full sm:w-auto gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#d9532f] animate-pulse shrink-0"></span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <h2 className="text-sm sm:text-base font-bold tracking-tight truncate">
+                      Daily Daybook (दैनिक रोजमेळ)
+                    </h2>
+                    <span className="px-1.5 py-0.5 bg-stone-800 text-stone-300 rounded text-[10px] font-mono font-semibold border border-stone-700">
+                      {selectedDate}
+                    </span>
+                    <span className="hidden sm:inline-block px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded text-[10px] font-semibold">
+                      {isLoading ? 'Loading...' : 'Dual Reconciliation'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] sm:text-[11px] text-stone-400 font-normal mt-0.5">
+                    Daily Counter &amp; Bank Reconciliation
+                  </p>
                 </div>
-                <p className="text-[11px] text-stone-400 font-normal mt-0.5">
-                  {selectedDate === '2026-01-10'
-                    ? 'मराठी शके १९४७ पौष कृष्ण ७ शनिवार दि. १०-१-२०२६ • Saturday Closing'
-                    : `Daily Shop Counter & Bank Reconciliation for ${selectedDate}`}
-                </p>
               </div>
+
+              {/* Close Button on mobile - pinned top right */}
+              <button
+                type="button"
+                onClick={onClose}
+                className="sm:hidden p-1.5 text-stone-400 hover:text-white hover:bg-stone-800 rounded-xl border border-stone-700 transition shrink-0"
+                title="Close (Esc)"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* Header Controls */}
-            <div className="flex items-center gap-1.5 self-end sm:self-auto print:hidden">
+            {/* Bottom row on mobile / Right on desktop: Controls */}
+            <div className="flex items-center justify-between sm:justify-end gap-1.5 w-full sm:w-auto pt-1 sm:pt-0 border-t border-stone-800/80 sm:border-t-0 print:hidden">
               {/* Date Navigation */}
               <div className="flex items-center bg-stone-800 rounded-xl border border-stone-700 p-0.5 text-xs text-stone-300">
                 <button
@@ -367,7 +381,7 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="bg-transparent text-stone-200 text-[11px] font-mono font-bold px-1.5 focus:outline-none"
+                  className="bg-transparent text-stone-200 text-[11px] font-mono font-bold px-1 focus:outline-none"
                 />
                 <button
                   type="button"
@@ -379,41 +393,44 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                 </button>
               </div>
 
-              {/* Today Button */}
-              <button
-                type="button"
-                onClick={setToday}
-                className="px-2 py-1 text-xs text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 transition"
-              >
-                Today
-              </button>
+              <div className="flex items-center gap-1.5">
+                {/* Today Button */}
+                <button
+                  type="button"
+                  onClick={setToday}
+                  className="px-2 py-1 text-xs text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 transition"
+                >
+                  Today
+                </button>
 
-              {/* Print Slip */}
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="px-2.5 py-1 text-xs text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 flex items-center gap-1 transition"
-                title="Print Daily Slip (A5 / A4)"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Print</span>
-              </button>
+                {/* Print Slip */}
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-2.5 py-1 text-xs text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 flex items-center gap-1 transition"
+                  title="Print Daily Slip"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Print</span>
+                </button>
 
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-1.5 text-stone-400 hover:text-white hover:bg-stone-800 rounded-xl border border-stone-700 transition ml-1"
-                title="Close (Esc)"
-              >
-                <X className="w-4 h-4" />
-              </button>
+                {/* Close Button on desktop */}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="hidden sm:flex p-1.5 text-stone-400 hover:text-white hover:bg-stone-800 rounded-xl border border-stone-700 transition ml-1"
+                  title="Close (Esc)"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
+
           </div>
         </div>
 
         {/* Modal Body */}
-        <div className="p-3.5 sm:p-5 space-y-4 max-h-[85vh] overflow-y-auto">
+        <div className="p-3 sm:p-5 space-y-4 overflow-y-auto flex-1 overscroll-contain">
 
           {/* 3 KPI Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -723,13 +740,6 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                 className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-800 rounded text-[10px] font-semibold transition-colors"
               >
                 + रद्दी/कात्रण ₹90
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill(2000, 'बांगर (Visiting Card advance)', 'jama', true, 'Order', '1044')}
-                className="px-2 py-0.5 bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 text-sky-800 dark:text-sky-300 border border-sky-300/80 dark:border-sky-800 rounded text-[10px] font-semibold transition-colors"
-              >
-                + बांगर ₹2000 [Online UPI]
               </button>
             </div>
           </div>

@@ -12,42 +12,6 @@ const INITIAL_PARTIES: Party[] = [];
 
 const INITIAL_ORDERS: Order[] = [];
 
-// Authentic 10 Jan 2026 notebook entries from Raj Press
-const INITIAL_DAYBOOK_ENTRIES: DaybookEntry[] = [
-  { id: 'rp-sample-1', created_at: '2026-01-10T09:30:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'cash', amount: 900, party_name: 'शेख V.कार्ड', category: 'Order', receipt_no: '1041', notes: 'Visiting card order', _synced: true },
-  { id: 'rp-sample-2', created_at: '2026-01-10T10:00:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'cash', amount: 3200, party_name: 'काशिद', category: 'Order', receipt_no: '1042', notes: 'Book printing advance', _synced: true },
-  { id: 'rp-sample-3', created_at: '2026-01-10T11:15:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'cash', amount: 500, party_name: 'पाटील', category: 'Order', receipt_no: '1043', notes: 'Bill book receipt', _synced: true },
-  { id: 'rp-sample-4', created_at: '2026-01-10T11:45:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'cash', amount: 200, party_name: 'शेख', category: 'Order', receipt_no: '1041', _synced: true },
-  { id: 'rp-sample-5', created_at: '2026-01-10T12:30:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'online', amount: 2000, party_name: 'बांगर', category: 'Order', receipt_no: '1044', notes: 'Online UPI transfer (Bank)', _synced: true },
-  { id: 'rp-sample-6', created_at: '2026-01-10T14:00:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'online', amount: 1500, party_name: 'गव्हाणे', category: 'Order', receipt_no: '1045', notes: 'Online GPay (Bank)', _synced: true },
-  { id: 'rp-sample-7', created_at: '2026-01-10T15:30:00.000Z', entry_date: '2026-01-10', entry_type: 'jama', payment_mode: 'cash', amount: 90, party_name: 'पुठ्ठा व कात्रण', category: 'Scrap', notes: 'Paper scrap sale', _synced: true },
-  // NAAVE (Expenses)
-  { id: 'rp-sample-8', created_at: '2026-01-10T10:15:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 30, party_name: 'मास्तर-1', category: 'Platemaking', notes: 'Master plate making', _synced: true },
-  { id: 'rp-sample-9', created_at: '2026-01-10T11:00:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 40, party_name: 'चहा', category: 'Refreshment', notes: 'Press morning tea', _synced: true },
-  { id: 'rp-sample-10', created_at: '2026-01-10T12:00:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 60, party_name: 'उदबत्ती पुडा - 1', category: 'Puja', notes: 'Press puja incense', _synced: true },
-  { id: 'rp-sample-11', created_at: '2026-01-10T13:30:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 100, party_name: 'लातूर पार्सल - 1', category: 'Transport', notes: 'Transport / courier', _synced: true },
-  { id: 'rp-sample-12', created_at: '2026-01-10T16:00:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 500, party_name: 'भाजी', category: 'Personal', notes: 'Vegetables / home drawing', _synced: true },
-  { id: 'rp-sample-13', created_at: '2026-01-10T18:00:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 1970, party_name: 'बाळूजी', category: 'Staff', notes: 'Worker / staff advance drawing', _synced: true },
-  { id: 'rp-sample-14', created_at: '2026-01-10T19:30:00.000Z', entry_date: '2026-01-10', entry_type: 'naave', payment_mode: 'cash', amount: 160, party_name: 'अभय मोटर', category: 'Maintenance', notes: 'Delivery auto / vehicle fuel', _synced: true }
-];
-
-const INITIAL_DAYBOOK_CLOSINGS: DaybookClosing[] = [
-  {
-    closing_date: '2026-01-10',
-    opening_cash: 0,
-    denominations: {
-      n500: 3,
-      n200: 2,
-      n100: 1,
-      n50: 0,
-      n20: 1,
-      n10: 1,
-      coins: 0
-    },
-    notes: 'Saturday closing tally matches physical drawer (₹2,030) and UPI bank (₹3,500)'
-  }
-];
-
 export async function getOrders(): Promise<Order[]> {
   const cached = (await get<Order[]>(ORDERS_KEY)) || [];
 
@@ -582,8 +546,13 @@ export async function saveCustomPreset(category: Preset['category'], value: stri
 
 export async function getDaybookEntries(targetDate?: string): Promise<DaybookEntry[]> {
   let entries = await get<DaybookEntry[]>(DAYBOOK_ENTRIES_KEY);
-  if (!entries || entries.length === 0) {
-    entries = [...INITIAL_DAYBOOK_ENTRIES];
+  // Auto-purge any previous sample/mockup entries
+  if (entries && entries.some(e => e.id.startsWith('rp-sample-') || e.id.startsWith('sample-'))) {
+    entries = entries.filter(e => !e.id.startsWith('rp-sample-') && !e.id.startsWith('sample-'));
+    await set(DAYBOOK_ENTRIES_KEY, entries);
+  }
+  if (!entries) {
+    entries = [];
     await set(DAYBOOK_ENTRIES_KEY, entries);
   }
 
@@ -696,8 +665,13 @@ export async function deleteDaybookEntry(id: string): Promise<void> {
 
 export async function getDaybookClosing(date: string): Promise<DaybookClosing | null> {
   let closings = await get<DaybookClosing[]>(DAYBOOK_CLOSINGS_KEY);
-  if (!closings || closings.length === 0) {
-    closings = [...INITIAL_DAYBOOK_CLOSINGS];
+  // Auto-purge any previous sample/mockup closings
+  if (closings && closings.some(c => c.closing_date === '2026-01-10' && c.notes?.includes('Saturday closing tally'))) {
+    closings = closings.filter(c => !(c.closing_date === '2026-01-10' && c.notes?.includes('Saturday closing tally')));
+    await set(DAYBOOK_CLOSINGS_KEY, closings);
+  }
+  if (!closings) {
+    closings = [];
     await set(DAYBOOK_CLOSINGS_KEY, closings);
   }
 

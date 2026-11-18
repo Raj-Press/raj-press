@@ -17,8 +17,8 @@ export const JobTicketModal: React.FC<JobTicketModalProps> = ({ order, onClose }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70 backdrop-blur-xs overflow-y-auto print:p-0 print:m-0 print:bg-white print:static print:overflow-visible job-ticket-overlay">
-      <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden print:border-none print:shadow-none print:w-full print:max-w-none print:max-h-none print:h-auto print:overflow-visible print:bg-white print:rounded-none job-ticket-card">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 sm:p-3 bg-black/70 backdrop-blur-xs overflow-y-auto print:p-0 print:m-0 print:bg-white print:static print:overflow-visible job-ticket-overlay">
+      <div className="relative w-full max-w-xl max-h-[94vh] sm:max-h-[92vh] my-auto flex flex-col bg-white dark:bg-stone-900 rounded-2xl sm:rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden print:border-none print:shadow-none print:w-full print:max-w-none print:max-h-none print:h-auto print:overflow-visible print:bg-white print:rounded-none job-ticket-card">
         
         {/* Modal Header (Hidden during print) */}
         <div className="flex items-center justify-between px-5 py-3 bg-stone-900 dark:bg-black text-white print:hidden shrink-0">
