@@ -190,6 +190,13 @@ export const App: React.FC = () => {
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
+      const isDeliveredFilterActive = statusFilter === 'Delivered' || activeFilter === 'delivered';
+
+      // Delivered orders are hidden from the view unless status filter is explicitly set to Delivered
+      if (order.status === 'Delivered' && !isDeliveredFilterActive) {
+        return false;
+      }
+
       if (statusFilter !== 'ALL' && order.status !== statusFilter) {
         return false;
       }
@@ -559,8 +566,12 @@ export const App: React.FC = () => {
         parties={parties}
         onSelectPartyOrders={(partyName) => {
           setSearchTerm(partyName);
-          setActiveFilter('all');
-          setStatusFilter('ALL');
+          const partyOrders = orders.filter(
+            (o) => o.party_name.trim().toLowerCase() === partyName.trim().toLowerCase()
+          );
+          const hasActiveOrders = partyOrders.some((o) => o.status !== 'Delivered');
+          setActiveFilter(hasActiveOrders ? 'all' : 'delivered');
+          setStatusFilter(hasActiveOrders ? 'ALL' : 'Delivered');
           setMobileTab('register');
         }}
       />

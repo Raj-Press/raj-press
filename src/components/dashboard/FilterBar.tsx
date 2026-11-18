@@ -74,10 +74,18 @@ export const FilterBar: React.FC<FilterBarProps> = React.memo(({
           <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">Status:</span>
           <select
             value={statusFilter}
-            onChange={(e) => onStatusFilterChange(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              onStatusFilterChange(val);
+              if (val === 'Delivered') {
+                onFilterChange('delivered');
+              } else if (activeFilter === 'delivered') {
+                onFilterChange('all');
+              }
+            }}
             className="bg-transparent text-xs sm:text-sm font-bold text-stone-800 dark:text-stone-200 focus:outline-none cursor-pointer"
           >
-            <option value="ALL" className="dark:bg-stone-800">All Statuses</option>
+            <option value="ALL" className="dark:bg-stone-800">All (Active)</option>
             <option value="Pending" className="dark:bg-stone-800">Pending</option>
             <option value="Printing" className="dark:bg-stone-800">Printing</option>
             <option value="Binding" className="dark:bg-stone-800">Binding</option>
@@ -101,6 +109,21 @@ export const FilterBar: React.FC<FilterBarProps> = React.memo(({
           }`}
         >
           All Orders
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            onFilterChange('delivered');
+            onStatusFilterChange('Delivered');
+          }}
+          className={`px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all border ${
+            statusFilter === 'Delivered' || activeFilter === 'delivered'
+              ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
+              : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700'
+          }`}
+        >
+          Delivered
         </button>
 
         <button
