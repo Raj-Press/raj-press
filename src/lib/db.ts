@@ -545,34 +545,80 @@ export async function saveCustomPreset(category: Preset['category'], value: stri
 // ==========================================
 
 export async function getDaybookEntries(targetDate?: string): Promise<DaybookEntry[]> {
-  let entries = await get<DaybookEntry[]>(DAYBOOK_ENTRIES_KEY);
+  let entries = (await get<DaybookEntry[]>(DAYBOOK_ENTRIES_KEY)) || [];
   // Auto-purge any previous sample/mockup entries
-  if (entries && entries.some(e => e.id.startsWith('rp-sample-') || e.id.startsWith('sample-'))) {
+  if (entries.some(e => e.id.startsWith('rp-sample-') || e.id.startsWith('sample-'))) {
     entries = entries.filter(e => !e.id.startsWith('rp-sample-') && !e.id.startsWith('sample-'));
-    await set(DAYBOOK_ENTRIES_KEY, entries);
-  }
-  if (!entries) {
-    entries = [];
     await set(DAYBOOK_ENTRIES_KEY, entries);
   }
 
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
+      // 1. Try querying native daily_daybook table first
       let query = supabase.from('daily_daybook').select('*').order('created_at', { ascending: false });
       if (targetDate) {
         query = query.eq('entry_date', targetDate);
       }
       const { data, error } = await query;
+
       if (!error && data) {
         const supabaseIds = new Set(data.map((e: any) => e.id));
         const localOnly = targetDate
           ? entries.filter(e => e.entry_date === targetDate && !supabaseIds.has(e.id))
           : entries.filter(e => !supabaseIds.has(e.id));
         const merged = [...localOnly, ...data];
+        await set(DAYBOOK_ENTRIES_KEY, merged);
         return targetDate ? merged.filter(e => e.entry_date === targetDate) : merged;
       }
-    } catch {
-      // offline fallback
+
+      // 2. If table does not exist (PGRST205), fall back to presets sync storage!
+      if (error && (error.code === 'PGRST205' || error.message?.includes('not find the table') || error.message?.includes('schema cache'))) {
+        const { data: presetData, error: presetError } = await supabase
+          .from('presets')
+          .select('id, created_at, value')
+          .eq('category', 'daybook_entry')
+          .order('created_at', { ascending: false });
+
+        if (!presetError && presetData) {
+          const remoteEntries: DaybookEntry[] = presetData
+            .map((p: any) => {
+              try {
+                const parsed = JSON.parse(p.value);
+                return {
+                  ...parsed,
+                  id: p.id,
+                  created_at: parsed.created_at || p.created_at,
+                  _synced: true,
+                };
+              } catch {
+                return null;
+              }
+            })
+            .filter(Boolean) as DaybookEntry[];
+
+          const remoteIds = new Set(remoteEntries.map(e => e.id));
+          const localOnly = entries.filter(e => !remoteIds.has(e.id));
+          const merged = [...localOnly, ...remoteEntries];
+          await set(DAYBOOK_ENTRIES_KEY, merged);
+
+          // If local has unsynced entries that mobile/desktop created, push them to Supabase presets now
+          for (const unsynced of localOnly) {
+            try {
+              await supabase.from('presets').upsert({
+                id: unsynced.id,
+                category: 'daybook_entry',
+                value: JSON.stringify(unsynced),
+              });
+            } catch {
+              // ignore
+            }
+          }
+
+          return targetDate ? merged.filter(e => e.entry_date === targetDate) : merged;
+        }
+      }
+    } catch (e) {
+      console.warn('Supabase daybook fetch error', e);
     }
   }
 
@@ -637,12 +683,28 @@ export async function saveDaybookEntry(entryData: Partial<DaybookEntry>): Promis
     try {
       const payload: any = { ...updated };
       delete payload._synced;
+
+      // 1. Try native daily_daybook table
       const { error } = await supabase.from('daily_daybook').upsert(payload);
       if (!error) {
         updated._synced = true;
+      } else if (error.code === 'PGRST205' || error.message?.includes('not find the table') || error.message?.includes('schema cache')) {
+        // 2. Fallback to presets sync store
+        const fallbackRes = await supabase.from('presets').upsert({
+          id: updated.id,
+          category: 'daybook_entry',
+          value: JSON.stringify(updated)
+        });
+        if (!fallbackRes.error) {
+          updated._synced = true;
+        } else {
+          console.error('Supabase fallback presets error', fallbackRes.error);
+        }
+      } else {
+        console.error('Supabase daybook error', error);
       }
-    } catch {
-      // offline
+    } catch (e) {
+      console.warn('Supabase daybook save error', e);
     }
   }
 
@@ -657,6 +719,7 @@ export async function deleteDaybookEntry(id: string): Promise<void> {
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
       await supabase.from('daily_daybook').delete().eq('id', id);
+      await supabase.from('presets').delete().eq('id', id);
     } catch (e) {
       console.warn('Supabase daybook delete error', e);
     }
@@ -665,14 +728,46 @@ export async function deleteDaybookEntry(id: string): Promise<void> {
 
 export async function getDaybookClosing(date: string): Promise<DaybookClosing | null> {
   let closings = await get<DaybookClosing[]>(DAYBOOK_CLOSINGS_KEY);
-  // Auto-purge any previous sample/mockup closings
   if (closings && closings.some(c => c.closing_date === '2026-01-10' && c.notes?.includes('Saturday closing tally'))) {
     closings = closings.filter(c => !(c.closing_date === '2026-01-10' && c.notes?.includes('Saturday closing tally')));
     await set(DAYBOOK_CLOSINGS_KEY, closings);
   }
   if (!closings) {
     closings = [];
-    await set(DAYBOOK_CLOSINGS_KEY, closings);
+  }
+
+  if (isSupabaseConfigured && supabase && navigator.onLine) {
+    try {
+      // 1. Try native table
+      const { data, error } = await supabase.from('daybook_closings').select('*').eq('closing_date', date).maybeSingle();
+      if (!error && data) {
+        return data as DaybookClosing;
+      }
+
+      // 2. Fallback to presets table
+      if (error && (error.code === 'PGRST205' || error.message?.includes('not find the table') || error.message?.includes('schema cache'))) {
+        const { data: pData } = await supabase
+          .from('presets')
+          .select('id, value')
+          .eq('category', 'daybook_closing')
+          .limit(100);
+
+        if (pData) {
+          for (const item of pData) {
+            try {
+              const parsed = JSON.parse(item.value);
+              if (parsed.closing_date === date) {
+                return parsed as DaybookClosing;
+              }
+            } catch {
+              // ignore
+            }
+          }
+        }
+      }
+    } catch {
+      // offline
+    }
   }
 
   const found = closings.find(c => c.closing_date === date);
@@ -685,6 +780,7 @@ export async function saveDaybookClosing(closing: DaybookClosing): Promise<Daybo
 
   const updated: DaybookClosing = {
     ...closing,
+    id: closing.id || crypto.randomUUID(),
     updated_at: new Date().toISOString()
   };
 
@@ -698,7 +794,29 @@ export async function saveDaybookClosing(closing: DaybookClosing): Promise<Daybo
 
   if (isSupabaseConfigured && supabase && navigator.onLine) {
     try {
-      await supabase.from('daybook_closings').upsert(updated);
+      // 1. Try native
+      const { error } = await supabase.from('daybook_closings').upsert(updated);
+      if (error && (error.code === 'PGRST205' || error.message?.includes('not find the table') || error.message?.includes('schema cache'))) {
+        // 2. Fallback to presets
+        const { data: existingPreset } = await supabase
+          .from('presets')
+          .select('id, value')
+          .eq('category', 'daybook_closing');
+
+        let presetId = updated.id;
+        if (existingPreset) {
+          const match = existingPreset.find(p => {
+            try { return JSON.parse(p.value).closing_date === updated.closing_date; } catch { return false; }
+          });
+          if (match) presetId = match.id;
+        }
+
+        await supabase.from('presets').upsert({
+          id: presetId,
+          category: 'daybook_closing',
+          value: JSON.stringify(updated)
+        });
+      }
     } catch {
       // offline
     }

@@ -115,6 +115,27 @@ export const App: React.FC = () => {
             refreshData();
           }
         )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'parties' },
+          () => {
+            refreshData();
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'presets' },
+          () => {
+            refreshData();
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'daily_daybook' },
+          () => {
+            refreshData();
+          }
+        )
         .subscribe();
 
       return () => {

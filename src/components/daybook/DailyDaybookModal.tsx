@@ -19,7 +19,9 @@ import {
   ChevronUp,
   ArrowLeft,
   ArrowRight,
+  RefreshCw,
 } from 'lucide-react';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 
 interface DailyDaybookModalProps {
   isOpen: boolean;
@@ -106,8 +108,30 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
   }, [selectedDate]);
 
   useEffect(() => {
-    if (isOpen) {
-      loadDaybookData();
+    if (!isOpen) return;
+
+    loadDaybookData();
+
+    if (isSupabaseConfigured && supabase) {
+      const channel = supabase
+        .channel(`daybook-realtime-${Date.now()}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'daily_daybook' },
+          () => loadDaybookData()
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'presets' },
+          () => loadDaybookData()
+        )
+        .subscribe();
+
+      return () => {
+        if (supabase) {
+          supabase.removeChannel(channel);
+        }
+      };
     }
   }, [isOpen, loadDaybookData]);
 
@@ -325,8 +349,8 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-1.5 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-5xl bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-2xl sm:rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden my-auto flex flex-col max-h-[96vh] sm:max-h-[92vh] transition-colors">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 pt-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+      <div className="relative w-full max-w-5xl bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-2xl sm:rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden my-1 sm:my-auto flex flex-col max-h-[94dvh] sm:max-h-[92vh] transition-colors">
         
         {/* Sleek Dark Header (Exact match to Job Ticket Header) */}
         <div className="bg-[#18181b] text-white px-3.5 py-2.5 sm:px-6 sm:py-3.5 border-b border-stone-800 shrink-0 sticky top-0 z-10">
@@ -401,6 +425,16 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                   className="px-2 py-1 text-xs text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 transition"
                 >
                   Today
+                </button>
+
+                {/* Refresh Button */}
+                <button
+                  type="button"
+                  onClick={() => loadDaybookData()}
+                  className="p-1.5 text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 transition flex items-center justify-center"
+                  title="Refresh Daybook from Cloud"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
                 </button>
 
                 {/* Print Slip */}
