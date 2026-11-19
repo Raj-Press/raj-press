@@ -349,11 +349,11 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 pt-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-5xl bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-2xl sm:rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden my-1 sm:my-auto flex flex-col max-h-[94dvh] sm:max-h-[92vh] transition-colors">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 pt-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto print:p-0 print:m-0 print:bg-white print:static print:overflow-visible daybook-modal-overlay">
+      <div className="relative w-full max-w-5xl bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-2xl sm:rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden my-1 sm:my-auto flex flex-col max-h-[94dvh] sm:max-h-[92vh] transition-colors print:border-none print:shadow-none print:w-full print:max-w-none print:max-h-none print:h-auto print:overflow-visible print:bg-white print:rounded-none daybook-modal-card">
         
-        {/* Sleek Dark Header (Exact match to Job Ticket Header) */}
-        <div className="bg-[#18181b] text-white px-3.5 py-2.5 sm:px-6 sm:py-3.5 border-b border-stone-800 shrink-0 sticky top-0 z-10">
+        {/* Sleek Dark Header (Exact match to Job Ticket Header - Screen only) */}
+        <div className="bg-[#18181b] text-white px-3.5 py-2.5 sm:px-6 sm:py-3.5 border-b border-stone-800 shrink-0 sticky top-0 z-10 print:hidden">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             
             {/* Top row on mobile: Title & Close Button */}
@@ -455,8 +455,8 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
           </div>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-3 sm:p-5 space-y-4 overflow-y-auto flex-1 overscroll-contain">
+        {/* Modal Body (Screen only) */}
+        <div className="p-3 sm:p-5 space-y-4 overflow-y-auto flex-1 overscroll-contain print:hidden">
 
           {/* 3 KPI Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -1006,9 +1006,231 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
 
         </div>
 
+        {/* ======================================================== */}
+        {/* DEDICATED PRINTABLE DAYBOOK SLIP (100% Paper Width, 0 Waste) */}
+        {/* ======================================================== */}
+        <div className="hidden print:block w-full text-black bg-white printable-area font-sans p-2">
+          {/* Header */}
+          <div className="border-b-2 border-black pb-2 mb-2.5 flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-black tracking-wide uppercase">
+                राज प्रेस (RAJ PRESS)
+              </h1>
+              <p className="text-xs font-bold text-black/80">
+                दैनिक रोजमेळ (Daily Daybook) • जमा-नावे हिशोब पत्रक
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-black font-mono">
+                दिनांक: {selectedDate}
+              </div>
+              <div className="text-[10px] text-black/70">
+                प्रिंट वेळ: {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+          </div>
+
+          {/* Compact 4-Block Financial Summary Bar */}
+          <div className="border-2 border-black rounded-lg overflow-hidden mb-2.5">
+            <table className="w-full text-xs text-center border-collapse">
+              <thead className="bg-stone-100 border-b border-black font-bold text-[11px]">
+                <tr>
+                  <th className="p-1.5 border-r border-black w-1/4">आरंभी कॅश (Opening)</th>
+                  <th className="p-1.5 border-r border-black w-1/4">कॅश गल्ला (Cash Drawer)</th>
+                  <th className="p-1.5 border-r border-black w-1/4">ऑनलाइन बँक (UPI / Bank)</th>
+                  <th className="p-1.5 w-1/4 bg-stone-200">एकूण शिल्लक (Net Total)</th>
+                </tr>
+              </thead>
+              <tbody className="font-mono">
+                <tr>
+                  <td className="p-1.5 border-r border-black font-bold text-sm">
+                    ₹{openingCash.toLocaleString('en-IN')}
+                  </td>
+                  <td className="p-1.5 border-r border-black">
+                    <div className="font-black text-sm">₹{drawerCash.toLocaleString('en-IN')}</div>
+                    <div className="text-[10px] text-black/75">
+                      जमा: ₹{cashIn.toLocaleString('en-IN')} | नावे: ₹{cashOut.toLocaleString('en-IN')}
+                    </div>
+                  </td>
+                  <td className="p-1.5 border-r border-black">
+                    <div className="font-black text-sm">₹{onlineBalance.toLocaleString('en-IN')}</div>
+                    <div className="text-[10px] text-black/75">
+                      जमा: ₹{onlineIn.toLocaleString('en-IN')} | नावे: ₹{onlineOut.toLocaleString('en-IN')}
+                    </div>
+                  </td>
+                  <td className="p-1.5 bg-stone-100">
+                    <div className="font-black text-base">₹{netTotal.toLocaleString('en-IN')}</div>
+                    <div className="text-[10px] text-black/75">
+                      एकूण जमा: ₹{totalIn.toLocaleString('en-IN')} | नावे: ₹{totalOut.toLocaleString('en-IN')}
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Two-Sided Ledger Tables (Side by Side: जमा on Left, नावे on Right) */}
+          <div className="grid grid-cols-2 gap-2 mb-2.5">
+            
+            {/* Left Table: जमा (Inward Receipts) */}
+            <div className="border-2 border-black rounded-lg overflow-hidden flex flex-col">
+              <div className="bg-stone-100 px-2 py-1 border-b border-black flex items-center justify-between">
+                <span className="font-black text-xs uppercase tracking-wide">
+                  जमा (Inward Receipts)
+                </span>
+                <span className="font-mono font-black text-xs">
+                  एकूण: ₹{totalIn.toLocaleString('en-IN')}
+                </span>
+              </div>
+              <table className="w-full text-xs text-left border-collapse flex-1">
+                <thead className="border-b border-black bg-stone-50 font-bold text-[10px]">
+                  <tr>
+                    <th className="p-1 border-r border-black w-14">पद्धत</th>
+                    <th className="p-1 border-r border-black">तपशील / नाव</th>
+                    <th className="p-1 text-right w-20">रक्कम (₹)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-black/30 font-medium">
+                  {entries.filter((e) => e.entry_type === 'jama').length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="p-3 text-center text-black/50 italic text-[11px]">
+                        कोणतीही जमा नोंद नाही
+                      </td>
+                    </tr>
+                  ) : (
+                    entries
+                      .filter((e) => e.entry_type === 'jama')
+                      .map((item, idx) => (
+                        <tr key={item.id || idx}>
+                          <td className="p-1 border-r border-black/30 font-mono text-[10px] font-bold">
+                            {item.payment_mode === 'online' ? 'Online' : 'Cash'}
+                          </td>
+                          <td className="p-1 border-r border-black/30">
+                            <div className="font-bold text-xs">{item.party_name}</div>
+                            {item.receipt_no && (
+                              <span className="text-[9px] font-mono font-bold text-black/80">
+                                #{item.receipt_no}{' '}
+                              </span>
+                            )}
+                            {item.category && item.category !== 'Direct' && item.category !== 'Order' && (
+                              <span className="text-[9px] text-black/60">({item.category})</span>
+                            )}
+                          </td>
+                          <td className="p-1 text-right font-mono font-bold text-xs">
+                            ₹{Number(item.amount).toLocaleString('en-IN')}
+                          </td>
+                        </tr>
+                      ))
+                  )}
+                </tbody>
+                <tfoot className="border-t-2 border-black bg-stone-100 font-mono text-[10px] font-bold">
+                  <tr>
+                    <td colSpan={2} className="p-1 border-r border-black">
+                      कॅश: ₹{cashIn.toLocaleString('en-IN')} | ऑनलाइन: ₹{onlineIn.toLocaleString('en-IN')}
+                    </td>
+                    <td className="p-1 text-right text-xs font-black">
+                      ₹{totalIn.toLocaleString('en-IN')}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* Right Table: नावे (Outward Expenses) */}
+            <div className="border-2 border-black rounded-lg overflow-hidden flex flex-col">
+              <div className="bg-stone-100 px-2 py-1 border-b border-black flex items-center justify-between">
+                <span className="font-black text-xs uppercase tracking-wide">
+                  नावे (Outward Expenses)
+                </span>
+                <span className="font-mono font-black text-xs">
+                  एकूण: ₹{totalOut.toLocaleString('en-IN')}
+                </span>
+              </div>
+              <table className="w-full text-xs text-left border-collapse flex-1">
+                <thead className="border-b border-black bg-stone-50 font-bold text-[10px]">
+                  <tr>
+                    <th className="p-1 border-r border-black w-14">पद्धत</th>
+                    <th className="p-1 border-r border-black">तपशील / खर्च</th>
+                    <th className="p-1 text-right w-20">रक्कम (₹)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-black/30 font-medium">
+                  {entries.filter((e) => e.entry_type === 'naave').length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="p-3 text-center text-black/50 italic text-[11px]">
+                        कोणतीही नावे नोंद नाही
+                      </td>
+                    </tr>
+                  ) : (
+                    entries
+                      .filter((e) => e.entry_type === 'naave')
+                      .map((item, idx) => (
+                        <tr key={item.id || idx}>
+                          <td className="p-1 border-r border-black/30 font-mono text-[10px] font-bold">
+                            {item.payment_mode === 'online' ? 'Online' : 'Cash'}
+                          </td>
+                          <td className="p-1 border-r border-black/30">
+                            <div className="font-bold text-xs">{item.party_name}</div>
+                            {item.category && (
+                              <span className="text-[9px] text-black/60">({item.category})</span>
+                            )}
+                          </td>
+                          <td className="p-1 text-right font-mono font-bold text-xs">
+                            ₹{Number(item.amount).toLocaleString('en-IN')}
+                          </td>
+                        </tr>
+                      ))
+                  )}
+                </tbody>
+                <tfoot className="border-t-2 border-black bg-stone-100 font-mono text-[10px] font-bold">
+                  <tr>
+                    <td colSpan={2} className="p-1 border-r border-black">
+                      कॅश: ₹{cashOut.toLocaleString('en-IN')} | ऑनलाइन: ₹{onlineOut.toLocaleString('en-IN')}
+                    </td>
+                    <td className="p-1 text-right text-xs font-black">
+                      ₹{totalOut.toLocaleString('en-IN')}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+          </div>
+
+          {/* Denominations (Note Counter) if counted */}
+          {countedDenomTotal > 0 && (
+            <div className="border border-black rounded-lg p-1.5 mb-2 text-[10px] font-mono flex items-center justify-between bg-stone-50">
+              <div>
+                <span className="font-bold">नोटा मोजणी: </span>
+                {[
+                  { k: 'n500', l: '500' },
+                  { k: 'n200', l: '200' },
+                  { k: 'n100', l: '100' },
+                  { k: 'n50', l: '50' },
+                  { k: 'n20', l: '20' },
+                  { k: 'n10', l: '10' },
+                  { k: 'coins', l: 'नाणी' }
+                ]
+                  .filter((d) => (denoms[d.k as keyof DaybookDenominations] || 0) > 0)
+                  .map((d) => `${d.l}×${denoms[d.k as keyof DaybookDenominations]}`)
+                  .join(', ')}
+              </div>
+              <div className="font-black text-xs">
+                मोजलेली कॅश: ₹{countedDenomTotal.toLocaleString('en-IN')} ({denomDiff === 0 ? 'टॅली बरोबर' : `फरक: ${denomDiff > 0 ? '+' : ''}₹${denomDiff}`})
+              </div>
+            </div>
+          )}
+
+          {/* Signatures */}
+          <div className="pt-3 flex items-center justify-between text-xs font-bold text-black border-t border-black/40 mt-2">
+            <div>कॅशियर / ऑपरेटर सही: ____________________</div>
+            <div>मालक सही: ____________________</div>
+          </div>
+        </div>
+
         {/* Edit Entry Sub-Modal */}
         {editingEntry && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-3 bg-black/60 backdrop-blur-2xs">
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-3 bg-black/60 backdrop-blur-2xs print:hidden">
             <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 w-full max-w-sm border border-stone-200 dark:border-stone-700 shadow-xl space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">

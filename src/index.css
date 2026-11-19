@@ -56,11 +56,11 @@
   background: #57534e;
 }
 
-/* Print styling for A5 / Thermal Job Slip */
+/* Print styling for A5 / Thermal Job Slip & Daybook */
 @media print {
   @page {
-    size: A5 portrait;
-    margin: 8mm 6mm;
+    size: auto;
+    margin: 6mm 6mm;
   }
 
   html, body {
@@ -85,7 +85,9 @@
 
   /* Reset modal containers so only the printable area prints */
   .job-ticket-overlay,
-  .job-ticket-card {
+  .job-ticket-card,
+  .daybook-modal-overlay,
+  .daybook-modal-card {
     position: static !important;
     display: block !important;
     width: 100% !important;
