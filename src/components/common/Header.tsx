@@ -48,17 +48,14 @@ export const Header: React.FC<HeaderProps> = React.memo(({
             RP
           </div>
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
               <h1 className="text-lg sm:text-2xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
                 RAJ PRESS
               </h1>
-              <span className="px-2 py-0.5 bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-full text-[11px] sm:text-xs font-semibold">
-                Order Ledger
+              <span className="px-2 py-0.5 bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-full text-xs font-semibold">
+                Ledger
               </span>
             </div>
-            <p className="hidden sm:block text-xs text-stone-500 dark:text-stone-400 font-medium">
-              Commercial Printing & Binding Production Workbench
-            </p>
           </div>
         </div>
 
@@ -89,30 +86,30 @@ export const Header: React.FC<HeaderProps> = React.memo(({
             type="button"
             onClick={onOpenDaybook}
             title="Open Daily Daybook & Cash Drawer Reconciliation"
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-semibold shadow-2xs transition-colors shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-bold shadow-2xs transition-colors shrink-0"
           >
             <BookOpen className="w-4 h-4 text-[#d9532f]" />
-            <span>Daybook (रोजमेळ)</span>
+            <span>Daybook</span>
           </button>
 
           {/* Customer Khata Directory */}
           <button
             type="button"
             onClick={onOpenKhata}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-semibold shadow-2xs transition-colors shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-bold shadow-2xs transition-colors shrink-0"
           >
             <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span>Customer Khata</span>
+            <span>Khata</span>
           </button>
 
           {/* Export Excel / CSV */}
           <button
             type="button"
             onClick={onExportCSV}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-semibold shadow-2xs transition-colors shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-bold shadow-2xs transition-colors shrink-0"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>Export CSV</span>
+            <span>Export</span>
           </button>
 
           {/* Refresh Icon Button */}
@@ -140,7 +137,7 @@ export const Header: React.FC<HeaderProps> = React.memo(({
             type="button"
             onClick={onLockApp}
             title="Lock Order Book Immediately"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-stone-700 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-400 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-semibold shadow-2xs transition-colors shrink-0"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-stone-700 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-400 border border-stone-200 dark:border-stone-700 rounded-xl text-xs sm:text-sm font-bold shadow-2xs transition-colors shrink-0"
           >
             <Lock className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Lock</span>
@@ -150,7 +147,7 @@ export const Header: React.FC<HeaderProps> = React.memo(({
           <button
             type="button"
             onClick={onOpenAuth}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-semibold shadow-2xs transition-colors shrink-0 ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs sm:text-sm font-bold shadow-2xs transition-colors shrink-0 ${
               currentUser
                 ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
                 : 'bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'
@@ -159,7 +156,7 @@ export const Header: React.FC<HeaderProps> = React.memo(({
           >
             {currentUser ? <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> : <Lock className="w-4 h-4" />}
             <span className="hidden sm:inline">
-              {currentUser ? 'Online Sync' : isSupabaseConfigured ? 'Cloud Sync' : 'Local'}
+              {currentUser ? 'Online' : isSupabaseConfigured ? 'Sync' : 'Local'}
             </span>
           </button>
         </div>

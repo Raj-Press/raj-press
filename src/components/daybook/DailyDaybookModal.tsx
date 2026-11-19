@@ -360,21 +360,13 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
             <div className="flex items-center justify-between w-full sm:w-auto gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#d9532f] animate-pulse shrink-0"></span>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                    <h2 className="text-sm sm:text-base font-bold tracking-tight truncate">
-                      Daily Daybook (दैनिक रोजमेळ)
-                    </h2>
-                    <span className="px-1.5 py-0.5 bg-stone-800 text-stone-300 rounded text-[10px] font-mono font-semibold border border-stone-700">
-                      {selectedDate}
-                    </span>
-                    <span className="hidden sm:inline-block px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded text-[10px] font-semibold">
-                      {isLoading ? 'Loading...' : 'Dual Reconciliation'}
-                    </span>
-                  </div>
-                  <p className="text-[10px] sm:text-[11px] text-stone-400 font-normal mt-0.5">
-                    Daily Counter &amp; Bank Reconciliation
-                  </p>
+                <div className="flex items-center gap-2 flex-wrap min-w-0">
+                  <h2 className="text-base sm:text-lg font-bold tracking-tight truncate">
+                    दैनिक रोजमेळ (Daybook)
+                  </h2>
+                  <span className="px-2 py-0.5 bg-stone-800 text-stone-200 rounded-lg text-xs sm:text-sm font-mono font-bold border border-stone-700">
+                    {selectedDate}
+                  </span>
                 </div>
               </div>
 
@@ -405,7 +397,7 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="bg-transparent text-stone-200 text-[11px] font-mono font-bold px-1 focus:outline-none"
+                  className="bg-transparent text-stone-200 text-xs sm:text-sm font-mono font-bold px-1.5 focus:outline-none"
                 />
                 <button
                   type="button"
@@ -422,7 +414,7 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                 <button
                   type="button"
                   onClick={setToday}
-                  className="px-2 py-1 text-xs text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 transition"
+                  className="px-2.5 py-1 text-xs sm:text-sm font-semibold text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 transition"
                 >
                   Today
                 </button>
@@ -441,7 +433,7 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="px-2.5 py-1 text-xs text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 flex items-center gap-1 transition"
+                  className="px-2.5 py-1 text-xs sm:text-sm font-semibold text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 flex items-center gap-1 transition"
                   title="Print Daily Slip"
                 >
                   <Printer className="w-3.5 h-3.5" />
@@ -473,83 +465,68 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Wallet className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">
-                    Cash in Drawer (गल्ला)
+                  <span className="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300">
+                    कॅश गल्ला (Cash)
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={handleEditOpeningCash}
-                  className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-mono transition"
-                  title="Click to adjust Opening Cash Float"
+                  className="px-2 py-0.5 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-mono transition"
+                  title="Adjust Opening Float"
                 >
-                  Opening: ₹{openingCash.toLocaleString('en-IN')} ✎
+                  आरंभी: ₹{openingCash.toLocaleString('en-IN')} ✎
                 </button>
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-stone-900 dark:text-stone-100 font-mono tracking-tight mt-1">
+              <div className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-stone-100 font-mono tracking-tight mt-1">
                 ₹{drawerCash.toLocaleString('en-IN')}
               </div>
-              <div className="text-[11px] font-mono text-stone-400 dark:text-stone-400 mt-0.5 flex items-center justify-between">
-                <span>In: <strong className="text-emerald-700 dark:text-emerald-400">₹{cashIn.toLocaleString('en-IN')}</strong></span>
-                <span>Out: <strong className="text-rose-600 dark:text-rose-400">₹{cashOut.toLocaleString('en-IN')}</strong></span>
+              <div className="text-xs sm:text-sm font-mono text-stone-500 dark:text-stone-400 mt-1 flex items-center justify-between">
+                <span>जमा: <strong className="text-emerald-700 dark:text-emerald-400 font-bold">₹{cashIn.toLocaleString('en-IN')}</strong></span>
+                <span>नावे: <strong className="text-rose-600 dark:text-rose-400 font-bold">₹{cashOut.toLocaleString('en-IN')}</strong></span>
               </div>
-              <div className="text-[10px] text-stone-400 dark:text-stone-400 mt-1 pt-1 border-t border-stone-100 dark:border-stone-700 flex items-center justify-between">
-                <span>Physical count target</span>
+              <div className="mt-1.5 pt-1.5 border-t border-stone-100 dark:border-stone-700 flex items-center justify-end">
                 <button
                   type="button"
                   onClick={() => setShowDenom((prev) => !prev)}
-                  className="text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white font-semibold underline text-[10px] flex items-center gap-0.5"
+                  className="text-stone-600 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white font-semibold text-xs flex items-center gap-1"
                 >
-                  <span>Verify Notes</span>
-                  {showDenom ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  <span>नोटा मोजणी (Notes)</span>
+                  {showDenom ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
               </div>
             </div>
 
             {/* 2. Online / Bank */}
             <div className="bg-sky-50/30 dark:bg-sky-950/20 p-3.5 rounded-2xl border border-sky-200 dark:border-sky-800/60 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Smartphone className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                  <span className="text-[11px] font-semibold text-sky-900 dark:text-sky-300 uppercase tracking-wide">
-                    Online UPI / Bank (बँक)
-                  </span>
-                </div>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 dark:bg-sky-900/60 text-sky-800 dark:text-sky-200 border border-sky-200 dark:border-sky-700 font-mono">
-                  PhonePe / Bank
+              <div className="flex items-center gap-1.5">
+                <Smartphone className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                <span className="text-xs sm:text-sm font-bold text-sky-900 dark:text-sky-200">
+                  ऑनलाइन बँक (UPI)
                 </span>
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-sky-950 dark:text-sky-100 font-mono tracking-tight mt-1">
+              <div className="text-2xl sm:text-3xl font-black text-sky-950 dark:text-sky-100 font-mono tracking-tight mt-1">
                 ₹{onlineBalance.toLocaleString('en-IN')}
               </div>
-              <div className="text-[11px] font-mono text-sky-800 dark:text-sky-300 mt-0.5 flex items-center justify-between">
-                <span>In: <strong className="text-emerald-700 dark:text-emerald-400">₹{onlineIn.toLocaleString('en-IN')}</strong></span>
-                <span>Out: <strong className="text-stone-500 dark:text-stone-400">₹{onlineOut.toLocaleString('en-IN')}</strong></span>
-              </div>
-              <div className="text-[10px] text-sky-700 dark:text-sky-400 mt-1 pt-1 border-t border-sky-100 dark:border-sky-800">
-                Auto-reconciles UPI receipts &amp; payments
+              <div className="text-xs sm:text-sm font-mono text-sky-800 dark:text-sky-300 mt-1 flex items-center justify-between">
+                <span>जमा: <strong className="text-emerald-700 dark:text-emerald-400 font-bold">₹{onlineIn.toLocaleString('en-IN')}</strong></span>
+                <span>नावे: <strong className="text-stone-500 dark:text-stone-400 font-bold">₹{onlineOut.toLocaleString('en-IN')}</strong></span>
               </div>
             </div>
 
             {/* 3. Net Day Total */}
             <div className="bg-[#18181b] dark:bg-stone-950 text-white p-3.5 rounded-2xl border border-stone-800 shadow-2xs">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wide">
-                  Net Day Total (एकूण शिल्लक)
-                </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-stone-800 text-emerald-400 border border-stone-700 font-mono">
-                  Tally 100%
+                <span className="text-xs sm:text-sm font-bold text-stone-300">
+                  एकूण शिल्लक (Net Total)
                 </span>
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-white font-mono tracking-tight mt-1">
+              <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight mt-1">
                 ₹{netTotal.toLocaleString('en-IN')}
               </div>
-              <div className="text-[11px] font-mono text-stone-400 mt-0.5 flex items-center justify-between">
-                <span>Total In: <strong className="text-stone-200">₹{totalIn.toLocaleString('en-IN')}</strong></span>
-                <span>Total Out: <strong className="text-stone-200">₹{totalOut.toLocaleString('en-IN')}</strong></span>
-              </div>
-              <div className="text-[10px] text-stone-400 mt-1 pt-1 border-t border-stone-800">
-                Drawer Cash (₹{drawerCash.toLocaleString('en-IN')}) + UPI (₹{onlineBalance.toLocaleString('en-IN')})
+              <div className="text-xs sm:text-sm font-mono text-stone-400 mt-1 flex items-center justify-between">
+                <span>एकूण जमा: <strong className="text-stone-100 font-bold">₹{totalIn.toLocaleString('en-IN')}</strong></span>
+                <span>एकूण नावे: <strong className="text-stone-100 font-bold">₹{totalOut.toLocaleString('en-IN')}</strong></span>
               </div>
             </div>
           </div>
@@ -560,26 +537,26 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                    Physical Drawer Currency Note Counter (गल्ल्यातील नोटा मोजणी)
+                  <span className="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300">
+                    नोटा मोजणी (Cash Denominations)
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md border ${
+                    className={`text-xs sm:text-sm font-mono font-bold px-2.5 py-0.5 rounded-lg border ${
                       denomDiff === 0
                         ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
                         : 'bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                     }`}
                   >
                     {denomDiff === 0
-                      ? `Tally Matched (₹${countedDenomTotal.toLocaleString('en-IN')})`
+                      ? `Tally (₹${countedDenomTotal.toLocaleString('en-IN')})`
                       : `Diff: ${denomDiff > 0 ? '+₹' : '-₹'}${Math.abs(denomDiff).toLocaleString('en-IN')}`}
                   </span>
                   <button
                     type="button"
                     onClick={() => setShowDenom(false)}
-                    className="text-xs text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold px-1.5"
+                    className="text-xs sm:text-sm text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold px-1.5"
                   >
                     ✕ Close
                   </button>
@@ -604,7 +581,7 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                       key={key}
                       className="bg-white dark:bg-stone-900 p-2 rounded-xl border border-stone-200 dark:border-stone-700 text-center"
                     >
-                      <span className="text-[11px] font-mono font-bold text-stone-500 dark:text-stone-400">
+                      <span className="text-xs sm:text-sm font-mono font-bold text-stone-600 dark:text-stone-400">
                         {label}
                       </span>
                       <input
@@ -615,9 +592,9 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                           handleDenomChange(key as keyof DaybookDenominations, Number(e.target.value) || 0)
                         }
                         placeholder="0"
-                        className="w-full text-center py-1 mt-1 font-mono font-bold text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-900 focus:outline-none focus:ring-1 focus:ring-[#d9532f]"
+                        className="w-full text-center py-1.5 mt-1 font-mono font-bold text-sm sm:text-base bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-900 focus:outline-none focus:ring-1 focus:ring-[#d9532f]"
                       />
-                      <span className="block text-[10px] font-mono text-stone-400 dark:text-stone-500 mt-0.5">
+                      <span className="block text-xs font-mono text-stone-500 dark:text-stone-400 mt-0.5">
                         ₹{sub.toLocaleString('en-IN')}
                       </span>
                     </div>
@@ -625,9 +602,9 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                 })}
               </div>
 
-              <div className="flex items-center justify-between text-xs font-mono text-stone-600 dark:text-stone-300 bg-white dark:bg-stone-900 p-2 rounded-xl border border-stone-200 dark:border-stone-700">
+              <div className="flex items-center justify-between text-xs sm:text-sm font-mono text-stone-600 dark:text-stone-300 bg-white dark:bg-stone-900 p-2.5 rounded-xl border border-stone-200 dark:border-stone-700">
                 <div>
-                  Physical Count: <strong className="text-stone-900 dark:text-stone-100 font-bold">₹{countedDenomTotal.toLocaleString('en-IN')}</strong> • Drawer Target: <strong className="text-stone-900 dark:text-stone-100 font-bold">₹{drawerCash.toLocaleString('en-IN')}</strong>
+                  मोजलेली कॅश: <strong className="text-stone-900 dark:text-stone-100 font-bold">₹{countedDenomTotal.toLocaleString('en-IN')}</strong> • गल्ला: <strong className="text-stone-900 dark:text-stone-100 font-bold">₹{drawerCash.toLocaleString('en-IN')}</strong>
                 </div>
                 <div
                   className={`font-bold ${
@@ -639,23 +616,20 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                   }`}
                 >
                   {denomDiff === 0
-                    ? 'Matched (Diff: ₹0)'
+                    ? 'जुळले (Matched)'
                     : denomDiff > 0
-                    ? `Excess in Drawer: +₹${denomDiff.toLocaleString('en-IN')}`
-                    : `Shortage in Drawer: -₹${Math.abs(denomDiff).toLocaleString('en-IN')}`}
+                    ? `जास्त: +₹${denomDiff.toLocaleString('en-IN')}`
+                    : `कमी: -₹${Math.abs(denomDiff).toLocaleString('en-IN')}`}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Fast Counter Entry Box (Styled like OrderWorkbenchForm) */}
+          {/* Fast Counter Entry Box */}
           <div className="bg-stone-50/80 dark:bg-stone-800/60 p-3.5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-2.5 print:hidden">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300">
-                New Daybook Entry (झटपट नोंद)
-              </span>
-              <span className="text-[10px] text-stone-400 dark:text-stone-500">
-                Customer payments from Order Workbench auto-post with <span className="font-mono text-stone-700 dark:text-stone-300 bg-stone-200/60 dark:bg-stone-700 px-1 py-0.5 rounded">[Order #]</span> tag
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-stone-700 dark:text-stone-200">
+                झटपट नोंद (New Entry)
               </span>
             </div>
 
@@ -665,8 +639,8 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
             >
               {/* Amount */}
               <div className="sm:col-span-3">
-                <label className="block text-[10px] font-semibold text-stone-500 dark:text-stone-400 mb-1">
-                  Amount (₹) *
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">
+                  रक्कम (₹) *
                 </label>
                 <input
                   type="number"
@@ -675,105 +649,105 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                   value={amountInput}
                   onChange={(e) => setAmountInput(e.target.value)}
                   placeholder="e.g. 500"
-                  className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl font-mono font-bold text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
+                  className="w-full px-3 py-2 text-sm sm:text-base bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl font-mono font-bold text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40"
                 />
               </div>
 
               {/* Particulars */}
               <div className="sm:col-span-5">
-                <label className="block text-[10px] font-semibold text-stone-500 dark:text-stone-400 mb-1">
-                  Particulars / Party / Reason *
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">
+                  तपशील / नाव *
                 </label>
                 <input
                   type="text"
                   required
                   value={descInput}
                   onChange={(e) => setDescInput(e.target.value)}
-                  placeholder="e.g. Tea, Courier, Scrap paper, Customer name..."
-                  className="w-full px-2.5 py-1.5 text-xs sm:text-sm bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl font-medium text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
+                  placeholder="e.g. चहा, पार्सल, पावती, पार्टी नाव..."
+                  className="w-full px-3 py-2 text-sm sm:text-base bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl font-medium text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#d9532f]/40 placeholder:text-stone-400"
                 />
               </div>
 
               {/* Payment Mode Selector & Actions */}
               <div className="sm:col-span-4">
-                <label className="block text-[10px] font-semibold text-stone-500 dark:text-stone-400 mb-1">
-                  Payment Mode &amp; Action
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">
+                  पेमेंट व बाजू
                 </label>
                 <div className="flex items-center gap-1.5">
                   {/* Mode Toggle Button */}
                   <button
                     type="button"
                     onClick={() => setIsOnlineMode((prev) => !prev)}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold border bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 transition shadow-2xs shrink-0"
-                    title="Toggle payment mode: Cash vs Online UPI"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 transition shadow-2xs shrink-0"
+                    title="Toggle payment mode"
                   >
                     <span
                       className={`w-2 h-2 rounded-full border border-black/10 ${
                         isOnlineMode ? 'bg-sky-500' : 'bg-amber-500'
                       }`}
                     ></span>
-                    <span className="font-bold text-stone-800 dark:text-stone-200">
-                      {isOnlineMode ? 'Online UPI' : 'Cash'}
+                    <span className="text-stone-800 dark:text-stone-200">
+                      {isOnlineMode ? 'Online' : 'Cash'}
                     </span>
                   </button>
 
                   {/* + Jama (Receipt) */}
                   <button
                     type="submit"
-                    className="flex-1 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-2xs transition active:scale-95"
+                    className="flex-1 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-bold shadow-2xs transition active:scale-95"
                   >
-                    + Jama (जमा)
+                    + जमा
                   </button>
 
                   {/* - Naave (Expense) */}
                   <button
                     type="button"
                     onClick={(e) => handleAddEntry(e as any, 'naave')}
-                    className="flex-1 py-1.5 bg-[#d9532f] hover:bg-[#c2410c] text-white rounded-xl text-xs font-bold shadow-2xs transition active:scale-95"
+                    className="flex-1 py-2 bg-[#d9532f] hover:bg-[#c2410c] text-white rounded-xl text-xs sm:text-sm font-bold shadow-2xs transition active:scale-95"
                   >
-                    - Naave (नावे)
+                    - नावे
                   </button>
                 </div>
               </div>
             </form>
 
             {/* Quick-Pick Frequent Expense & Receipt Pills */}
-            <div className="pt-1.5 border-t border-stone-200/80 dark:border-stone-700 flex items-center gap-1 flex-wrap">
-              <span className="text-[10px] font-bold text-stone-400 uppercase mr-1">Frequent:</span>
+            <div className="pt-2 border-t border-stone-200/80 dark:border-stone-700 flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs font-bold text-stone-400 uppercase mr-1">नेहमीचे:</span>
               <button
                 type="button"
-                onClick={() => handleQuickFill(40, 'चहा (Tea)', 'naave', false, 'Refreshment')}
-                className="px-2 py-0.5 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 border border-stone-300/80 dark:border-stone-600 rounded text-[10px] font-semibold transition-colors"
+                onClick={() => handleQuickFill(40, 'चहा', 'naave', false, 'Refreshment')}
+                className="px-2.5 py-1 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 border border-stone-300/80 dark:border-stone-600 rounded-lg text-xs font-semibold transition-colors"
               >
                 चहा ₹40
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill(30, 'मास्तर-1 (Master plate)', 'naave', false, 'Platemaking')}
-                className="px-2 py-0.5 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 border border-stone-300/80 dark:border-stone-600 rounded text-[10px] font-semibold transition-colors"
+                onClick={() => handleQuickFill(30, 'मास्तर', 'naave', false, 'Platemaking')}
+                className="px-2.5 py-1 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 border border-stone-300/80 dark:border-stone-600 rounded-lg text-xs font-semibold transition-colors"
               >
                 मास्तर ₹30
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill(100, 'लातूर पार्सल - 1 (Transport)', 'naave', false, 'Transport')}
-                className="px-2 py-0.5 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 border border-stone-300/80 dark:border-stone-600 rounded text-[10px] font-semibold transition-colors"
+                onClick={() => handleQuickFill(100, 'लातूर पार्सल', 'naave', false, 'Transport')}
+                className="px-2.5 py-1 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 border border-stone-300/80 dark:border-stone-600 rounded-lg text-xs font-semibold transition-colors"
               >
-                पार्सल ₹100
+                लातूर पार्सल ₹100
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill(60, 'उदबत्ती पुडा - 1 (Shop puja)', 'naave', false, 'Puja')}
-                className="px-2 py-0.5 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 border border-stone-300/80 dark:border-stone-600 rounded text-[10px] font-semibold transition-colors"
+                onClick={() => handleQuickFill(60, 'उदबत्ती', 'naave', false, 'Puja')}
+                className="px-2.5 py-1 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 border border-stone-300/80 dark:border-stone-600 rounded-lg text-xs font-semibold transition-colors"
               >
                 उदबत्ती ₹60
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill(90, 'पुठ्ठा व कात्रण विक्री (Scrap)', 'jama', false, 'Scrap')}
-                className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-800 rounded text-[10px] font-semibold transition-colors"
+                onClick={() => handleQuickFill(90, 'रद्दी/कात्रण', 'jama', false, 'Scrap')}
+                className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-800 rounded-lg text-xs font-semibold transition-colors"
               >
-                + रद्दी/कात्रण ₹90
+                + रद्दी ₹90
               </button>
             </div>
           </div>
@@ -781,11 +755,10 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
           {/* Filter & Search Bar */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 print:hidden">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] font-bold text-stone-500 uppercase mr-1">Filter:</span>
               <button
                 type="button"
                 onClick={() => setFilterMode('all')}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition ${
+                className={`px-3 py-1.5 text-xs sm:text-sm font-bold rounded-xl transition ${
                   filterMode === 'all'
                     ? 'bg-[#18181b] dark:bg-white text-white dark:text-stone-900'
                     : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200'
@@ -796,35 +769,35 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
               <button
                 type="button"
                 onClick={() => setFilterMode('cash')}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition ${
+                className={`px-3 py-1.5 text-xs sm:text-sm font-bold rounded-xl transition ${
                   filterMode === 'cash'
                     ? 'bg-amber-700 text-white'
                     : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200'
                 }`}
               >
-                Cash Only ({entries.filter((e) => e.payment_mode === 'cash').length})
+                Cash ({entries.filter((e) => e.payment_mode === 'cash').length})
               </button>
               <button
                 type="button"
                 onClick={() => setFilterMode('online')}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition ${
+                className={`px-3 py-1.5 text-xs sm:text-sm font-bold rounded-xl border transition ${
                   filterMode === 'online'
                     ? 'bg-sky-700 text-white border-sky-700'
                     : 'bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800 hover:bg-sky-100'
                 }`}
               >
-                Online UPI ({entries.filter((e) => e.payment_mode === 'online').length})
+                Online ({entries.filter((e) => e.payment_mode === 'online').length})
               </button>
             </div>
 
             <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-stone-400" />
+              <Search className="w-4 h-4 absolute left-2.5 top-2.5 text-stone-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search party or expense..."
-                className="w-full sm:w-56 pl-8 pr-2.5 py-1 text-xs bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-800 dark:text-stone-200 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#d9532f]"
+                placeholder="Search..."
+                className="w-full sm:w-60 pl-8 pr-3 py-1.5 text-xs sm:text-sm bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-800 dark:text-stone-200 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#d9532f]"
               />
             </div>
           </div>
@@ -837,30 +810,30 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
               <div className="bg-stone-100 dark:bg-stone-800 px-3.5 py-2.5 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-                  <span className="text-xs font-bold text-stone-800 dark:text-stone-200 uppercase tracking-wider">
+                  <span className="text-sm sm:text-base font-bold text-stone-800 dark:text-stone-200 uppercase tracking-wider">
                     जमा (Inward Receipts)
                   </span>
                 </div>
-                <span className="text-xs font-mono font-bold px-2 py-0.5 bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300 rounded-md border border-emerald-300 dark:border-emerald-800">
+                <span className="text-xs sm:text-sm font-mono font-bold px-2.5 py-0.5 bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300 rounded-lg border border-emerald-300 dark:border-emerald-800">
                   ₹{totalIn.toLocaleString('en-IN')}
                 </span>
               </div>
 
               {/* Table Rows */}
               <div className="overflow-x-auto max-h-80 overflow-y-auto">
-                <table className="w-full text-xs text-left border-collapse">
-                  <thead className="bg-stone-50 dark:bg-stone-800/60 text-stone-500 dark:text-stone-400 font-bold uppercase text-[10px] sticky top-0 border-b border-stone-200 dark:border-stone-700">
+                <table className="w-full text-xs sm:text-sm text-left border-collapse">
+                  <thead className="bg-stone-50 dark:bg-stone-800/60 text-stone-500 dark:text-stone-400 font-bold uppercase text-xs sticky top-0 border-b border-stone-200 dark:border-stone-700">
                     <tr>
-                      <th className="p-2 w-14">Mode</th>
-                      <th className="p-2">Particulars &amp; Tag</th>
-                      <th className="p-2 text-right w-24">Amount (₹)</th>
-                      <th className="p-2 w-10 print:hidden"></th>
+                      <th className="p-2.5 w-16">Mode</th>
+                      <th className="p-2.5">तपशील / नाव (Particulars)</th>
+                      <th className="p-2.5 text-right w-28">रक्कम (₹)</th>
+                      <th className="p-2.5 w-12 print:hidden"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100 dark:divide-stone-800 font-medium">
                     {jamaEntries.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="p-4 text-center text-stone-400">
+                        <td colSpan={4} className="p-6 text-center text-stone-400 text-xs sm:text-sm">
                           No matching receipts
                         </td>
                       </tr>
@@ -870,52 +843,52 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                           key={item.id}
                           className="hover:bg-stone-50 dark:hover:bg-stone-800/50 transition group"
                         >
-                          <td className="p-2 align-top">
+                          <td className="p-2.5 align-top">
                             {item.payment_mode === 'online' ? (
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-50 dark:bg-sky-950 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 font-mono">
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-sky-50 dark:bg-sky-950 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 font-mono">
                                 Online
                               </span>
                             ) : (
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 dark:bg-amber-950 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-mono">
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 dark:bg-amber-950 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-mono">
                                 Cash
                               </span>
                             )}
                           </td>
-                          <td className="p-2 align-top">
-                            <div className="font-medium text-stone-900 dark:text-stone-100 flex items-center gap-1.5 flex-wrap">
+                          <td className="p-2.5 align-top">
+                            <div className="font-semibold text-sm sm:text-base text-stone-900 dark:text-stone-100 flex items-center gap-1.5 flex-wrap">
                               <span>{item.party_name}</span>
                               {item.receipt_no && (
-                                <span className="px-1 py-0.2 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 rounded text-[9px] font-mono font-bold border border-stone-200 dark:border-stone-700">
+                                <span className="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 rounded text-xs font-mono font-bold border border-stone-200 dark:border-stone-700">
                                   #{item.receipt_no}
                                 </span>
                               )}
                               {item.category && item.category !== 'Direct' && (
-                                <span className="text-[9px] text-stone-400 dark:text-stone-500 font-medium">
+                                <span className="text-xs text-stone-400 dark:text-stone-500 font-medium">
                                   ({item.category})
                                 </span>
                               )}
                             </div>
                           </td>
-                          <td className="p-2 text-right font-mono font-bold text-stone-900 dark:text-stone-100 align-top">
+                          <td className="p-2.5 text-right font-mono font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 align-top">
                             ₹{item.amount.toLocaleString('en-IN')}
                           </td>
-                          <td className="p-2 text-center align-top print:hidden">
+                          <td className="p-2.5 text-center align-top print:hidden">
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
                               <button
                                 type="button"
                                 onClick={() => openEditEntry(item)}
-                                className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold p-0.5"
+                                className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold p-1"
                                 title="Edit entry"
                               >
-                                <Edit2 className="w-3 h-3" />
+                                <Edit2 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteEntry(item.id)}
-                                className="text-stone-400 hover:text-rose-600 font-bold p-0.5"
+                                className="text-stone-400 hover:text-rose-600 font-bold p-1"
                                 title="Delete entry"
                               >
-                                <Trash2 className="w-3 h-3" />
+                                <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </td>
@@ -927,9 +900,9 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
               </div>
 
               {/* Subtotal Footer */}
-              <div className="p-2.5 bg-stone-50 dark:bg-stone-800 border-t border-stone-200 dark:border-stone-700 flex items-center justify-between text-[11px] font-mono text-stone-600 dark:text-stone-300">
-                <span>Cash In: <strong className="text-stone-900 dark:text-stone-100">₹{cashIn.toLocaleString('en-IN')}</strong></span>
-                <span>Online UPI In: <strong className="text-sky-800 dark:text-sky-300 font-bold">₹{onlineIn.toLocaleString('en-IN')}</strong></span>
+              <div className="p-2.5 bg-stone-50 dark:bg-stone-800 border-t border-stone-200 dark:border-stone-700 flex items-center justify-between text-xs sm:text-sm font-mono text-stone-700 dark:text-stone-300 font-semibold">
+                <span>कॅश जमा: <strong className="text-stone-900 dark:text-stone-100 font-bold">₹{cashIn.toLocaleString('en-IN')}</strong></span>
+                <span>ऑनलाइन जमा: <strong className="text-sky-800 dark:text-sky-300 font-bold">₹{onlineIn.toLocaleString('en-IN')}</strong></span>
               </div>
             </div>
 
@@ -938,30 +911,30 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
               <div className="bg-stone-100 dark:bg-stone-800 px-3.5 py-2.5 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-rose-600"></span>
-                  <span className="text-xs font-bold text-stone-800 dark:text-stone-200 uppercase tracking-wider">
+                  <span className="text-sm sm:text-base font-bold text-stone-800 dark:text-stone-200 uppercase tracking-wider">
                     नावे (Outward Expenses)
                   </span>
                 </div>
-                <span className="text-xs font-mono font-bold px-2 py-0.5 bg-rose-100 dark:bg-rose-950 text-rose-900 dark:text-rose-300 rounded-md border border-rose-300 dark:border-rose-800">
+                <span className="text-xs sm:text-sm font-mono font-bold px-2.5 py-0.5 bg-rose-100 dark:bg-rose-950 text-rose-900 dark:text-rose-300 rounded-lg border border-rose-300 dark:border-rose-800">
                   ₹{totalOut.toLocaleString('en-IN')}
                 </span>
               </div>
 
               {/* Table Rows */}
               <div className="overflow-x-auto max-h-80 overflow-y-auto">
-                <table className="w-full text-xs text-left border-collapse">
-                  <thead className="bg-stone-50 dark:bg-stone-800/60 text-stone-500 dark:text-stone-400 font-bold uppercase text-[10px] sticky top-0 border-b border-stone-200 dark:border-stone-700">
+                <table className="w-full text-xs sm:text-sm text-left border-collapse">
+                  <thead className="bg-stone-50 dark:bg-stone-800/60 text-stone-500 dark:text-stone-400 font-bold uppercase text-xs sticky top-0 border-b border-stone-200 dark:border-stone-700">
                     <tr>
-                      <th className="p-2 w-14">Mode</th>
-                      <th className="p-2">Particulars &amp; Reason</th>
-                      <th className="p-2 text-right w-24">Amount (₹)</th>
-                      <th className="p-2 w-10 print:hidden"></th>
+                      <th className="p-2.5 w-16">Mode</th>
+                      <th className="p-2.5">तपशील / खर्च (Particulars)</th>
+                      <th className="p-2.5 text-right w-28">रक्कम (₹)</th>
+                      <th className="p-2.5 w-12 print:hidden"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100 dark:divide-stone-800 font-medium">
                     {naaveEntries.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="p-4 text-center text-stone-400">
+                        <td colSpan={4} className="p-6 text-center text-stone-400 text-xs sm:text-sm">
                           No matching expenses
                         </td>
                       </tr>
@@ -971,47 +944,47 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                           key={item.id}
                           className="hover:bg-stone-50 dark:hover:bg-stone-800/50 transition group"
                         >
-                          <td className="p-2 align-top">
+                          <td className="p-2.5 align-top">
                             {item.payment_mode === 'online' ? (
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-50 dark:bg-sky-950 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 font-mono">
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-sky-50 dark:bg-sky-950 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 font-mono">
                                 Online
                               </span>
                             ) : (
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 font-mono">
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 font-mono">
                                 Cash
                               </span>
                             )}
                           </td>
-                          <td className="p-2 align-top">
-                            <div className="font-medium text-stone-900 dark:text-stone-100 flex items-center gap-1.5 flex-wrap">
+                          <td className="p-2.5 align-top">
+                            <div className="font-semibold text-sm sm:text-base text-stone-900 dark:text-stone-100 flex items-center gap-1.5 flex-wrap">
                               <span>{item.party_name}</span>
                               {item.category && (
-                                <span className="text-[9px] text-stone-400 dark:text-stone-500 font-medium">
+                                <span className="text-xs text-stone-400 dark:text-stone-500 font-medium">
                                   ({item.category})
                                 </span>
                               )}
                             </div>
                           </td>
-                          <td className="p-2 text-right font-mono font-bold text-stone-900 dark:text-stone-100 align-top">
+                          <td className="p-2.5 text-right font-mono font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 align-top">
                             ₹{item.amount.toLocaleString('en-IN')}
                           </td>
-                          <td className="p-2 text-center align-top print:hidden">
+                          <td className="p-2.5 text-center align-top print:hidden">
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
                               <button
                                 type="button"
                                 onClick={() => openEditEntry(item)}
-                                className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold p-0.5"
+                                className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold p-1"
                                 title="Edit entry"
                               >
-                                <Edit2 className="w-3 h-3" />
+                                <Edit2 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteEntry(item.id)}
-                                className="text-stone-400 hover:text-rose-600 font-bold p-0.5"
+                                className="text-stone-400 hover:text-rose-600 font-bold p-1"
                                 title="Delete entry"
                               >
-                                <Trash2 className="w-3 h-3" />
+                                <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </td>
@@ -1023,33 +996,12 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
               </div>
 
               {/* Subtotal Footer */}
-              <div className="p-2.5 bg-stone-50 dark:bg-stone-800 border-t border-stone-200 dark:border-stone-700 flex items-center justify-between text-[11px] font-mono text-stone-600 dark:text-stone-300">
-                <span>Cash Out: <strong className="text-stone-900 dark:text-stone-100">₹{cashOut.toLocaleString('en-IN')}</strong></span>
-                <span>Online UPI Out: <strong className="text-stone-400">₹{onlineOut.toLocaleString('en-IN')}</strong></span>
+              <div className="p-2.5 bg-stone-50 dark:bg-stone-800 border-t border-stone-200 dark:border-stone-700 flex items-center justify-between text-xs sm:text-sm font-mono text-stone-700 dark:text-stone-300 font-semibold">
+                <span>कॅश नावे: <strong className="text-stone-900 dark:text-stone-100 font-bold">₹{cashOut.toLocaleString('en-IN')}</strong></span>
+                <span>ऑनलाइन नावे: <strong className="text-stone-500 dark:text-stone-400 font-bold">₹{onlineOut.toLocaleString('en-IN')}</strong></span>
               </div>
             </div>
 
-          </div>
-
-          {/* Explanatory Tally Banner */}
-          <div className="p-3 bg-stone-50 dark:bg-stone-800/80 rounded-2xl border border-stone-200 dark:border-stone-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-stone-600 dark:text-stone-300">
-            <div>
-              <strong className="text-stone-900 dark:text-stone-100">Physical Cash Check:</strong> Physical cash in counter drawer must be{' '}
-              <span className="font-mono font-bold text-stone-900 dark:text-stone-100 bg-amber-100/70 dark:bg-amber-950 px-1 py-0.5 rounded">
-                ₹{drawerCash.toLocaleString('en-IN')}
-              </span>
-              . Online money{' '}
-              <span className="font-mono font-bold text-sky-900 dark:text-sky-300 bg-sky-100/70 dark:bg-sky-950 px-1 py-0.5 rounded">
-                ₹{onlineBalance.toLocaleString('en-IN')}
-              </span>{' '}
-              is verified directly in bank/UPI statement.
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-              <span className="font-mono text-emerald-800 dark:text-emerald-400 font-bold">
-                Zero Cash-UPI Mismatch
-              </span>
-            </div>
           </div>
 
         </div>
@@ -1072,41 +1024,41 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[10px] font-semibold text-stone-500 mb-1">
-                  Amount (₹)
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">
+                  रक्कम (Amount ₹)
                 </label>
                 <input
                   type="number"
                   value={editAmount}
                   onChange={(e) => setEditAmount(e.target.value)}
-                  className="w-full px-2 py-1 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg font-mono font-bold"
+                  className="w-full px-3 py-1.5 text-sm sm:text-base bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl font-mono font-bold text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#d9532f]"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-semibold text-stone-500 mb-1">
-                  Particulars / Party
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">
+                  तपशील / नाव (Particulars)
                 </label>
                 <input
                   type="text"
                   value={editDesc}
                   onChange={(e) => setEditDesc(e.target.value)}
-                  className="w-full px-2 py-1 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg"
+                  className="w-full px-3 py-1.5 text-sm sm:text-base bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl font-medium text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#d9532f]"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-semibold text-stone-500 mb-1">
-                  Payment Mode
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">
+                  पेमेंट पद्धत (Mode)
                 </label>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setEditMode('cash')}
-                    className={`flex-1 py-1 text-xs rounded-lg font-semibold border ${
+                    className={`flex-1 py-1.5 text-xs sm:text-sm rounded-xl font-bold border transition ${
                       editMode === 'cash'
                         ? 'bg-amber-600 text-white border-amber-600'
-                        : 'bg-stone-100 dark:bg-stone-800 border-stone-200 text-stone-700 dark:text-stone-300'
+                        : 'bg-stone-100 dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300'
                     }`}
                   >
                     Cash
@@ -1114,10 +1066,10 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setEditMode('online')}
-                    className={`flex-1 py-1 text-xs rounded-lg font-semibold border ${
+                    className={`flex-1 py-1.5 text-xs sm:text-sm rounded-xl font-bold border transition ${
                       editMode === 'online'
                         ? 'bg-sky-600 text-white border-sky-600'
-                        : 'bg-stone-100 dark:bg-stone-800 border-stone-200 text-stone-700 dark:text-stone-300'
+                        : 'bg-stone-100 dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300'
                     }`}
                   >
                     Online UPI
@@ -1129,16 +1081,16 @@ export const DailyDaybookModal: React.FC<DailyDaybookModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setEditingEntry(null)}
-                  className="px-3 py-1 text-xs text-stone-600 hover:bg-stone-100 rounded-lg"
+                  className="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl"
                 >
-                  Cancel
+                  रद्द (Cancel)
                 </button>
                 <button
                   type="button"
                   onClick={handleSaveEdit}
-                  className="px-3 py-1 text-xs bg-[#d9532f] text-white rounded-lg font-bold"
+                  className="px-3.5 py-1.5 text-xs sm:text-sm bg-[#d9532f] hover:bg-[#c2410c] text-white rounded-xl font-bold shadow-2xs transition"
                 >
-                  Save Changes
+                  बदल जतन करा (Save)
                 </button>
               </div>
             </div>
